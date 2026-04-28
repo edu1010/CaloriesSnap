@@ -1,0 +1,51 @@
+[
+  {
+    "name": "Rice cooked",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 280
+  },
+  {
+    "name": "Chicken breast",
+    "kcalPer100g": 165,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220
+  },
+  {
+    "name": "Pasta cooked",
+    "kcalPer100g": 157,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300
+  },
+  {
+    "name": "Olive oil",
+    "kcalPer100g": 884,
+    "defaultGramsSmall": 5,
+    "defaultGramsMedium": 10,
+    "defaultGramsLarge": 20
+  },
+  {
+    "name": "Bread",
+    "kcalPer100g": 265,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 120
+  },
+  {
+    "name": "Egg",
+    "kcalPer100g": 155,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 150
+  },
+  {
+    "name": "Salad",
+    "kcalPer100g": 25,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 200
+  }
+]

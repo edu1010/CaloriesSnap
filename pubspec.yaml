@@ -1,0 +1,34 @@
+name: calorie_snap
+description: CalorieSnap - offline approximate calorie logging from meal photos.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  file_picker: ^11.0.2
+  image: ^4.5.4
+  image_picker: ^1.2.1
+  intl: ^0.20.2
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  sqflite: ^2.4.2+1
+  sqflite_common_ffi: ^2.4.0+3
+  table_calendar: ^3.2.0
+  tflite_flutter: ^0.12.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/models/food_classifier.tflite
+    - assets/models/food_classifier_labels.csv
+    - lib/data/local/nutrition_database.json
