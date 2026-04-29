@@ -15,12 +15,135 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     required NutritionRepository nutritionRepository,
     String modelAssetPath = 'assets/models/food_classifier.tflite',
     String labelsAssetPath = 'assets/models/food_classifier_labels.csv',
-  })  : _nutritionRepository = nutritionRepository,
-        _modelAssetPath = modelAssetPath,
-        _labelsAssetPath = labelsAssetPath;
+  }) : _nutritionRepository = nutritionRepository,
+       _modelAssetPath = modelAssetPath,
+       _labelsAssetPath = labelsAssetPath;
 
   static const int _maxDetectedFoods = 3;
   static const double _minConfidence = 0.03;
+  static const int _maxMappedPredictions = 80;
+  static const double _minLexicalScore = 1.0;
+
+  static final Map<String, _FoodLexicon> _foodLexicons = <String, _FoodLexicon>{
+    'Rice cooked': const _FoodLexicon(
+      keywords: <String>{
+        'rice',
+        'risotto',
+        'pilaf',
+        'biryani',
+        'paella',
+        'congee',
+        'porridge',
+        'chahan',
+        'nasi',
+        'jollof',
+        'arroz',
+      },
+      phrases: <String>{
+        'fried rice',
+        'sticky rice',
+        'rice bowl',
+        'rice cake',
+        'rice porridge',
+      },
+    ),
+    'Chicken breast': const _FoodLexicon(
+      keywords: <String>{
+        'chicken',
+        'poultry',
+        'drumstick',
+        'wing',
+        'nugget',
+        'karaage',
+        'teriyaki',
+        'katsu',
+        'tikka',
+      },
+      phrases: <String>{
+        'fried chicken',
+        'grilled chicken',
+        'chicken breast',
+        'chicken salad',
+        'chicken sandwich',
+      },
+    ),
+    'Pasta cooked': const _FoodLexicon(
+      keywords: <String>{
+        'pasta',
+        'spaghetti',
+        'macaroni',
+        'noodle',
+        'ramen',
+        'udon',
+        'penne',
+        'linguine',
+        'fettuccine',
+        'lasagna',
+        'ravioli',
+        'gnocchi',
+      },
+      phrases: <String>{'mac and cheese', 'noodle soup', 'pasta salad'},
+    ),
+    'Bread': const _FoodLexicon(
+      keywords: <String>{
+        'bread',
+        'toast',
+        'bagel',
+        'bun',
+        'roll',
+        'naan',
+        'pita',
+        'sandwich',
+        'burger',
+        'baguette',
+        'focaccia',
+        'pizza',
+        'quesadilla',
+        'flatbread',
+      },
+      phrases: <String>{
+        'garlic bread',
+        'grilled cheese',
+        'french toast',
+        'hot dog bun',
+      },
+    ),
+    'Egg': const _FoodLexicon(
+      keywords: <String>{
+        'egg',
+        'omelet',
+        'omelette',
+        'frittata',
+        'quiche',
+        'benedict',
+        'scramble',
+        'tamago',
+      },
+      phrases: <String>{'fried egg', 'boiled egg', 'poached egg'},
+    ),
+    'Salad': const _FoodLexicon(
+      keywords: <String>{
+        'salad',
+        'slaw',
+        'coleslaw',
+        'tabbouleh',
+        'tabouli',
+        'gazpacho',
+        'ceviche',
+        'aguachile',
+      },
+      phrases: <String>{
+        'green salad',
+        'fruit salad',
+        'potato salad',
+        'caesar salad',
+      },
+    ),
+    'Olive oil': const _FoodLexicon(
+      keywords: <String>{'olive', 'vinaigrette', 'dressing', 'aioli'},
+      phrases: <String>{'olive oil', 'olive tapenade'},
+    ),
+  };
 
   final NutritionRepository _nutritionRepository;
   final String _modelAssetPath;
@@ -48,11 +171,14 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
 
     final inputTensor = interpreter.getInputTensor(0);
     final outputTensor = interpreter.getOutputTensor(0);
+    final inputQuantization = inputTensor.params;
+    final outputQuantization = outputTensor.params;
 
     final input = _buildInputTensorData(
       image: decodedImage,
       inputShape: inputTensor.shape,
       inputType: inputTensor.type,
+      inputQuantization: inputQuantization,
     );
     final output = _buildOutputTensorData(
       outputShape: outputTensor.shape,
@@ -69,6 +195,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     final normalizedScores = _prepareRawScores(
       rawScores: rawScores,
       outputType: outputTensor.type,
+      outputQuantization: outputQuantization,
     );
     final probabilities = _normalizeScores(normalizedScores);
     final mappedScores = _mapPredictionsToSupportedFoods(
@@ -80,8 +207,9 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       return const <DetectedFood>[];
     }
 
-    final ranked = mappedScores.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final ranked =
+        mappedScores.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
 
     final detectedFoods = <DetectedFood>[];
     for (final entry in ranked) {
@@ -89,8 +217,9 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
         continue;
       }
 
-      final NutritionFood? nutrition =
-          _nutritionRepository.findByName(entry.key);
+      final NutritionFood? nutrition = _nutritionRepository.findByName(
+        entry.key,
+      );
       detectedFoods.add(
         DetectedFood(
           name: entry.key,
@@ -123,9 +252,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     final labelsCsv = await rootBundle.loadString(_labelsAssetPath);
     final labels = _parseLabels(labelsCsv);
     if (labels.isEmpty) {
-      throw StateError(
-        'No labels loaded from $_labelsAssetPath.',
-      );
+      throw StateError('No labels loaded from $_labelsAssetPath.');
     }
 
     _interpreter = interpreter;
@@ -170,6 +297,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     required img.Image image,
     required List<int> inputShape,
     required TensorType inputType,
+    required QuantizationParams inputQuantization,
   }) {
     if (inputShape.length != 4 || inputShape.first != 1) {
       throw StateError(
@@ -187,9 +315,13 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     );
 
     if (isChannelFirst) {
-      return _buildChannelFirstInput(preparedImage, inputType);
+      return _buildChannelFirstInput(
+        preparedImage,
+        inputType,
+        inputQuantization,
+      );
     }
-    return _buildChannelLastInput(preparedImage, inputType);
+    return _buildChannelLastInput(preparedImage, inputType, inputQuantization);
   }
 
   img.Image _centerCropAndResize(
@@ -216,22 +348,19 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     );
   }
 
-  Object _buildChannelLastInput(img.Image image, TensorType inputType) {
+  Object _buildChannelLastInput(
+    img.Image image,
+    TensorType inputType,
+    QuantizationParams inputQuantization,
+  ) {
     if (inputType == TensorType.float32) {
       return <List<List<List<double>>>>[
         List<List<List<double>>>.generate(
           image.height,
-          (y) => List<List<double>>.generate(
-            image.width,
-            (x) {
-              final pixel = image.getPixel(x, y);
-              return <double>[
-                pixel.r / 255.0,
-                pixel.g / 255.0,
-                pixel.b / 255.0,
-              ];
-            },
-          ),
+          (y) => List<List<double>>.generate(image.width, (x) {
+            final pixel = image.getPixel(x, y);
+            return <double>[pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0];
+          }),
         ),
       ];
     }
@@ -240,17 +369,26 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       return <List<List<List<int>>>>[
         List<List<List<int>>>.generate(
           image.height,
-          (y) => List<List<int>>.generate(
-            image.width,
-            (x) {
-              final pixel = image.getPixel(x, y);
-              return <int>[
-                _toQuantizedChannel(pixel.r.toInt(), inputType),
-                _toQuantizedChannel(pixel.g.toInt(), inputType),
-                _toQuantizedChannel(pixel.b.toInt(), inputType),
-              ];
-            },
-          ),
+          (y) => List<List<int>>.generate(image.width, (x) {
+            final pixel = image.getPixel(x, y);
+            return <int>[
+              _toQuantizedChannel(
+                value: pixel.r.toInt(),
+                inputType: inputType,
+                quantization: inputQuantization,
+              ),
+              _toQuantizedChannel(
+                value: pixel.g.toInt(),
+                inputType: inputType,
+                quantization: inputQuantization,
+              ),
+              _toQuantizedChannel(
+                value: pixel.b.toInt(),
+                inputType: inputType,
+                quantization: inputQuantization,
+              ),
+            ];
+          }),
         ),
       ];
     }
@@ -258,23 +396,21 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     throw StateError('Unsupported input tensor type: $inputType');
   }
 
-  Object _buildChannelFirstInput(img.Image image, TensorType inputType) {
+  Object _buildChannelFirstInput(
+    img.Image image,
+    TensorType inputType,
+    QuantizationParams inputQuantization,
+  ) {
     if (inputType == TensorType.float32) {
       return <List<List<List<double>>>>[
         List<List<List<double>>>.generate(
           3,
           (c) => List<List<double>>.generate(
             image.height,
-            (y) => List<double>.generate(
-              image.width,
-              (x) {
-                final pixel = image.getPixel(x, y);
-                return _normalizedPixelChannel(
-                  pixel: pixel,
-                  channelIndex: c,
-                );
-              },
-            ),
+            (y) => List<double>.generate(image.width, (x) {
+              final pixel = image.getPixel(x, y);
+              return _normalizedPixelChannel(pixel: pixel, channelIndex: c);
+            }),
           ),
         ),
       ];
@@ -286,17 +422,15 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
           3,
           (c) => List<List<int>>.generate(
             image.height,
-            (y) => List<int>.generate(
-              image.width,
-              (x) {
-                final pixel = image.getPixel(x, y);
-                final value = _pixelChannel(
-                  pixel: pixel,
-                  channelIndex: c,
-                );
-                return _toQuantizedChannel(value, inputType);
-              },
-            ),
+            (y) => List<int>.generate(image.width, (x) {
+              final pixel = image.getPixel(x, y);
+              final value = _pixelChannel(pixel: pixel, channelIndex: c);
+              return _toQuantizedChannel(
+                value: value,
+                inputType: inputType,
+                quantization: inputQuantization,
+              );
+            }),
           ),
         ),
       ];
@@ -309,17 +443,11 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     required img.Pixel pixel,
     required int channelIndex,
   }) {
-    final value = _pixelChannel(
-      pixel: pixel,
-      channelIndex: channelIndex,
-    );
+    final value = _pixelChannel(pixel: pixel, channelIndex: channelIndex);
     return value / 255.0;
   }
 
-  int _pixelChannel({
-    required img.Pixel pixel,
-    required int channelIndex,
-  }) {
+  int _pixelChannel({required img.Pixel pixel, required int channelIndex}) {
     switch (channelIndex) {
       case 0:
         return pixel.r.toInt();
@@ -332,13 +460,48 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     }
   }
 
-  int _toQuantizedChannel(int value, TensorType inputType) {
+  int _toQuantizedChannel({
+    required int value,
+    required TensorType inputType,
+    required QuantizationParams quantization,
+  }) {
+    final scale = quantization.scale;
+    final zeroPoint = quantization.zeroPoint;
+    if (scale.isFinite && scale > 0.0) {
+      final normalizedValue = _normalizeImageValueForQuantizedInput(
+        pixelValue: value,
+        scale: scale,
+        inputType: inputType,
+      );
+      final quantized = (normalizedValue / scale + zeroPoint).round();
+      if (inputType == TensorType.uint8) {
+        return quantized.clamp(0, 255).toInt();
+      }
+      return quantized.clamp(-128, 127).toInt();
+    }
+
     if (inputType == TensorType.uint8) {
       return value.clamp(0, 255).toInt();
     }
 
     final centered = value - 128;
     return centered.clamp(-128, 127).toInt();
+  }
+
+  double _normalizeImageValueForQuantizedInput({
+    required int pixelValue,
+    required double scale,
+    required TensorType inputType,
+  }) {
+    // Most image models quantize either [0, 1] or [-1, 1] input ranges.
+    // With larger scales the model usually expects [0, 255] intensity values.
+    if (scale <= 1.0 / 128.0) {
+      if (inputType == TensorType.int8) {
+        return pixelValue / 127.5 - 1.0;
+      }
+      return pixelValue / 255.0;
+    }
+    return pixelValue.toDouble();
   }
 
   Object _buildOutputTensorData({
@@ -403,7 +566,8 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     }
 
     final total = finiteScores.fold<double>(0.0, (sum, value) => sum + value);
-    final looksLikeProbabilities = rawScores.every((v) => v >= 0.0 && v <= 1.0) &&
+    final looksLikeProbabilities =
+        rawScores.every((v) => v >= 0.0 && v <= 1.0) &&
         total > 0.8 &&
         total < 1.2;
     if (looksLikeProbabilities) {
@@ -432,20 +596,29 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
   List<double> _prepareRawScores({
     required List<double> rawScores,
     required TensorType outputType,
+    required QuantizationParams outputQuantization,
   }) {
     if (outputType == TensorType.uint8) {
-      return rawScores
-          .map((value) => (value / 255.0).clamp(0.0, 1.0).toDouble())
-          .toList();
+      return _dequantizeScores(rawScores, outputQuantization);
     }
 
     if (outputType == TensorType.int8) {
-      return rawScores
-          .map((value) => ((value + 128.0) / 255.0).clamp(0.0, 1.0).toDouble())
-          .toList();
+      return _dequantizeScores(rawScores, outputQuantization);
     }
 
     return rawScores;
+  }
+
+  List<double> _dequantizeScores(
+    List<double> rawScores,
+    QuantizationParams quantization,
+  ) {
+    final scale = quantization.scale;
+    if (!scale.isFinite || scale <= 0.0) {
+      return rawScores;
+    }
+    final zeroPoint = quantization.zeroPoint.toDouble();
+    return rawScores.map((value) => (value - zeroPoint) * scale).toList();
   }
 
   Map<String, double> _mapPredictionsToSupportedFoods({
@@ -461,7 +634,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       ..sort((a, b) => probabilities[b].compareTo(probabilities[a]));
 
     final mappedScores = <String, double>{};
-    final topCount = math.min(50, rankedIndices.length);
+    final topCount = math.min(_maxMappedPredictions, rankedIndices.length);
 
     for (var i = 0; i < topCount; i++) {
       final index = rankedIndices[i];
@@ -491,87 +664,92 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       return directMatch.name;
     }
 
-    final normalized = label.toLowerCase().replaceAll(
-          RegExp(r'[^a-z0-9]+'),
-          ' ',
-        );
-    final tokens = normalized
-        .split(RegExp(r'\s+'))
-        .where((token) => token.isNotEmpty)
-        .toSet();
+    final normalized = _normalizeLabelForMatching(label);
+    final tokens = _tokenizeLabel(normalized);
     if (tokens.isEmpty) {
       return null;
     }
 
-    if (_containsAny(tokens, const <String>['salad', 'slaw'])) {
-      return 'Salad';
-    }
-    if (_containsAny(tokens, const <String>[
-      'rice',
-      'risotto',
-      'pilaf',
-      'biryani',
-      'paella',
-      'congee',
-    ])) {
-      return 'Rice cooked';
-    }
-    if (_containsAny(tokens, const <String>['chicken'])) {
-      return 'Chicken breast';
-    }
-    if (_containsAny(tokens, const <String>[
-      'pasta',
-      'spaghetti',
-      'macaroni',
-      'noodle',
-      'noodles',
-      'ramen',
-      'udon',
-      'penne',
-      'linguine',
-      'fettuccine',
-      'ravioli',
-      'lasagna',
-      'lasagne',
-    ])) {
-      return 'Pasta cooked';
-    }
-    if (_containsAny(tokens, const <String>[
-      'bread',
-      'toast',
-      'bagel',
-      'bun',
-      'roll',
-      'naan',
-      'pita',
-      'sandwich',
-    ])) {
-      return 'Bread';
-    }
-    if (_containsAny(tokens, const <String>[
-      'egg',
-      'eggs',
-      'omelet',
-      'omelette',
-      'frittata',
-      'quiche',
-      'benedict',
-    ])) {
-      return 'Egg';
-    }
-    if (_containsAny(tokens, const <String>['olive', 'vinaigrette'])) {
-      return 'Olive oil';
-    }
-
-    return null;
-  }
-
-  bool _containsAny(Set<String> tokens, List<String> keywords) {
-    for (final keyword in keywords) {
-      if (tokens.contains(keyword)) {
-        return true;
+    String? bestFood;
+    var bestScore = 0.0;
+    for (final entry in _foodLexicons.entries) {
+      final score = _scoreLexicalMatch(
+        normalizedLabel: normalized,
+        tokens: tokens,
+        lexicon: entry.value,
+      );
+      if (score > bestScore) {
+        bestScore = score;
+        bestFood = entry.key;
       }
     }
-    return false;
+
+    if (bestScore < _minLexicalScore) {
+      return null;
+    }
+    return bestFood;
   }
+
+  String _normalizeLabelForMatching(String label) {
+    final normalized = label.toLowerCase();
+    final buffer = StringBuffer();
+    for (var i = 0; i < normalized.length; i++) {
+      final code = normalized.codeUnitAt(i);
+      final isAsciiLowercase = code >= 97 && code <= 122;
+      final isDigit = code >= 48 && code <= 57;
+      buffer.write(isAsciiLowercase || isDigit ? normalized[i] : ' ');
+    }
+    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
+  }
+
+  Set<String> _tokenizeLabel(String normalizedLabel) {
+    if (normalizedLabel.isEmpty) {
+      return const <String>{};
+    }
+    return normalizedLabel
+        .split(' ')
+        .where((token) => token.isNotEmpty)
+        .map(_stemToken)
+        .toSet();
+  }
+
+  String _stemToken(String token) {
+    if (token.length > 4 && token.endsWith('ies')) {
+      return '${token.substring(0, token.length - 3)}y';
+    }
+    if (token.length > 4 && token.endsWith('es')) {
+      return token.substring(0, token.length - 2);
+    }
+    if (token.length > 3 && token.endsWith('s')) {
+      return token.substring(0, token.length - 1);
+    }
+    return token;
+  }
+
+  double _scoreLexicalMatch({
+    required String normalizedLabel,
+    required Set<String> tokens,
+    required _FoodLexicon lexicon,
+  }) {
+    var score = 0.0;
+
+    for (final phrase in lexicon.phrases) {
+      if (normalizedLabel.contains(phrase)) {
+        score += 2.0;
+      }
+    }
+    for (final keyword in lexicon.keywords) {
+      if (tokens.contains(_stemToken(keyword))) {
+        score += 1.0;
+      }
+    }
+    return score;
+  }
+}
+
+class _FoodLexicon {
+  const _FoodLexicon({required this.keywords, required this.phrases});
+
+  final Set<String> keywords;
+  final Set<String> phrases;
 }

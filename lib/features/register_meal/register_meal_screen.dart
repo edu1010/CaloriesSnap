@@ -62,7 +62,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
   }
 
   Future<void> _pickFromDisk() async {
-    final result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: <String>['jpg', 'jpeg', 'png', 'webp'],
     );
