@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_constants.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../core/utils/responsive_utils.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
@@ -86,10 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final wide = ResponsiveUtils.isWideLayout(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('CalorieSnap')),
+      appBar: AppBar(title: Text(l10n.appTitle)),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -111,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        'Today',
+                        l10n.today,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 12),
@@ -120,13 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         runSpacing: 12,
                         children: <Widget>[
                           _StatCard(
-                            title: 'Approximate calories',
+                            title: l10n.approximateCalories,
                             value:
                                 '${summary.totalKcal.toStringAsFixed(0)} kcal',
                             icon: Icons.local_fire_department_outlined,
                           ),
                           _StatCard(
-                            title: 'Meals registered',
+                            title: l10n.mealsRegistered,
                             value: summary.mealsCount.toString(),
                             icon: Icons.restaurant_menu_outlined,
                           ),
@@ -134,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 20),
                       Text(
-                        AppConstants.estimationDisclaimer,
+                        l10n.estimationDisclaimer,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -147,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: FilledButton.icon(
                                 onPressed: _openRegisterMeal,
                                 icon: const Icon(Icons.add_a_photo_outlined),
-                                label: const Text('Register meal'),
+                                label: Text(l10n.registerMeal),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -155,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: OutlinedButton.icon(
                                 onPressed: _openCalendar,
                                 icon: const Icon(Icons.calendar_month_outlined),
-                                label: const Text('Calendar'),
+                                label: Text(l10n.calendar),
                               ),
                             ),
                           ],
@@ -167,13 +168,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             FilledButton.icon(
                               onPressed: _openRegisterMeal,
                               icon: const Icon(Icons.add_a_photo_outlined),
-                              label: const Text('Register meal'),
+                              label: Text(l10n.registerMeal),
                             ),
                             const SizedBox(height: 12),
                             OutlinedButton.icon(
                               onPressed: _openCalendar,
                               icon: const Icon(Icons.calendar_month_outlined),
-                              label: const Text('Calendar'),
+                              label: Text(l10n.calendar),
                             ),
                           ],
                         ),

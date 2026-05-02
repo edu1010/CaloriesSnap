@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/daily_summary.dart';
@@ -30,7 +31,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Map<DateTime, DailySummary> _summaries = <DateTime, DailySummary>{};
   bool _loading = false;
 
-  DateTime _normalize(DateTime date) => DateTime(date.year, date.month, date.day);
+  DateTime _normalize(DateTime date) =>
+      DateTime(date.year, date.month, date.day);
 
   @override
   void initState() {
@@ -60,12 +62,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _openDayDetail(DateTime day) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => DailyDetailScreen(
-          date: day,
-          mealRepository: widget.mealRepository,
-          nutritionRepository: widget.nutritionRepository,
-          calorieCalculator: widget.calorieCalculator,
-        ),
+        builder:
+            (_) => DailyDetailScreen(
+              date: day,
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+            ),
       ),
     );
     if (!mounted) {
@@ -76,12 +79,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final selectedSummary = _summaries[_normalize(_selectedDay)];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendar'),
-      ),
+      appBar: AppBar(title: Text(l10n.calendar)),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -117,16 +119,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           alignment: Alignment.bottomCenter,
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 4),
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 1,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
+                              color:
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               '${summary.mealsCount} | ${summary.totalKcal.toStringAsFixed(0)}',
-                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    fontSize: 10,
-                                  ),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.labelSmall?.copyWith(fontSize: 10),
                             ),
                           ),
                         );
@@ -144,9 +152,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     title: Text(DateFormat.yMMMMd().format(_selectedDay)),
                     subtitle: Text(
                       selectedSummary == null
-                          ? 'No meals registered'
-                          : '${selectedSummary.mealsCount} meals | '
-                              '${selectedSummary.totalKcal.toStringAsFixed(0)} kcal',
+                          ? l10n.noMealsRegistered
+                          : l10n.mealsAndCalories(
+                            selectedSummary.mealsCount,
+                            selectedSummary.totalKcal,
+                          ),
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => _openDayDetail(_selectedDay),

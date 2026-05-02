@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/food_item.dart';
@@ -101,6 +102,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
   }
 
   Future<void> _addFood() async {
+    final l10n = context.l10n;
     final nutritionFoods = widget.nutritionRepository.foods;
     NutritionFood? selectedNutrition =
         nutritionFoods.isNotEmpty ? nutritionFoods.first : null;
@@ -122,7 +124,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
         return StatefulBuilder(
           builder: (context, setLocalState) {
             return AlertDialog(
-              title: const Text('Add food'),
+              title: Text(l10n.addFood),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -130,9 +132,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                     DropdownButtonFormField<NutritionFood?>(
                       initialValue: selectedNutrition,
                       items: <DropdownMenuItem<NutritionFood?>>[
-                        const DropdownMenuItem<NutritionFood?>(
+                        DropdownMenuItem<NutritionFood?>(
                           value: null,
-                          child: Text('Custom food'),
+                          child: Text(l10n.customFood),
                         ),
                         ...nutritionFoods.map(
                           (item) => DropdownMenuItem<NutritionFood?>(
@@ -154,20 +156,18 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           }
                         });
                       },
-                      decoration: const InputDecoration(
-                        labelText: 'Known food',
-                      ),
+                      decoration: InputDecoration(labelText: l10n.knownFood),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
+                      decoration: InputDecoration(labelText: l10n.name),
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: gramsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Estimated grams',
+                      decoration: InputDecoration(
+                        labelText: l10n.estimatedGrams,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
@@ -176,9 +176,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: kcalController,
-                      decoration: const InputDecoration(
-                        labelText: 'kcal per 100g',
-                      ),
+                      decoration: InputDecoration(labelText: l10n.kcalPer100g),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -191,7 +189,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               .map(
                                 (item) => DropdownMenuItem<String>(
                                   value: item,
-                                  child: Text(item),
+                                  child: Text(l10n.portionLabel(item)),
                                 ),
                               )
                               .toList(),
@@ -208,9 +206,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           }
                         });
                       },
-                      decoration: const InputDecoration(
-                        labelText: 'Portion size',
-                      ),
+                      decoration: InputDecoration(labelText: l10n.portionSize),
                     ),
                   ],
                 ),
@@ -218,7 +214,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -240,7 +236,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                       ),
                     );
                   },
-                  child: const Text('Add'),
+                  child: Text(l10n.addFood),
                 ),
               ],
             );
@@ -261,10 +257,11 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
   }
 
   Future<void> _continue() async {
+    final l10n = context.l10n;
     if (_foods.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least one food item.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.addAtLeastOneFoodItem)));
       return;
     }
 
@@ -304,6 +301,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hasImage =
         widget.imagePath != null &&
         widget.imagePath!.isNotEmpty &&
@@ -311,12 +309,12 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(hasImage ? 'Confirm detected foods' : 'Confirm foods'),
+        title: Text(hasImage ? l10n.confirmDetectedFoods : l10n.confirmFoods),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFood,
         icon: const Icon(Icons.add),
-        label: const Text('Add food'),
+        label: Text(l10n.addFood),
       ),
       body: SafeArea(
         child: Column(
@@ -351,7 +349,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Meal started from barcode/manual entry.',
+                                l10n.mealStartedFromBarcode,
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             ),
@@ -365,14 +363,14 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      '${AppConstants.approximateCaloriesLabel}: ${_totalCalories.toStringAsFixed(0)} kcal',
+                      '${l10n.approximateCalories}: ${_totalCalories.toStringAsFixed(0)} kcal',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
                   TextButton.icon(
                     onPressed: _continue,
                     icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Continue'),
+                    label: Text(l10n.continueText),
                   ),
                 ],
               ),
@@ -380,7 +378,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Text(
-                AppConstants.estimationDisclaimer,
+                l10n.estimationDisclaimer,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -407,8 +405,8 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: item.nameController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Name',
+                                  decoration: InputDecoration(
+                                    labelText: l10n.name,
                                   ),
                                   onChanged: (value) {
                                     setState(() {
@@ -420,7 +418,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               IconButton(
                                 onPressed: () => _removeAt(index),
                                 icon: const Icon(Icons.delete_outline),
-                                tooltip: 'Remove',
+                                tooltip: l10n.remove,
                               ),
                             ],
                           ),
@@ -430,8 +428,8 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: item.gramsController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Estimated grams',
+                                  decoration: InputDecoration(
+                                    labelText: l10n.estimatedGrams,
                                   ),
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
@@ -454,8 +452,8 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: item.kcalController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'kcal per 100g',
+                                  decoration: InputDecoration(
+                                    labelText: l10n.kcalPer100g,
                                   ),
                                   keyboardType:
                                       const TextInputType.numberWithOptions(
@@ -484,7 +482,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                                     .map(
                                       (portion) => DropdownMenuItem<String>(
                                         value: portion,
-                                        child: Text(portion),
+                                        child: Text(l10n.portionLabel(portion)),
                                       ),
                                     )
                                     .toList(),
@@ -504,14 +502,12 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                                 }
                               });
                             },
-                            decoration: const InputDecoration(
-                              labelText: 'Portion size',
+                            decoration: InputDecoration(
+                              labelText: l10n.portionSize,
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            'Estimated calories: ${_entryCalories(item).toStringAsFixed(0)} kcal',
-                          ),
+                          Text(l10n.estimatedCalories(_entryCalories(item))),
                         ],
                       ),
                     ),

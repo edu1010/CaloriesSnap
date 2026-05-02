@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/meal.dart';
@@ -41,20 +42,21 @@ class _DailyDetailScreenState extends State<DailyDetailScreen> {
   }
 
   Future<bool> _confirmDelete() async {
+    final l10n = context.l10n;
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete meal'),
-          content: const Text('This meal will be permanently removed.'),
+          title: Text(l10n.deleteMeal),
+          content: Text(l10n.deleteMealPermanentRemoved),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -81,12 +83,13 @@ class _DailyDetailScreenState extends State<DailyDetailScreen> {
   Future<void> _openMealDetail(Meal meal) async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => MealDetailScreen(
-          meal: meal,
-          mealRepository: widget.mealRepository,
-          nutritionRepository: widget.nutritionRepository,
-          calorieCalculator: widget.calorieCalculator,
-        ),
+        builder:
+            (_) => MealDetailScreen(
+              meal: meal,
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+            ),
       ),
     );
     if (!mounted) {
@@ -97,16 +100,18 @@ class _DailyDetailScreenState extends State<DailyDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily detail'),
-      ),
+      appBar: AppBar(title: Text(l10n.dailyDetail)),
       body: SafeArea(
         child: FutureBuilder<List<Meal>>(
           future: _mealsFuture,
           builder: (context, snapshot) {
             final meals = snapshot.data ?? <Meal>[];
-            final total = meals.fold<double>(0, (sum, meal) => sum + meal.totalKcal);
+            final total = meals.fold<double>(
+              0,
+              (sum, meal) => sum + meal.totalKcal,
+            );
 
             return ListView(
               padding: const EdgeInsets.all(16),
@@ -114,9 +119,7 @@ class _DailyDetailScreenState extends State<DailyDetailScreen> {
                 Card(
                   child: ListTile(
                     title: Text(DateFormat.yMMMMd().format(widget.date)),
-                    subtitle: Text(
-                      '${meals.length} meals | ${total.toStringAsFixed(0)} kcal',
-                    ),
+                    subtitle: Text(l10n.mealsAndCalories(meals.length, total)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -127,37 +130,42 @@ class _DailyDetailScreenState extends State<DailyDetailScreen> {
                       child: CircularProgressIndicator(),
                     ),
                   ),
-                if (snapshot.connectionState != ConnectionState.waiting && meals.isEmpty)
-                  const Card(
+                if (snapshot.connectionState != ConnectionState.waiting &&
+                    meals.isEmpty)
+                  Card(
                     child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: Text('No meals registered for this day.'),
+                      padding: const EdgeInsets.all(20),
+                      child: Text(l10n.noMealsRegisteredForDay),
                     ),
                   ),
                 ...meals.map(
                   (meal) => Card(
                     child: ListTile(
-                      leading: (meal.imagePath != null && File(meal.imagePath!).existsSync())
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                File(meal.imagePath!),
+                      leading:
+                          (meal.imagePath != null &&
+                                  File(meal.imagePath!).existsSync())
+                              ? ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(meal.imagePath!),
+                                  width: 52,
+                                  height: 52,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                              : const SizedBox(
                                 width: 52,
                                 height: 52,
-                                fit: BoxFit.cover,
+                                child: ColoredBox(color: Color(0xFFE8ECE9)),
                               ),
-                            )
-                          : const SizedBox(
-                              width: 52,
-                              height: 52,
-                              child: ColoredBox(color: Color(0xFFE8ECE9)),
-                            ),
-                      title: Text('${meal.mealType} | ${meal.totalKcal.toStringAsFixed(0)} kcal'),
+                      title: Text(
+                        '${l10n.mealTypeLabel(meal.mealType)} | ${meal.totalKcal.toStringAsFixed(0)} kcal',
+                      ),
                       subtitle: Text(DateFormat.Hm().format(meal.dateTime)),
                       trailing: IconButton(
                         onPressed: () => _deleteMeal(meal),
                         icon: const Icon(Icons.delete_outline),
-                        tooltip: 'Delete',
+                        tooltip: l10n.delete,
                       ),
                       onTap: () => _openMealDetail(meal),
                     ),

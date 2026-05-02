@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/constants/app_constants.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/meal.dart';
@@ -95,20 +95,21 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       return;
     }
 
+    final l10n = context.l10n;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete meal'),
-          content: const Text('This meal will be permanently deleted.'),
+          title: Text(l10n.deleteMeal),
+          content: Text(l10n.deleteMealPermanentDeleted),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Delete'),
+              child: Text(l10n.delete),
             ),
           ],
         );
@@ -128,13 +129,14 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final meal = _meal;
     if (meal == null) {
-      return const Scaffold(body: Center(child: Text('Meal not found')));
+      return Scaffold(body: Center(child: Text(l10n.mealNotFound)));
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meal detail')),
+      appBar: AppBar(title: Text(l10n.mealDetail)),
       body: SafeArea(
         child: Stack(
           children: <Widget>[
@@ -161,21 +163,21 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          '${meal.mealType} | ${DateFormat.yMMMd().add_Hm().format(meal.dateTime)}',
+                          '${l10n.mealTypeLabel(meal.mealType)} | ${DateFormat.yMMMd().add_Hm().format(meal.dateTime)}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${AppConstants.approximateCaloriesLabel}: ${meal.totalKcal.toStringAsFixed(0)} kcal',
+                          '${l10n.approximateCalories}: ${meal.totalKcal.toStringAsFixed(0)} kcal',
                         ),
                         Text(
-                          '${AppConstants.estimatedRangeLabel}: '
+                          '${l10n.estimatedRange}: '
                           '${meal.lowerEstimateKcal.toStringAsFixed(0)}-'
                           '${meal.upperEstimateKcal.toStringAsFixed(0)} kcal',
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          AppConstants.estimationDisclaimer,
+                          l10n.estimationDisclaimer,
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
@@ -183,7 +185,10 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('Foods', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  l10n.foods,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 ...meal.foods.map(
                   (food) => Card(
@@ -202,9 +207,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 const SizedBox(height: 8),
                 Card(
                   child: ListTile(
-                    title: const Text('Notes'),
+                    title: Text(l10n.notes),
                     subtitle: Text(
-                      meal.notes.isEmpty ? 'No notes' : meal.notes,
+                      meal.notes.isEmpty ? l10n.noNotes : meal.notes,
                     ),
                   ),
                 ),
@@ -215,7 +220,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       child: FilledButton.icon(
                         onPressed: _editMeal,
                         icon: const Icon(Icons.edit_outlined),
-                        label: const Text('Edit'),
+                        label: Text(l10n.edit),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -223,7 +228,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       child: OutlinedButton.icon(
                         onPressed: _deleteMeal,
                         icon: const Icon(Icons.delete_outline),
-                        label: const Text('Delete'),
+                        label: Text(l10n.delete),
                       ),
                     ),
                   ],

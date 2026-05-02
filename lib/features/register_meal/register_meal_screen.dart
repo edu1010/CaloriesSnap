@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../core/constants/app_constants.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/food_item.dart';
@@ -140,7 +140,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
       );
     } catch (error) {
       setState(() {
-        _errorText = 'Failed to process the selected image: $error';
+        _errorText = context.l10n.failedToProcessImage(error);
       });
     } finally {
       if (mounted) {
@@ -156,19 +156,20 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
   }
 
   Future<String?> _askBarcodeManually() async {
+    final l10n = context.l10n;
     _barcodeController.text = _barcodeController.text.trim();
     return showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Enter barcode'),
+          title: Text(l10n.enterBarcode),
           content: TextField(
             controller: _barcodeController,
             autofocus: true,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'EAN / barcode',
-              hintText: 'e.g. 8410188008736',
+            decoration: InputDecoration(
+              labelText: l10n.eanBarcode,
+              hintText: l10n.barcodeExample,
             ),
             onSubmitted: (value) {
               Navigator.of(context).pop(value.trim());
@@ -177,13 +178,13 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             FilledButton(
               onPressed: () {
                 Navigator.pop(context, _barcodeController.text.trim());
               },
-              child: const Text('Search'),
+              child: Text(l10n.search),
             ),
           ],
         );
@@ -232,13 +233,9 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
         if (!mounted) {
           return;
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Barcode not found in local database or Open Food Facts.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.barcodeNotFound)));
         return;
       }
 
@@ -278,7 +275,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
         return;
       }
       setState(() {
-        _errorText = 'Failed to lookup barcode: $error';
+        _errorText = context.l10n.failedToLookupBarcode(error);
       });
     } finally {
       if (mounted) {
@@ -323,12 +320,13 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isAndroid = Platform.isAndroid;
     final isWindows = Platform.isWindows;
     final canSubmitBarcode = !_isDetecting && !_isBarcodeLookup;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Register meal')),
+      appBar: AppBar(title: Text(l10n.registerMeal)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -341,25 +339,25 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                   FilledButton.icon(
                     onPressed: _pickFromCamera,
                     icon: const Icon(Icons.photo_camera_outlined),
-                    label: const Text('Take photo'),
+                    label: Text(l10n.takePhoto),
                   ),
                 if (isAndroid)
                   OutlinedButton.icon(
                     onPressed: _pickFromGallery,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('Select from gallery'),
+                    label: Text(l10n.selectFromGallery),
                   ),
                 if (isWindows)
                   FilledButton.icon(
                     onPressed: _pickFromDisk,
                     icon: const Icon(Icons.folder_open_outlined),
-                    label: const Text('Select image from disk'),
+                    label: Text(l10n.selectImageFromDisk),
                   ),
                 if (!isAndroid && !isWindows)
                   OutlinedButton.icon(
                     onPressed: _pickFromGallery,
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('Select image'),
+                    label: Text(l10n.selectImage),
                   ),
               ],
             ),
@@ -386,7 +384,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.white,
                 ),
-                child: const Text('No image selected yet'),
+                child: Text(l10n.noImageSelectedYet),
               ),
             const SizedBox(height: 16),
             Card(
@@ -396,16 +394,16 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      'Alternative: barcode',
+                      l10n.alternativeBarcode,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _barcodeController,
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'EAN / barcode',
-                        hintText: 'Type barcode or use scanner',
+                      decoration: InputDecoration(
+                        labelText: l10n.eanBarcode,
+                        hintText: l10n.typeOrScanBarcode,
                       ),
                       onSubmitted: (_) {
                         if (!canSubmitBarcode) {
@@ -436,7 +434,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                                   )
                                   : const Icon(Icons.qr_code_2),
                           label: Text(
-                            _isBarcodeLookup ? 'Searching...' : 'Use barcode',
+                            _isBarcodeLookup ? l10n.searching : l10n.useBarcode,
                           ),
                         ),
                         OutlinedButton.icon(
@@ -444,8 +442,8 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                           icon: const Icon(Icons.document_scanner_outlined),
                           label: Text(
                             _supportsCameraBarcodeScanner
-                                ? 'Scan with camera'
-                                : 'Scan / enter code',
+                                ? l10n.scanWithCamera
+                                : l10n.scanOrEnterCode,
                           ),
                         ),
                       ],
@@ -456,7 +454,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              AppConstants.estimationDisclaimer,
+              l10n.estimationDisclaimer,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -482,7 +480,9 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                       : const Icon(Icons.auto_awesome_outlined),
-              label: Text(_isDetecting ? 'Detecting foods...' : 'Detect foods'),
+              label: Text(
+                _isDetecting ? l10n.detectingFoods : l10n.detectFoods,
+              ),
             ),
           ],
         ),

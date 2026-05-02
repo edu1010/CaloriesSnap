@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../core/l10n/app_localizations.dart';
+
 class BarcodeScannerScreen extends StatefulWidget {
   const BarcodeScannerScreen({super.key});
 
@@ -55,14 +57,15 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scan barcode'),
+        title: Text(l10n.scanBarcode),
         actions: <Widget>[
           IconButton(
             onPressed: _toggleTorch,
             icon: Icon(_torchOn ? Icons.flash_on : Icons.flash_off),
-            tooltip: 'Flash',
+            tooltip: l10n.flash,
           ),
         ],
       ),
@@ -84,9 +87,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                 color: Colors.black.withAlpha(170),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text(
-                'Center the barcode inside the camera view.',
-                style: TextStyle(color: Colors.white),
+              child: Text(
+                l10n.centerBarcodeInCamera,
+                style: const TextStyle(color: Colors.white),
                 textAlign: TextAlign.center,
               ),
             ),

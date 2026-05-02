@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_constants.dart';
+import '../../core/l10n/app_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../models/food_item.dart';
 import '../../models/meal.dart';
@@ -94,9 +95,9 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to save meal: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.failedToSaveMeal(error))),
+        );
       }
     } finally {
       if (mounted) {
@@ -109,13 +110,14 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final hasImage =
         widget.imagePath != null &&
         widget.imagePath!.isNotEmpty &&
         File(widget.imagePath!).existsSync();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Meal summary')),
+      appBar: AppBar(title: Text(l10n.mealSummary)),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
@@ -142,7 +144,7 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Meal saved without photo (barcode/manual entry).',
+                        l10n.mealSavedWithoutPhoto,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
@@ -157,22 +159,25 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      '${AppConstants.approximateCaloriesLabel}: ${_totalKcal.toStringAsFixed(0)} kcal',
+                      '${l10n.approximateCalories}: ${_totalKcal.toStringAsFixed(0)} kcal',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${AppConstants.estimatedRangeLabel}: '
+                      '${l10n.estimatedRange}: '
                       '${_lower.toStringAsFixed(0)}-${_upper.toStringAsFixed(0)} kcal',
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Estimated: ${_totalKcal.toStringAsFixed(0)} kcal, '
-                      'likely range: ${_lower.toStringAsFixed(0)}-${_upper.toStringAsFixed(0)} kcal',
+                      l10n.estimatedAndLikelyRange(
+                        total: _totalKcal,
+                        lower: _lower,
+                        upper: _upper,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      AppConstants.estimationDisclaimer,
+                      l10n.estimationDisclaimer,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -180,7 +185,7 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text('Foods', style: Theme.of(context).textTheme.titleMedium),
+            Text(l10n.foods, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...widget.foods.map(
               (food) => Card(
@@ -204,7 +209,7 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                       .map(
                         (item) => DropdownMenuItem<String>(
                           value: item,
-                          child: Text(item),
+                          child: Text(l10n.mealTypeLabel(item)),
                         ),
                       )
                       .toList(),
@@ -216,16 +221,16 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                   _mealType = value;
                 });
               },
-              decoration: const InputDecoration(labelText: 'Meal type'),
+              decoration: InputDecoration(labelText: l10n.mealType),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _notesController,
               minLines: 3,
               maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Notes',
-                hintText: 'Optional meal notes',
+              decoration: InputDecoration(
+                labelText: l10n.notes,
+                hintText: l10n.optionalMealNotes,
               ),
             ),
             const SizedBox(height: 16),
@@ -238,7 +243,7 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                       : const Icon(Icons.save_outlined),
-              label: Text(_saving ? 'Saving...' : 'Save meal'),
+              label: Text(_saving ? l10n.saving : l10n.saveMeal),
             ),
           ],
         ),

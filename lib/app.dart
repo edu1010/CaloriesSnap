@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'core/l10n/app_localizations.dart';
 import 'core/theme/app_theme.dart';
 import 'data/repositories/meal_repository.dart';
 import 'data/repositories/nutrition_repository.dart';
@@ -30,9 +32,25 @@ class CalorieSnapApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CalorieSnap',
+      onGenerateTitle: (context) => context.l10n.appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localeResolutionCallback: (locale, supportedLocales) {
+        if (locale == null) {
+          return const Locale('en');
+        }
+        if (locale.languageCode.toLowerCase().startsWith('es')) {
+          return const Locale('es');
+        }
+        return const Locale('en');
+      },
       home: HomeScreen(
         mealRepository: mealRepository,
         nutritionRepository: nutritionRepository,
