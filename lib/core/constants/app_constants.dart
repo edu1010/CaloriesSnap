@@ -2,7 +2,7 @@ class AppConstants {
   const AppConstants._();
 
   static const estimationDisclaimer =
-      'This is an estimation, not a medical measurement';
+      'Estimated values only: food recognition and calories are not precise and must not be used as medical or nutritional advice.';
 
   static const approximateCaloriesLabel = 'Approximate calories';
   static const estimatedRangeLabel = 'Estimated range';
@@ -15,10 +15,5 @@ class AppConstants {
     'Other',
   ];
 
-  static const portionSizes = <String>[
-    'small',
-    'medium',
-    'large',
-    'custom',
-  ];
+  static const portionSizes = <String>['small', 'medium', 'large', 'custom'];
 }

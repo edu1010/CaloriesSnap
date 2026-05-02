@@ -11,7 +11,7 @@ import '../../services/nutrition/calorie_calculator.dart';
 class MealSummaryScreen extends StatefulWidget {
   const MealSummaryScreen({
     super.key,
-    required this.imagePath,
+    this.imagePath,
     required this.foods,
     required this.mealRepository,
     required this.calorieCalculator,
@@ -21,7 +21,7 @@ class MealSummaryScreen extends StatefulWidget {
     this.initialNotes,
   });
 
-  final String imagePath;
+  final String? imagePath;
   final List<FoodItem> foods;
   final MealRepository mealRepository;
   final CalorieCalculator calorieCalculator;
@@ -52,9 +52,12 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
     super.dispose();
   }
 
-  double get _totalKcal => widget.calorieCalculator.calculateMealTotal(widget.foods);
-  double get _lower => widget.calorieCalculator.calculateLowerEstimate(_totalKcal);
-  double get _upper => widget.calorieCalculator.calculateUpperEstimate(_totalKcal);
+  double get _totalKcal =>
+      widget.calorieCalculator.calculateMealTotal(widget.foods);
+  double get _lower =>
+      widget.calorieCalculator.calculateLowerEstimate(_totalKcal);
+  double get _upper =>
+      widget.calorieCalculator.calculateUpperEstimate(_totalKcal);
 
   Future<void> _saveMeal() async {
     setState(() {
@@ -91,9 +94,9 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save meal: $error')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to save meal: $error')));
       }
     } finally {
       if (mounted) {
@@ -106,24 +109,46 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasImage =
+        widget.imagePath != null &&
+        widget.imagePath!.isNotEmpty &&
+        File(widget.imagePath!).existsSync();
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meal summary'),
-      ),
+      appBar: AppBar(title: const Text('Meal summary')),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: <Widget>[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AspectRatio(
-                aspectRatio: 4 / 3,
-                child: Image.file(
-                  File(widget.imagePath),
-                  fit: BoxFit.cover,
+            if (hasImage)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: AspectRatio(
+                  aspectRatio: 4 / 3,
+                  child: Image.file(File(widget.imagePath!), fit: BoxFit.cover),
+                ),
+              )
+            else
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    const Icon(Icons.restaurant_menu_outlined),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Meal saved without photo (barcode/manual entry).',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
             const SizedBox(height: 12),
             Card(
               child: Padding(
@@ -155,10 +180,7 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Text(
-              'Foods',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Foods', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             ...widget.foods.map(
               (food) => Card(
@@ -168,21 +190,24 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
                     '${food.grams.toStringAsFixed(0)} g | '
                     '${food.kcalPer100g.toStringAsFixed(0)} kcal/100g',
                   ),
-                  trailing: Text('${food.calculatedKcal.toStringAsFixed(0)} kcal'),
+                  trailing: Text(
+                    '${food.calculatedKcal.toStringAsFixed(0)} kcal',
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _mealType,
-              items: AppConstants.mealTypes
-                  .map(
-                    (item) => DropdownMenuItem<String>(
-                      value: item,
-                      child: Text(item),
-                    ),
-                  )
-                  .toList(),
+              items:
+                  AppConstants.mealTypes
+                      .map(
+                        (item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(item),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 if (value == null) {
                   return;
@@ -206,12 +231,13 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _saving ? null : _saveMeal,
-              icon: _saving
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save_outlined),
+              icon:
+                  _saving
+                      ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                      : const Icon(Icons.save_outlined),
               label: Text(_saving ? 'Saving...' : 'Save meal'),
             ),
           ],
@@ -220,4 +246,3 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
     );
   }
 }
-

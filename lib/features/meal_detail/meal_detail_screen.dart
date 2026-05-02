@@ -62,23 +62,24 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   Future<void> _editMeal() async {
     final meal = _meal;
-    if (meal == null || meal.imagePath == null || meal.imagePath!.isEmpty) {
+    if (meal == null) {
       return;
     }
 
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => FoodConfirmationScreen(
-          imagePath: meal.imagePath!,
-          initialFoods: meal.foods,
-          mealRepository: widget.mealRepository,
-          nutritionRepository: widget.nutritionRepository,
-          calorieCalculator: widget.calorieCalculator,
-          mealId: meal.id,
-          mealDateTime: meal.dateTime,
-          initialMealType: meal.mealType,
-          initialNotes: meal.notes,
-        ),
+        builder:
+            (_) => FoodConfirmationScreen(
+              imagePath: meal.imagePath,
+              initialFoods: meal.foods,
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+              mealId: meal.id,
+              mealDateTime: meal.dateTime,
+              initialMealType: meal.mealType,
+              initialNotes: meal.notes,
+            ),
       ),
     );
 
@@ -129,24 +130,19 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   Widget build(BuildContext context) {
     final meal = _meal;
     if (meal == null) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Meal not found'),
-        ),
-      );
+      return const Scaffold(body: Center(child: Text('Meal not found')));
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meal detail'),
-      ),
+      appBar: AppBar(title: const Text('Meal detail')),
       body: SafeArea(
         child: Stack(
           children: <Widget>[
             ListView(
               padding: const EdgeInsets.all(16),
               children: <Widget>[
-                if (meal.imagePath != null && File(meal.imagePath!).existsSync())
+                if (meal.imagePath != null &&
+                    File(meal.imagePath!).existsSync())
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: AspectRatio(
@@ -187,10 +183,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Foods',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text('Foods', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 ...meal.foods.map(
                   (food) => Card(
@@ -200,7 +193,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                         '${food.grams.toStringAsFixed(0)} g | '
                         '${food.kcalPer100g.toStringAsFixed(0)} kcal/100g',
                       ),
-                      trailing: Text('${food.calculatedKcal.toStringAsFixed(0)} kcal'),
+                      trailing: Text(
+                        '${food.calculatedKcal.toStringAsFixed(0)} kcal',
+                      ),
                     ),
                   ),
                 ),
@@ -208,7 +203,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                 Card(
                   child: ListTile(
                     title: const Text('Notes'),
-                    subtitle: Text(meal.notes.isEmpty ? 'No notes' : meal.notes),
+                    subtitle: Text(
+                      meal.notes.isEmpty ? 'No notes' : meal.notes,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -246,4 +243,3 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 }
-

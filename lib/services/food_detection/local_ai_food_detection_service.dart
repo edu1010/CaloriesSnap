@@ -23,6 +23,33 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
   static const double _minConfidence = 0.03;
   static const int _maxMappedPredictions = 80;
   static const double _minLexicalScore = 1.0;
+  static const double _minNutritionNameScore = 1.35;
+  static const Set<String> _ignoredTokens = <String>{
+    'a',
+    'an',
+    'and',
+    'de',
+    'del',
+    'con',
+    'the',
+    'with',
+    'in',
+    'on',
+    'for',
+    'style',
+    'dish',
+    'food',
+    'cooked',
+    'raw',
+    'fresh',
+    'fried',
+    'grilled',
+    'roasted',
+    'boiled',
+    'baked',
+    'steamed',
+    'plain',
+  };
 
   static final Map<String, _FoodLexicon> _foodLexicons = <String, _FoodLexicon>{
     'Rice cooked': const _FoodLexicon(
@@ -670,24 +697,23 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       return null;
     }
 
-    String? bestFood;
-    var bestScore = 0.0;
-    for (final entry in _foodLexicons.entries) {
-      final score = _scoreLexicalMatch(
-        normalizedLabel: normalized,
-        tokens: tokens,
-        lexicon: entry.value,
-      );
-      if (score > bestScore) {
-        bestScore = score;
-        bestFood = entry.key;
-      }
-    }
+    final lexiconMatch = _bestLexiconMatch(normalized, tokens);
+    final nutritionMatch = _bestNutritionNameMatch(normalized, tokens);
 
-    if (bestScore < _minLexicalScore) {
+    if (lexiconMatch == null && nutritionMatch == null) {
       return null;
     }
-    return bestFood;
+
+    if (lexiconMatch == null) {
+      return nutritionMatch!.name;
+    }
+    if (nutritionMatch == null) {
+      return lexiconMatch.name;
+    }
+
+    return nutritionMatch.score >= lexiconMatch.score
+        ? nutritionMatch.name
+        : lexiconMatch.name;
   }
 
   String _normalizeLabelForMatching(String label) {
@@ -710,6 +736,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
         .split(' ')
         .where((token) => token.isNotEmpty)
         .map(_stemToken)
+        .where((token) => !_ignoredTokens.contains(token))
         .toSet();
   }
 
@@ -745,6 +772,93 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     }
     return score;
   }
+
+  _ScoredMatch? _bestLexiconMatch(String normalizedLabel, Set<String> tokens) {
+    String? bestFood;
+    var bestScore = 0.0;
+    for (final entry in _foodLexicons.entries) {
+      final score = _scoreLexicalMatch(
+        normalizedLabel: normalizedLabel,
+        tokens: tokens,
+        lexicon: entry.value,
+      );
+      if (score > bestScore) {
+        bestScore = score;
+        bestFood = entry.key;
+      }
+    }
+    if (bestFood == null || bestScore < _minLexicalScore) {
+      return null;
+    }
+    return _ScoredMatch(name: bestFood, score: bestScore);
+  }
+
+  _ScoredMatch? _bestNutritionNameMatch(
+    String normalizedLabel,
+    Set<String> tokens,
+  ) {
+    String? bestName;
+    var bestScore = 0.0;
+
+    for (final food in _nutritionRepository.foods) {
+      final normalizedFoodName = _normalizeLabelForMatching(food.name);
+      if (normalizedFoodName.isEmpty) {
+        continue;
+      }
+
+      final foodTokens = _tokenizeLabel(normalizedFoodName);
+      if (foodTokens.isEmpty) {
+        continue;
+      }
+
+      final overlapCount = _intersectionCount(tokens, foodTokens).toDouble();
+      if (overlapCount == 0.0 &&
+          !normalizedLabel.contains(normalizedFoodName)) {
+        continue;
+      }
+
+      final tokenRecall = overlapCount / foodTokens.length;
+      final tokenPrecision = overlapCount / math.max(tokens.length, 1);
+      var score = tokenRecall * 1.4 + tokenPrecision * 0.9;
+
+      if (normalizedLabel == normalizedFoodName) {
+        score += 3.0;
+      } else if (normalizedLabel.contains(normalizedFoodName)) {
+        score += 2.0;
+      } else if (normalizedFoodName.contains(normalizedLabel) &&
+          normalizedLabel.length >= 4) {
+        score += 0.5;
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestName = food.name;
+      }
+    }
+
+    if (bestName == null || bestScore < _minNutritionNameScore) {
+      return null;
+    }
+    return _ScoredMatch(name: bestName, score: bestScore);
+  }
+
+  int _intersectionCount(Set<String> a, Set<String> b) {
+    var count = 0;
+    if (a.length <= b.length) {
+      for (final token in a) {
+        if (b.contains(token)) {
+          count++;
+        }
+      }
+      return count;
+    }
+    for (final token in b) {
+      if (a.contains(token)) {
+        count++;
+      }
+    }
+    return count;
+  }
 }
 
 class _FoodLexicon {
@@ -752,4 +866,11 @@ class _FoodLexicon {
 
   final Set<String> keywords;
   final Set<String> phrases;
+}
+
+class _ScoredMatch {
+  const _ScoredMatch({required this.name, required this.score});
+
+  final String name;
+  final double score;
 }

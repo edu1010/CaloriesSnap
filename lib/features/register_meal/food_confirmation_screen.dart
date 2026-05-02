@@ -13,7 +13,7 @@ import 'meal_summary_screen.dart';
 class FoodConfirmationScreen extends StatefulWidget {
   const FoodConfirmationScreen({
     super.key,
-    required this.imagePath,
+    this.imagePath,
     required this.initialFoods,
     required this.mealRepository,
     required this.nutritionRepository,
@@ -24,7 +24,7 @@ class FoodConfirmationScreen extends StatefulWidget {
     this.initialNotes,
   });
 
-  final String imagePath;
+  final String? imagePath;
   final List<FoodItem> initialFoods;
   final MealRepository mealRepository;
   final NutritionRepository nutritionRepository;
@@ -105,7 +105,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
     NutritionFood? selectedNutrition =
         nutritionFoods.isNotEmpty ? nutritionFoods.first : null;
 
-    final nameController = TextEditingController(text: selectedNutrition?.name ?? '');
+    final nameController = TextEditingController(
+      text: selectedNutrition?.name ?? '',
+    );
     final gramsController = TextEditingController(
       text: (selectedNutrition?.defaultGramsMedium ?? 100).toStringAsFixed(0),
     );
@@ -145,9 +147,10 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           if (value != null) {
                             selectedPortion = 'medium';
                             nameController.text = value.name;
-                            gramsController.text =
-                                value.defaultGramsMedium.toStringAsFixed(0);
-                            kcalController.text = value.kcalPer100g.toStringAsFixed(0);
+                            gramsController.text = value.defaultGramsMedium
+                                .toStringAsFixed(0);
+                            kcalController.text = value.kcalPer100g
+                                .toStringAsFixed(0);
                           }
                         });
                       },
@@ -163,7 +166,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: gramsController,
-                      decoration: const InputDecoration(labelText: 'Estimated grams'),
+                      decoration: const InputDecoration(
+                        labelText: 'Estimated grams',
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -171,7 +176,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                     const SizedBox(height: 8),
                     TextField(
                       controller: kcalController,
-                      decoration: const InputDecoration(labelText: 'kcal per 100g'),
+                      decoration: const InputDecoration(
+                        labelText: 'kcal per 100g',
+                      ),
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -179,14 +186,15 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       initialValue: selectedPortion,
-                      items: AppConstants.portionSizes
-                          .map(
-                            (item) => DropdownMenuItem<String>(
-                              value: item,
-                              child: Text(item),
-                            ),
-                          )
-                          .toList(),
+                      items:
+                          AppConstants.portionSizes
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item,
+                                  child: Text(item),
+                                ),
+                              )
+                              .toList(),
                       onChanged: (value) {
                         if (value == null) {
                           return;
@@ -200,7 +208,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           }
                         });
                       },
-                      decoration: const InputDecoration(labelText: 'Portion size'),
+                      decoration: const InputDecoration(
+                        labelText: 'Portion size',
+                      ),
                     ),
                   ],
                 ),
@@ -214,7 +224,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                   onPressed: () {
                     final name = nameController.text.trim();
                     final grams = double.tryParse(gramsController.text.trim());
-                    final kcalPer100g = double.tryParse(kcalController.text.trim());
+                    final kcalPer100g = double.tryParse(
+                      kcalController.text.trim(),
+                    );
                     if (name.isEmpty || grams == null || kcalPer100g == null) {
                       return;
                     }
@@ -256,30 +268,32 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
       return;
     }
 
-    final foods = _foods
-        .map(
-          (item) => FoodItem(
-            id: item.id,
-            name: item.name,
-            grams: item.grams,
-            kcalPer100g: item.kcalPer100g,
-            calculatedKcal: _entryCalories(item),
-          ),
-        )
-        .toList();
+    final foods =
+        _foods
+            .map(
+              (item) => FoodItem(
+                id: item.id,
+                name: item.name,
+                grams: item.grams,
+                kcalPer100g: item.kcalPer100g,
+                calculatedKcal: _entryCalories(item),
+              ),
+            )
+            .toList();
 
     final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(
-        builder: (_) => MealSummaryScreen(
-          imagePath: widget.imagePath,
-          foods: foods,
-          mealRepository: widget.mealRepository,
-          calorieCalculator: widget.calorieCalculator,
-          mealId: widget.mealId,
-          mealDateTime: widget.mealDateTime,
-          initialMealType: widget.initialMealType,
-          initialNotes: widget.initialNotes,
-        ),
+        builder:
+            (_) => MealSummaryScreen(
+              imagePath: widget.imagePath,
+              foods: foods,
+              mealRepository: widget.mealRepository,
+              calorieCalculator: widget.calorieCalculator,
+              mealId: widget.mealId,
+              mealDateTime: widget.mealDateTime,
+              initialMealType: widget.initialMealType,
+              initialNotes: widget.initialNotes,
+            ),
       ),
     );
 
@@ -290,9 +304,14 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasImage =
+        widget.imagePath != null &&
+        widget.imagePath!.isNotEmpty &&
+        File(widget.imagePath!).existsSync();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Confirm detected foods'),
+        title: Text(hasImage ? 'Confirm detected foods' : 'Confirm foods'),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFood,
@@ -304,16 +323,41 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: AspectRatio(
-                  aspectRatio: 4 / 3,
-                  child: Image.file(
-                    File(widget.imagePath),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
+              child:
+                  hasImage
+                      ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AspectRatio(
+                          aspectRatio: 4 / 3,
+                          child: Image.file(
+                            File(widget.imagePath!),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                      : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color:
+                              Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
+                        ),
+                        child: Row(
+                          children: <Widget>[
+                            const Icon(Icons.qr_code_2),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Meal started from barcode/manual entry.',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -333,13 +377,24 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text(
+                AppConstants.estimationDisclaimer,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: _foods.length,
                 itemBuilder: (context, index) {
                   final item = _foods[index];
-                  final nutrition = widget.nutritionRepository.findByName(item.name);
+                  final nutrition = widget.nutritionRepository.findByName(
+                    item.name,
+                  );
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
                     child: Padding(
@@ -379,9 +434,13 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                                     labelText: 'Estimated grams',
                                   ),
                                   keyboardType:
-                                      const TextInputType.numberWithOptions(decimal: true),
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
                                   onChanged: (value) {
-                                    final parsed = double.tryParse(value.trim());
+                                    final parsed = double.tryParse(
+                                      value.trim(),
+                                    );
                                     if (parsed == null) {
                                       return;
                                     }
@@ -399,9 +458,13 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                                     labelText: 'kcal per 100g',
                                   ),
                                   keyboardType:
-                                      const TextInputType.numberWithOptions(decimal: true),
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
                                   onChanged: (value) {
-                                    final parsed = double.tryParse(value.trim());
+                                    final parsed = double.tryParse(
+                                      value.trim(),
+                                    );
                                     if (parsed == null) {
                                       return;
                                     }
@@ -416,14 +479,15 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             initialValue: item.portionSize,
-                            items: AppConstants.portionSizes
-                                .map(
-                                  (portion) => DropdownMenuItem<String>(
-                                    value: portion,
-                                    child: Text(portion),
-                                  ),
-                                )
-                                .toList(),
+                            items:
+                                AppConstants.portionSizes
+                                    .map(
+                                      (portion) => DropdownMenuItem<String>(
+                                        value: portion,
+                                        child: Text(portion),
+                                      ),
+                                    )
+                                    .toList(),
                             onChanged: (value) {
                               if (value == null) {
                                 return;
@@ -431,13 +495,18 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                               setState(() {
                                 item.portionSize = value;
                                 if (value != 'custom' && nutrition != null) {
-                                  final grams = nutrition.gramsForPortion(value);
+                                  final grams = nutrition.gramsForPortion(
+                                    value,
+                                  );
                                   item.grams = grams;
-                                  item.gramsController.text = grams.toStringAsFixed(0);
+                                  item.gramsController.text = grams
+                                      .toStringAsFixed(0);
                                 }
                               });
                             },
-                            decoration: const InputDecoration(labelText: 'Portion size'),
+                            decoration: const InputDecoration(
+                              labelText: 'Portion size',
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -460,16 +529,15 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 class _EditableFoodEntry {
   _EditableFoodEntry({
     this.id,
-    required String name,
-    required double grams,
-    required double kcalPer100g,
+    required this.name,
+    required this.grams,
+    required this.kcalPer100g,
     required this.portionSize,
-  })  : name = name,
-        grams = grams,
-        kcalPer100g = kcalPer100g,
-        nameController = TextEditingController(text: name),
-        gramsController = TextEditingController(text: grams.toStringAsFixed(0)),
-        kcalController = TextEditingController(text: kcalPer100g.toStringAsFixed(0));
+  }) : nameController = TextEditingController(text: name),
+       gramsController = TextEditingController(text: grams.toStringAsFixed(0)),
+       kcalController = TextEditingController(
+         text: kcalPer100g.toStringAsFixed(0),
+       );
 
   final int? id;
   String name;

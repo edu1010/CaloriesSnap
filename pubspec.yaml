@@ -14,6 +14,7 @@ dependencies:
   image: ^4.5.4
   image_picker: ^1.2.1
   intl: ^0.20.2
+  mobile_scanner: ^6.0.11
   path: ^1.9.1
   path_provider: ^2.1.5
   sqflite: ^2.4.2+1
@@ -32,3 +33,4 @@ flutter:
     - assets/models/food_classifier.tflite
     - assets/models/food_classifier_labels.csv
     - lib/data/local/nutrition_database.json
+    - lib/data/local/nutrition_products_es.json

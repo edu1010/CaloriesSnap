@@ -5,6 +5,10 @@ class NutritionFood {
     required this.defaultGramsSmall,
     required this.defaultGramsMedium,
     required this.defaultGramsLarge,
+    this.barcode,
+    this.brand,
+    this.category,
+    this.source,
   });
 
   final String name;
@@ -12,6 +16,10 @@ class NutritionFood {
   final double defaultGramsSmall;
   final double defaultGramsMedium;
   final double defaultGramsLarge;
+  final String? barcode;
+  final String? brand;
+  final String? category;
+  final String? source;
 
   factory NutritionFood.fromJson(Map<String, dynamic> json) {
     return NutritionFood(
@@ -20,6 +28,10 @@ class NutritionFood {
       defaultGramsSmall: (json['defaultGramsSmall'] as num).toDouble(),
       defaultGramsMedium: (json['defaultGramsMedium'] as num).toDouble(),
       defaultGramsLarge: (json['defaultGramsLarge'] as num).toDouble(),
+      barcode: _asNullableString(json['barcode']),
+      brand: _asNullableString(json['brand']),
+      category: _asNullableString(json['category']),
+      source: _asNullableString(json['source']),
     );
   }
 
@@ -30,6 +42,10 @@ class NutritionFood {
       'defaultGramsSmall': defaultGramsSmall,
       'defaultGramsMedium': defaultGramsMedium,
       'defaultGramsLarge': defaultGramsLarge,
+      'barcode': barcode,
+      'brand': brand,
+      'category': category,
+      'source': source,
     };
   }
 
@@ -44,4 +60,12 @@ class NutritionFood {
         return defaultGramsMedium;
     }
   }
+}
+
+String? _asNullableString(Object? value) {
+  if (value == null) {
+    return null;
+  }
+  final asString = value.toString().trim();
+  return asString.isEmpty ? null : asString;
 }

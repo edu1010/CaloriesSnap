@@ -7,6 +7,7 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../features/calendar/calendar_screen.dart';
 import '../../features/register_meal/register_meal_screen.dart';
 import '../../models/daily_summary.dart';
+import '../../services/barcode/open_food_facts_service.dart';
 import '../../services/food_detection/food_detection_service.dart';
 import '../../services/image/image_storage_service.dart';
 import '../../services/nutrition/calorie_calculator.dart';
@@ -17,6 +18,7 @@ class HomeScreen extends StatefulWidget {
     required this.mealRepository,
     required this.nutritionRepository,
     required this.foodDetectionService,
+    required this.openFoodFactsService,
     required this.imageStorageService,
     required this.calorieCalculator,
   });
@@ -24,6 +26,7 @@ class HomeScreen extends StatefulWidget {
   final MealRepository mealRepository;
   final NutritionRepository nutritionRepository;
   final FoodDetectionService foodDetectionService;
+  final OpenFoodFactsService openFoodFactsService;
   final ImageStorageService imageStorageService;
   final CalorieCalculator calorieCalculator;
 
@@ -47,13 +50,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openRegisterMeal() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => RegisterMealScreen(
-          mealRepository: widget.mealRepository,
-          nutritionRepository: widget.nutritionRepository,
-          foodDetectionService: widget.foodDetectionService,
-          imageStorageService: widget.imageStorageService,
-          calorieCalculator: widget.calorieCalculator,
-        ),
+        builder:
+            (_) => RegisterMealScreen(
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              foodDetectionService: widget.foodDetectionService,
+              openFoodFactsService: widget.openFoodFactsService,
+              imageStorageService: widget.imageStorageService,
+              calorieCalculator: widget.calorieCalculator,
+            ),
       ),
     );
     if (!mounted) {
@@ -65,11 +70,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _openCalendar() async {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => CalendarScreen(
-          mealRepository: widget.mealRepository,
-          nutritionRepository: widget.nutritionRepository,
-          calorieCalculator: widget.calorieCalculator,
-        ),
+        builder:
+            (_) => CalendarScreen(
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+            ),
       ),
     );
     if (!mounted) {
@@ -83,9 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final wide = ResponsiveUtils.isWideLayout(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CalorieSnap'),
-      ),
+      appBar: AppBar(title: const Text('CalorieSnap')),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -95,7 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: FutureBuilder<DailySummary>(
                 future: _todaySummaryFuture,
                 builder: (context, snapshot) {
-                  final summary = snapshot.data ??
+                  final summary =
+                      snapshot.data ??
                       DailySummary(
                         date: DateTime.now(),
                         mealsCount: 0,
@@ -116,7 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: <Widget>[
                           _StatCard(
                             title: 'Approximate calories',
-                            value: '${summary.totalKcal.toStringAsFixed(0)} kcal',
+                            value:
+                                '${summary.totalKcal.toStringAsFixed(0)} kcal',
                             icon: Icons.local_fire_department_outlined,
                           ),
                           _StatCard(
@@ -130,8 +136,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Text(
                         AppConstants.estimationDisclaimer,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       if (wide)
@@ -203,24 +209,15 @@ class _StatCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: <Widget>[
-              CircleAvatar(
-                radius: 20,
-                child: Icon(icon),
-              ),
+              CircleAvatar(radius: 20, child: Icon(icon)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.labelLarge,
-                    ),
+                    Text(title, style: Theme.of(context).textTheme.labelLarge),
                     const SizedBox(height: 4),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(value, style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
               ),
