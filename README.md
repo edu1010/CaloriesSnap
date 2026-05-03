@@ -123,6 +123,12 @@ flutter build windows
     - Attribution.
     - Share-alike obligations from ODbL when distributing a derived database.
     - Use a custom `User-Agent` and respect API rate limits.
+- Nutrition5k:
+  - Repository: [google-research-datasets/Nutrition5k](https://github.com/google-research-datasets/Nutrition5k)
+  - License: Creative Commons 4.0 (as specified by the dataset authors).
+- AI4Food-NutritionDB:
+  - Repository: [BiDAlab/AI4Food-NutritionDB](https://github.com/BiDAlab/AI4Food-NutritionDB)
+  - Follow the dataset authors' download/reuse instructions and citation requirements.
 
 If you redistribute builds or exported datasets, review those terms before publication.
 
