@@ -6,112 +6,97 @@ id,name
 4,Beef Tartare
 5,Beet Salad
 6,Beignet
-7,Beignets
-8,Bibimbap
-9,Bread Pudding
-10,Breakfast Burrito
-11,Bruschetta
-12,Caesar Salad
-13,Cannoli
-14,Caprese Salad
-15,Carrot Cake
-16,Ceviche
-17,Cheese Plate
-18,Cheesecake
-19,Chicken Curry
-20,Chicken Quesadilla
-21,Chicken Wing
-22,Chicken Wings
-23,Chocolate Cake
-24,Chocolate Mousse
-25,Churro
-26,Churros
-27,Clam Chowder
-28,Club Sandwich
-29,Crab Cake
-30,Crab Cakes
-31,Creme Brulee
-32,Croque Madame
-33,Cup Cakes
-34,Cupcake
-35,Deviled Eggs
-36,Donuts
-37,Dumplings
-38,Edamame
-39,Egg
-40,Eggs Benedict
-41,Escargots
-42,Falafel
-43,Filet Mignon
-44,Fish And Chips
-45,Foie Gras
-46,French Fries
-47,French Onion Soup
-48,French Toast
-49,Fried Calamari
-50,Fried Rice
-51,Frozen Yogurt
-52,Fruit Mixed
-53,Garlic Bread
-54,Gnocchi
-55,Greek Salad
-56,Grilled Cheese Sandwich
-57,Grilled Salmon
-58,Guacamole
-59,Gyoza
-60,Hamburger
-61,Hot And Sour Soup
-62,Hot Dog
-63,Huevos Rancheros
-64,Hummus
-65,Ice Cream
-66,Lasagna
-67,Lobster Bisque
-68,Lobster Roll Sandwich
-69,Macaron
-70,Macaroni And Cheese
-71,Macarons
-72,Miso Soup
-73,Mussels
-74,Nachos
-75,Omelet
-76,Omelette
-77,Onion Ring
-78,Onion Rings
-79,Oysters
-80,Pad Thai
-81,Paella
-82,Pancake
-83,Pancakes
-84,Panna Cotta
-85,Peking Duck
-86,Pho
-87,Pizza
-88,Pork Chop
-89,Pork Lean
-90,Potato Boiled
-91,Poutine
-92,Prime Rib
-93,Pulled Pork Sandwich
-94,Ramen
-95,Ravioli
-96,Red Velvet Cake
-97,Risotto
-98,Samosa
-99,Sashimi
-100,Scallops
-101,Seaweed Salad
-102,Shrimp And Grits
-103,Spaghetti Bolognese
-104,Spaghetti Carbonara
-105,Spring Rolls
-106,Steak
-107,Strawberry Shortcake
-108,Sushi
-109,Taco
-110,Tacos
-111,Takoyaki
-112,Tiramisu
-113,Tuna Tartare
-114,Waffle
-115,Waffles
+7,Bibimbap
+8,Bread Pudding
+9,Breakfast Burrito
+10,Bruschetta
+11,Caesar Salad
+12,Cannoli
+13,Caprese Salad
+14,Carrot Cake
+15,Ceviche
+16,Cheese Plate
+17,Cheesecake
+18,Chicken Curry
+19,Chicken Quesadilla
+20,Chicken Wing
+21,Chocolate Cake
+22,Chocolate Mousse
+23,Churro
+24,Clam Chowder
+25,Club Sandwich
+26,Crab Cake
+27,Creme Brulee
+28,Croque Madame
+29,Cupcake
+30,Deviled Eggs
+31,Donuts
+32,Dumplings
+33,Edamame
+34,Eggs Benedict
+35,Escargots
+36,Falafel
+37,Filet Mignon
+38,Fish And Chips
+39,Foie Gras
+40,French Fries
+41,French Onion Soup
+42,French Toast
+43,Fried Calamari
+44,Fried Rice
+45,Frozen Yogurt
+46,Garlic Bread
+47,Gnocchi
+48,Greek Salad
+49,Grilled Cheese Sandwich
+50,Grilled Salmon
+51,Guacamole
+52,Gyoza
+53,Hamburger
+54,Hot And Sour Soup
+55,Hot Dog
+56,Huevos Rancheros
+57,Hummus
+58,Ice Cream
+59,Lasagna
+60,Lobster Bisque
+61,Lobster Roll Sandwich
+62,Macaron
+63,Macaroni And Cheese
+64,Miso Soup
+65,Mussels
+66,Nachos
+67,Omelet
+68,Onion Ring
+69,Oysters
+70,Pad Thai
+71,Paella
+72,Pancake
+73,Panna Cotta
+74,Peking Duck
+75,Pho
+76,Pizza
+77,Pork Chop
+78,Poutine
+79,Prime Rib
+80,Pulled Pork Sandwich
+81,Ramen
+82,Ravioli
+83,Red Velvet Cake
+84,Risotto
+85,Samosa
+86,Sashimi
+87,Scallops
+88,Seaweed Salad
+89,Shrimp And Grits
+90,Spaghetti Bolognese
+91,Spaghetti Carbonara
+92,Spring Rolls
+93,Steak
+94,Strawberry Shortcake
+95,Sushi
+96,Taco
+97,Takoyaki
+98,Tiramisu
+99,Tuna Tartare
+100,Waffle
