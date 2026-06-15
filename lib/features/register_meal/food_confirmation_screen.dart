@@ -103,12 +103,13 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
   Future<void> _addFood() async {
     final l10n = context.l10n;
+    final languageCode = Localizations.localeOf(context).languageCode;
     final nutritionFoods = widget.nutritionRepository.foods;
     NutritionFood? selectedNutrition =
         nutritionFoods.isNotEmpty ? nutritionFoods.first : null;
 
     final nameController = TextEditingController(
-      text: selectedNutrition?.name ?? '',
+      text: selectedNutrition?.localizedName(languageCode) ?? '',
     );
     final gramsController = TextEditingController(
       text: (selectedNutrition?.defaultGramsMedium ?? 100).toStringAsFixed(0),
@@ -139,7 +140,7 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                         ...nutritionFoods.map(
                           (item) => DropdownMenuItem<NutritionFood?>(
                             value: item,
-                            child: Text(item.name),
+                            child: Text(item.localizedName(languageCode)),
                           ),
                         ),
                       ],
@@ -148,7 +149,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                           selectedNutrition = value;
                           if (value != null) {
                             selectedPortion = 'medium';
-                            nameController.text = value.name;
+                            nameController.text = value.localizedName(
+                              languageCode,
+                            );
                             gramsController.text = value.defaultGramsMedium
                                 .toStringAsFixed(0);
                             kcalController.text = value.kcalPer100g

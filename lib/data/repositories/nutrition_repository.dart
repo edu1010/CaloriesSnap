@@ -7,6 +7,7 @@ import '../../models/nutrition_food.dart';
 class NutritionRepository {
   static const String _genericFoodsAsset =
       'lib/data/local/nutrition_database.json';
+  static const String _dishFoodsAsset = 'lib/data/local/food101_nutrition.json';
   static const String _packagedFoodsAsset =
       'lib/data/local/nutrition_products_es.json';
 
@@ -24,14 +25,22 @@ class NutritionRepository {
     }
 
     final genericFoods = await _loadFoodsFromAsset(_genericFoodsAsset);
+    final dishFoods = await _loadFoodsFromAsset(
+      _dishFoodsAsset,
+      allowMissing: true,
+    );
     final barcodeFoods = await _loadFoodsFromAsset(
       _packagedFoodsAsset,
       allowMissing: true,
     );
 
+    // Generic ingredients are loaded first so they win on name collisions
+    // (e.g. "French Fries") while the Food-101 dish table fills in every
+    // label the on-device classifier can produce.
     _foods
       ..clear()
-      ..addAll(genericFoods);
+      ..addAll(genericFoods)
+      ..addAll(dishFoods);
 
     _barcodeFoods
       ..clear()
@@ -41,10 +50,10 @@ class NutritionRepository {
 
     _foodsByName.clear();
     for (final food in _foods) {
-      _foodsByName.putIfAbsent(_normalizeName(food.name), () => food);
+      _indexByNames(food);
     }
     for (final food in _barcodeFoods) {
-      _foodsByName.putIfAbsent(_normalizeName(food.name), () => food);
+      _indexByNames(food);
     }
 
     _foodsByBarcode.clear();
@@ -64,6 +73,16 @@ class NutritionRepository {
 
   NutritionFood? findByName(String name) {
     return _foodsByName[_normalizeName(name)];
+  }
+
+  /// Indexes a food by its canonical name and any localized variant so that
+  /// [findByName] resolves regardless of which display name was persisted.
+  void _indexByNames(NutritionFood food) {
+    _foodsByName.putIfAbsent(_normalizeName(food.name), () => food);
+    final localized = food.nameEs;
+    if (localized != null && localized.trim().isNotEmpty) {
+      _foodsByName.putIfAbsent(_normalizeName(localized), () => food);
+    }
   }
 
   NutritionFood? findByBarcode(String barcode) {

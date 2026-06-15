@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart' as img;
@@ -238,6 +239,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
         mappedScores.entries.toList()
           ..sort((a, b) => b.value.compareTo(a.value));
 
+    final languageCode = ui.PlatformDispatcher.instance.locale.languageCode;
     final detectedFoods = <DetectedFood>[];
     for (final entry in ranked) {
       if (entry.value < _minConfidence && detectedFoods.isNotEmpty) {
@@ -249,7 +251,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       );
       detectedFoods.add(
         DetectedFood(
-          name: entry.key,
+          name: nutrition?.localizedName(languageCode) ?? entry.key,
           confidence: entry.value.clamp(0.0, 1.0).toDouble(),
           suggestedGrams: nutrition?.defaultGramsMedium ?? 120,
           kcalPer100g: nutrition?.kcalPer100g ?? 100,

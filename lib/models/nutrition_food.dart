@@ -5,6 +5,7 @@ class NutritionFood {
     required this.defaultGramsSmall,
     required this.defaultGramsMedium,
     required this.defaultGramsLarge,
+    this.nameEs,
     this.barcode,
     this.brand,
     this.category,
@@ -12,6 +13,7 @@ class NutritionFood {
   });
 
   final String name;
+  final String? nameEs;
   final double kcalPer100g;
   final double defaultGramsSmall;
   final double defaultGramsMedium;
@@ -24,6 +26,7 @@ class NutritionFood {
   factory NutritionFood.fromJson(Map<String, dynamic> json) {
     return NutritionFood(
       name: json['name'] as String,
+      nameEs: _asNullableString(json['nameEs']),
       kcalPer100g: (json['kcalPer100g'] as num).toDouble(),
       defaultGramsSmall: (json['defaultGramsSmall'] as num).toDouble(),
       defaultGramsMedium: (json['defaultGramsMedium'] as num).toDouble(),
@@ -38,6 +41,7 @@ class NutritionFood {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'name': name,
+      'nameEs': nameEs,
       'kcalPer100g': kcalPer100g,
       'defaultGramsSmall': defaultGramsSmall,
       'defaultGramsMedium': defaultGramsMedium,
@@ -47,6 +51,18 @@ class NutritionFood {
       'category': category,
       'source': source,
     };
+  }
+
+  /// Display name for the given language code. Falls back to the canonical
+  /// (English) [name] when no localized variant is available.
+  String localizedName(String languageCode) {
+    if (languageCode == 'es') {
+      final localized = nameEs;
+      if (localized != null && localized.isNotEmpty) {
+        return localized;
+      }
+    }
+    return name;
   }
 
   double gramsForPortion(String portionSize) {
