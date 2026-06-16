@@ -46,3 +46,16 @@ app.*.map.json
 
 # Local release packaging artifacts
 /release-assets/
+
+# Local training datasets and artifacts (never commit)
+/entrenarModeloNoAnyadirAGit/
+/training-artifacts/
+/datasets/
+/tooling/_cache/
+/.venv-training/
+/.venv-training-dml310/
+/infoAgent.md
+
+# Build artifacts and model backups (never commit)
+*.apk
+/assets/models/*.bak-*

@@ -522,12 +522,13 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     required double scale,
     required TensorType inputType,
   }) {
-    // Most image models quantize either [0, 1] or [-1, 1] input ranges.
-    // With larger scales the model usually expects [0, 255] intensity values.
+    // Our exported classifier takes pixels in the [0, 1] range: the model has
+    // an internal Rescaling([0,1] -> [-1,1]) layer, so its quantized input
+    // tensor encodes [0, 1] (typically scale 1/255). Mirror the float32 path
+    // (pixel / 255) for both int8 and uint8 so the same [0, 1] domain is used.
+    // Only models whose input genuinely encodes raw [0, 255] intensities use a
+    // larger scale; keep that fallback for robustness.
     if (scale <= 1.0 / 128.0) {
-      if (inputType == TensorType.int8) {
-        return pixelValue / 127.5 - 1.0;
-      }
       return pixelValue / 255.0;
     }
     return pixelValue.toDouble();
