@@ -109,7 +109,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
       );
 
       final foods =
-          detected.map((item) {
+          detected.where((item) => !item.requiresConfirmation).map((item) {
             final calories = widget.calorieCalculator.calculateFoodCalories(
               item.suggestedGrams,
               item.kcalPer100g,
@@ -132,6 +132,13 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
               (_) => FoodConfirmationScreen(
                 imagePath: storedPath,
                 initialFoods: foods,
+                photoCandidates:
+                    detected.isEmpty
+                        ? const <DetectedFood>[]
+                        : <DetectedFood>[
+                          detected.first,
+                          ...detected.first.alternatives,
+                        ],
                 mealRepository: widget.mealRepository,
                 nutritionRepository: widget.nutritionRepository,
                 calorieCalculator: widget.calorieCalculator,
@@ -139,6 +146,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
         ),
       );
     } catch (error) {
+      if (!mounted) return;
       setState(() {
         _errorText = context.l10n.failedToProcessImage(error);
       });

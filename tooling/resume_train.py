@@ -144,8 +144,11 @@ def main() -> int:
 
     def representative_dataset():
         for s in rep:
-            x = tf.io.read_file(s.image_path)
-            x = tf.image.decode_image(x, channels=3, expand_animations=False)
+            try:
+                x = tf.io.read_file(s.image_path)
+                x = tf.image.decode_image(x, channels=3, expand_animations=False)
+            except Exception:  # noqa: BLE001 — file may have been deleted mid-run
+                continue
             x = tf.image.convert_image_dtype(x, tf.float32)
             x = tf.image.resize(x, [args.image_size, args.image_size], antialias=True)
             yield [tf.expand_dims(x, 0)]

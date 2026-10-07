@@ -25,7 +25,11 @@ class FoodItem {
       name: name ?? this.name,
       grams: grams ?? this.grams,
       kcalPer100g: kcalPer100g ?? this.kcalPer100g,
-      calculatedKcal: calculatedKcal ?? this.calculatedKcal,
+      calculatedKcal:
+          calculatedKcal ??
+          (grams != null || kcalPer100g != null
+              ? (grams ?? this.grams) * (kcalPer100g ?? this.kcalPer100g) / 100
+              : this.calculatedKcal),
     );
   }
 

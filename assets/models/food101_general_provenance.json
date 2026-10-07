@@ -1,0 +1,21 @@
+{
+  "source": "https://huggingface.co/ml-debi/EfficientNetB0-Food101/tree/e52a2a721d8747db4de993f51325d31f5af375fb",
+  "revision": "e52a2a721d8747db4de993f51325d31f5af375fb",
+  "license": "MIT (repository metadata; no standalone license text provided)",
+  "sha256": "c29128985ad70927d9e3951558e8ddbd255fe701da5e2db105cc6377d8d9cc95",
+  "tflite_bytes": 16544324,
+  "tflite_sha256": "11ac37e0af4ea4ff154446fe875dd2c551665d4a198d64809e10662e10fdf9ba",
+  "input_shape": [
+    1,
+    224,
+    224,
+    3
+  ],
+  "input_range": [
+    0,
+    1
+  ],
+  "output_classes": 101,
+  "preprocessing": "RGB image stretched to224x224; model embeds255 multiplier then EfficientNet preprocessing",
+  "evaluation_report": "docs/food_detection_evaluation.md"
+}

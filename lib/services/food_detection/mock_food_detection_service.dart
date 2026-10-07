@@ -3,9 +3,8 @@ import '../../models/nutrition_food.dart';
 import 'food_detection_service.dart';
 
 class MockFoodDetectionService implements FoodDetectionService {
-  MockFoodDetectionService({
-    required NutritionRepository nutritionRepository,
-  }) : _nutritionRepository = nutritionRepository;
+  MockFoodDetectionService({required NutritionRepository nutritionRepository})
+    : _nutritionRepository = nutritionRepository;
 
   final NutritionRepository _nutritionRepository;
 
@@ -20,8 +19,9 @@ class MockFoodDetectionService implements FoodDetectionService {
     };
 
     return defaults.entries.map((entry) {
-      final NutritionFood? nutrition =
-          _nutritionRepository.findByName(entry.key);
+      final NutritionFood? nutrition = _nutritionRepository.findByName(
+        entry.key,
+      );
       return DetectedFood(
         name: entry.key,
         confidence: entry.value,

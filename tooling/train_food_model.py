@@ -7,6 +7,15 @@ Main goals of this version:
 - Stronger training pipeline (tf.data, optional mixed precision, augmentation).
 - Full evaluation report (top-1, top-5, macro-F1, per-class recall, confusion summary).
 - TFLite export (float32 + optional int8) ready for Flutter app inference.
+
+Split policy:
+- Samples from a published test split (Food-101 meta/test.txt) are locked: they
+  stay in "test" through dedupe, per-class capping and split balancing.
+- Train/val for those classes are carved only out of the non-test pool.
+- The same file (path) or byte-identical copies never end up in two splits; when
+  a copy collides with a locked test sample, the test sample is the one kept.
+- Duplicate detection is exact-content only. Resized, re-encoded, cropped or
+  otherwise perceptually similar copies of a photo are NOT detected.
 """
 
 from __future__ import annotations
@@ -22,7 +31,7 @@ import sys
 import traceback
 import unicodedata
 from collections import Counter, defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
@@ -33,14 +42,20 @@ SPLITS = ("train", "val", "test")
 # For conflicting duplicates, prefer cleaner curated sources.
 DEFAULT_SOURCE_PRIORITY = {
     "food101_local": 0,
-    "ai4food_product": 1,
-    "ai4food_subcategory": 2,
-    "ai4food_category": 3,
-    "nutrition5k_overhead": 4,
+    "spanish_scraped": 1,
+    "ai4food_product": 2,
+    "ai4food_subcategory": 3,
+    "ai4food_category": 4,
+    "nutrition5k_overhead": 5,
 }
 
 # Training should be favored so dedupe never empties train classes.
+# Locked (published) test samples outrank this, see _sample_priority.
 DEFAULT_SPLIT_PRIORITY = {"train": 0, "val": 1, "test": 2}
+
+# Sources whose labels are heuristic guesses rather than annotations. They are
+# opt-in and, when enabled, train-only so they never score validation or test.
+WEAK_LABEL_SOURCES = {"nutrition5k_overhead"}
 
 # Normalize plural/singular naming collisions found in historical runs.
 CANONICAL_MERGES = {
@@ -106,6 +121,21 @@ SPANISH_ALIAS_HINTS = {
     "Taco": ["taco"],
     "Tiramisu": ["tiramisu"],
     "Waffle": ["gofre"],
+    "Tortilla De Patatas": ["tortilla de patatas", "tortilla espanola"],
+    "Croquetas": ["croquetas"],
+    "Gazpacho": ["gazpacho"],
+    "Salmorejo": ["salmorejo"],
+    "Patatas Bravas": ["patatas bravas", "bravas"],
+    "Pulpo A La Gallega": ["pulpo a la gallega", "pulpo a feira"],
+    "Jamon Serrano": ["jamon serrano", "jamon iberico"],
+    "Fabada Asturiana": ["fabada asturiana", "fabada"],
+    "Pimientos De Padron": ["pimientos de padron"],
+    "Gambas Al Ajillo": ["gambas al ajillo"],
+    "Empanada Gallega": ["empanada gallega", "empanada"],
+    "Ensaladilla Rusa": ["ensaladilla rusa", "ensaladilla"],
+    "Tarta De Santiago": ["tarta de santiago"],
+    "Bocadillo De Calamares": ["bocadillo de calamares", "bocata de calamares"],
+    "Albondigas": ["albondigas", "albondigas en salsa"],
 }
 
 BACKBONES = {
@@ -122,6 +152,9 @@ class Sample:
     split: str
     source: str
     raw_label: str
+    # True only for samples of a published test split. Locked samples are never
+    # reassigned to train/val and are kept over colliding duplicates.
+    split_locked: bool = False
 
 
 @dataclass
@@ -191,7 +224,14 @@ def _load_label_map(path: Path | None) -> dict[str, str]:
     return {str(k): str(v) for k, v in raw.items()}
 
 
+def _path_identity(image_path: str) -> str:
+    return os.path.normcase(os.path.abspath(image_path))
+
+
 def _scan_food101(root: Path) -> list[Sample]:
+    """Scan Food-101. With meta/train.txt + meta/test.txt the official test
+    entries are locked as test; validation is carved from train.txt later by
+    _rebalance_splits. Without meta files nothing is locked."""
     samples: list[Sample] = []
     images_root = root / "images"
     meta_root = root / "meta"
@@ -209,16 +249,14 @@ def _scan_food101(root: Path) -> list[Sample]:
                 if not image_path.exists():
                     continue
                 raw_label = rel.split("/", 1)[0]
-                split = base_split
-                if base_split == "train":
-                    split = "val" if _stable_bucket(rel, 10) == 0 else "train"
                 samples.append(
                     Sample(
                         image_path=str(image_path.resolve()),
                         label=_canonicalize_label(raw_label),
-                        split=split,
+                        split=base_split,
                         source="food101_local",
                         raw_label=raw_label,
+                        split_locked=base_split == "test",
                     ),
                 )
         return samples
@@ -237,6 +275,33 @@ def _scan_food101(root: Path) -> list[Sample]:
                     label=_canonicalize_label(raw_label),
                     split=_split_from_hash(f"food101:{img_path.name}"),
                     source="food101_local",
+                    raw_label=raw_label,
+                ),
+            )
+    return samples
+
+
+def _scan_spanish_dishes(root: Path) -> list[Sample]:
+    """Scan the scraped Spanish-dish tree (images/<Label>/*.jpg) from
+    tooling/scrape_spanish_dishes.py. Labels here extend the target taxonomy."""
+    samples: list[Sample] = []
+    images_root = root / "images"
+    if not images_root.exists():
+        images_root = root
+    if not images_root.exists():
+        return samples
+
+    for class_dir in sorted(p for p in images_root.iterdir() if p.is_dir()):
+        raw_label = class_dir.name
+        for img_path in class_dir.rglob("*"):
+            if not img_path.is_file() or not _is_image(img_path):
+                continue
+            samples.append(
+                Sample(
+                    image_path=str(img_path.resolve()),
+                    label=_canonicalize_label(raw_label),
+                    split=_split_from_hash(f"spanish:{img_path.name}"),
+                    source="spanish_scraped",
                     raw_label=raw_label,
                 ),
             )
@@ -316,6 +381,37 @@ def _scan_ai4food(
     return samples
 
 
+def _drop_ai4food_food101_copies(
+    samples: list[Sample],
+) -> tuple[list[Sample], list[CurationLogRow]]:
+    """Drop AI4Food images republished from Food-101 (`*_Food101_NNNN.jpg`).
+
+    AI4Food renumbers them, so they cannot be traced back to Food-101's train or
+    test list, and a re-encoded copy of an official test photo would not be
+    caught by exact-content dedupe. The originals are already in the Food-101
+    source, so nothing but the leakage risk is lost."""
+    kept: list[Sample] = []
+    dropped: list[CurationLogRow] = []
+    for sample in samples:
+        if sample.source.startswith("ai4food") and "_Food101_" in Path(sample.image_path).name:
+            dropped.append(
+                CurationLogRow(
+                    image_path=sample.image_path,
+                    source=sample.source,
+                    raw_label=sample.raw_label,
+                    normalized_label=sample.label,
+                    split=sample.split,
+                    reason="ai4food_food101_copy_unknown_split",
+                ),
+            )
+            continue
+        kept.append(sample)
+    return kept, dropped
+
+
+# Opt-in only (--include-nutrition5k-keyword-labels). Nutrition5k has no dish
+# labels; this guesses one from the heaviest ingredient by substring, so e.g.
+# any rice tray becomes "Fried Rice" and "eggplant" matches "egg" -> "Omelet".
 _NUTRITION5K_LABEL_RULES: list[tuple[str, tuple[str, ...]]] = [
     ("Fried Rice", ("rice", "risotto", "pilaf", "paella")),
     ("Spaghetti Carbonara", ("pasta", "noodle", "spaghetti", "macaroni")),
@@ -446,16 +542,25 @@ def _fast_image_fingerprint(image_path: str, hash_bytes: int) -> str | None:
         return None
 
 
-def _sample_priority(sample: Sample) -> tuple[int, int]:
+def _sample_priority(sample: Sample) -> tuple[int, int, int]:
+    # A locked test sample always wins, so the colliding train/val copy is the
+    # one removed and the published test split stays intact.
+    lock_rank = 0 if sample.split_locked else 1
     split_rank = DEFAULT_SPLIT_PRIORITY.get(sample.split, 99)
     source_rank = DEFAULT_SOURCE_PRIORITY.get(sample.source, 99)
-    return split_rank, source_rank
+    return lock_rank, split_rank, source_rank
 
 
 def _deduplicate_samples(
     samples: list[Sample],
     hash_bytes: int,
+    content_hash: bool = True,
 ) -> tuple[list[Sample], dict[str, int], list[CurationLogRow]]:
+    """Keep one sample per image identity.
+
+    Identity is the content fingerprint (size + first/last `hash_bytes`), which
+    always matches for byte-identical files. With content_hash=False only
+    repeated paths are collapsed. Neither detects perceptual near-duplicates."""
     by_fingerprint: dict[str, Sample] = {}
     stats = {
         "dedupe_candidates": 0,
@@ -466,10 +571,13 @@ def _deduplicate_samples(
     dropped: list[CurationLogRow] = []
 
     for sample in samples:
-        fingerprint = _fast_image_fingerprint(sample.image_path, hash_bytes)
+        fingerprint = None
+        if content_hash:
+            fingerprint = _fast_image_fingerprint(sample.image_path, hash_bytes)
+            if fingerprint is None:
+                stats["dedupe_io_errors"] += 1
         if fingerprint is None:
-            stats["dedupe_io_errors"] += 1
-            fingerprint = f"path:{sample.image_path}"
+            fingerprint = f"path:{_path_identity(sample.image_path)}"
 
         previous = by_fingerprint.get(fingerprint)
         if previous is None:
@@ -563,43 +671,96 @@ def _allocate_split_counts(n: int, train_ratio: float, val_ratio: float) -> tupl
     return n_train, n_val, n_test
 
 
+def _allocate_train_val_counts(n: int, train_ratio: float, val_ratio: float) -> tuple[int, int]:
+    """Split a pool that already has a locked test set into train/val only,
+    keeping the train:val proportion implied by the ratios."""
+    if n <= 0:
+        return 0, 0
+    if n == 1:
+        return 1, 0
+    denom = train_ratio + val_ratio
+    val_fraction = val_ratio / denom if denom > 0 else 0.0
+    n_val = min(max(int(round(n * val_fraction)), 1), n - 1)
+    return n - n_val, n_val
+
+
+def _stable_split_order(sample: Sample, random_seed: int) -> tuple[str, str]:
+    # Seeded hash of a location-independent key: the order of one sample does
+    # not depend on scan order or on which other classes survive filtering, so
+    # repeated balancing passes give the same assignment.
+    path = Path(sample.image_path)
+    key = f"{random_seed}:{sample.source}:{path.parent.name}/{path.name}"
+    return hashlib.sha1(key.encode("utf-8")).hexdigest(), _path_identity(sample.image_path)
+
+
 def _rebalance_splits(
     samples: list[Sample],
     random_seed: int,
     train_ratio: float,
     val_ratio: float,
 ) -> list[Sample]:
-    rnd = random.Random(random_seed)
+    """Stratify by class/source without touching locked test samples.
+
+    - Locked samples stay "test".
+    - A class/source group with locked test samples splits the rest into
+      train/val only (validation comes from the training pool, never from test).
+    - Weak-label sources are train-only.
+    - Other groups get a train/val/test split by the given ratios."""
     grouped: dict[tuple[str, str], list[Sample]] = defaultdict(list)
     for sample in samples:
         grouped[(sample.label, sample.source)].append(sample)
 
     out: list[Sample] = []
-    for (_, _), rows in grouped.items():
-        rows_copy = rows[:]
-        rnd.shuffle(rows_copy)
-        n_train, n_val, n_test = _allocate_split_counts(
-            len(rows_copy),
-            train_ratio=train_ratio,
-            val_ratio=val_ratio,
+    for (_, source), rows in grouped.items():
+        locked = [row for row in rows if row.split_locked]
+        pool = sorted(
+            (row for row in rows if not row.split_locked),
+            key=lambda row: _stable_split_order(row, random_seed),
         )
-        for idx, row in enumerate(rows_copy):
+        out.extend(replace(row, split="test") for row in locked)
+
+        if source in WEAK_LABEL_SOURCES:
+            n_train, n_val = len(pool), 0
+        elif locked:
+            n_train, n_val = _allocate_train_val_counts(
+                len(pool),
+                train_ratio=train_ratio,
+                val_ratio=val_ratio,
+            )
+        else:
+            n_train, n_val, _ = _allocate_split_counts(
+                len(pool),
+                train_ratio=train_ratio,
+                val_ratio=val_ratio,
+            )
+        for idx, row in enumerate(pool):
             if idx < n_train:
                 split = "train"
             elif idx < n_train + n_val:
                 split = "val"
             else:
                 split = "test"
-            out.append(
-                Sample(
-                    image_path=row.image_path,
-                    label=row.label,
-                    split=split,
-                    source=row.source,
-                    raw_label=row.raw_label,
-                ),
-            )
+            out.append(replace(row, split=split))
     return out
+
+
+def _verify_split_integrity(samples: list[Sample]) -> None:
+    """Fail loudly instead of writing a manifest that leaks across splits."""
+    split_by_path: dict[str, str] = {}
+    for sample in samples:
+        if sample.split_locked and sample.split != "test":
+            raise RuntimeError(
+                f"Locked test sample was assigned to '{sample.split}': {sample.image_path}",
+            )
+        if sample.source in WEAK_LABEL_SOURCES and sample.split != "train":
+            raise RuntimeError(
+                f"Weak-label sample was assigned to '{sample.split}': {sample.image_path}",
+            )
+        previous = split_by_path.setdefault(_path_identity(sample.image_path), sample.split)
+        if previous != sample.split:
+            raise RuntimeError(
+                f"Image is in both '{previous}' and '{sample.split}': {sample.image_path}",
+            )
 
 
 def _filter_and_curate_samples(
@@ -713,9 +874,12 @@ def _cap_samples_per_class(
         if len(rows) <= max_per_class:
             capped.extend(rows)
             continue
-        rows_copy = rows[:]
+        # Locked test samples are never the ones cut by the cap.
+        locked = [row for row in rows if row.split_locked]
+        rows_copy = [row for row in rows if not row.split_locked]
         rnd.shuffle(rows_copy)
-        capped.extend(rows_copy[:max_per_class])
+        capped.extend(locked)
+        capped.extend(rows_copy[: max(0, max_per_class - len(locked))])
     return capped
 
 
@@ -742,6 +906,7 @@ def _write_manifest(samples: list[Sample], out_dir: Path) -> tuple[Path, list[st
                         "split": sample.split,
                         "source": sample.source,
                         "raw_label": sample.raw_label,
+                        "split_locked": sample.split_locked,
                     },
                     ensure_ascii=False,
                 )
@@ -826,6 +991,7 @@ def _write_summary(
         "num_samples": len(samples),
         "num_classes": len(classes),
         "split_counts": dict(split_counts),
+        "locked_test_samples": sum(1 for sample in samples if sample.split_locked),
         "source_counts": dict(source_counts),
         "top_classes": class_counts.most_common(30),
         "tail_classes": sorted(class_counts.items(), key=lambda kv: kv[1])[:30],
@@ -890,6 +1056,7 @@ def _read_manifest(path: Path) -> list[Sample]:
                 split=str(obj["split"]),
                 source=str(obj.get("source", "unknown")),
                 raw_label=str(obj.get("raw_label", obj["label"])),
+                split_locked=bool(obj.get("split_locked", False)),
             ),
         )
     return rows
@@ -974,6 +1141,9 @@ def _build_tf_datasets(
             return img, label_one_hot
 
         ds = ds.map(_load, num_parallel_calls=tf.data.AUTOTUNE)
+        # Antivirus/background scanners can quarantine scraped images while
+        # training runs; skip unreadable files instead of crashing the run.
+        ds = ds.apply(tf.data.experimental.ignore_errors())
         if training and cache_train:
             cache_dir.mkdir(parents=True, exist_ok=True)
             ds = ds.cache(str((cache_dir / "train.cache").resolve()))
@@ -1513,8 +1683,11 @@ def _train_and_export(
 
         def representative_dataset():
             for sample in rep_subset:
-                img = tf.io.read_file(sample.image_path)
-                img = tf.image.decode_image(img, channels=3, expand_animations=False)
+                try:
+                    img = tf.io.read_file(sample.image_path)
+                    img = tf.image.decode_image(img, channels=3, expand_animations=False)
+                except Exception:  # noqa: BLE001 — file may have been quarantined
+                    continue
                 img = tf.image.convert_image_dtype(img, tf.float32)
                 img = tf.image.resize(img, [image_size, image_size], antialias=True)
                 img = tf.expand_dims(img, axis=0)
@@ -1554,6 +1727,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Train local food classifier for CalorieSnap")
     parser.add_argument("--food101-root", type=Path, default=Path("entrenarModeloNoAnyadirAGit"))
     parser.add_argument(
+        "--spanish-root",
+        type=Path,
+        default=Path("datasets/spanish_dishes"),
+        help="Scraped Spanish dishes (images/<Label>/*.jpg); labels extend the taxonomy.",
+    )
+    parser.add_argument(
         "--ai4food-root",
         type=Path,
         default=Path("datasets/AI4Food-NutritionDB-generated/images_flat"),
@@ -1578,6 +1757,29 @@ def build_parser() -> argparse.ArgumentParser:
         "--nutrition5k-root",
         type=Path,
         default=Path("datasets/nutrition5k_dataset"),
+        help="Only read with --include-nutrition5k-keyword-labels.",
+    )
+    parser.add_argument(
+        "--include-nutrition5k-keyword-labels",
+        action="store_true",
+        help=(
+            "Opt in to Nutrition5k as classifier data (off by default). Nutrition5k has "
+            "no dish labels: the label is guessed by substring-matching the heaviest "
+            "ingredient (any rice -> 'Fried Rice', any chicken -> 'Chicken Curry', "
+            "'eggplant' -> 'Omelet'), on overhead cafeteria trays that rarely show that "
+            "dish. Kept only for reproducing older manifests; when enabled these samples "
+            "are train-only so guessed labels never score validation or test."
+        ),
+    )
+    parser.add_argument(
+        "--keep-ai4food-food101-copies",
+        action="store_true",
+        help=(
+            "Keep AI4Food '*_Food101_*' images. By default they are dropped when "
+            "Food-101's official split is present: they are renumbered Food-101 photos "
+            "of unknown train/test origin, so a re-encoded copy of an official test "
+            "image could otherwise land in training undetected."
+        ),
     )
     parser.add_argument("--output-dir", type=Path, default=Path("training-artifacts/food-model-v3"))
     parser.add_argument("--min-class-samples", type=int, default=200)
@@ -1588,7 +1790,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--dedupe",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Remove exact duplicate images across merged datasets.",
+        help=(
+            "Remove byte-identical images across merged datasets; a copy colliding with "
+            "an official test image is removed from train/val, not from test. "
+            "--no-dedupe still collapses repeated paths but lets identical copies under "
+            "different paths cross splits. Not perceptual either way: resized, "
+            "re-encoded or cropped copies of the same photo are not detected."
+        ),
     )
     parser.add_argument("--dedupe-hash-bytes", type=int, default=65536)
     parser.add_argument("--min-file-size-bytes", type=int, default=4096)
@@ -1668,6 +1876,21 @@ def main() -> int:
         print(f"[warn] Food-101 root not found: {args.food101_root}")
         food101_samples = []
 
+    has_official_test = any(sample.split_locked for sample in food101_samples)
+    if food101_samples and not has_official_test:
+        print(
+            "[warn] Food-101 meta/train.txt + meta/test.txt not found: no official test "
+            "split to preserve, test is a random per-class holdout.",
+        )
+
+    if args.spanish_root is not None and args.spanish_root.exists():
+        spanish_samples = _scan_spanish_dishes(args.spanish_root)
+        samples.extend(spanish_samples)
+        print(f"[info] Spanish dishes: {len(spanish_samples)} samples, "
+              f"{len({s.label for s in spanish_samples})} classes")
+    else:
+        spanish_samples = []
+
     if args.ai4food_root is not None:
         if args.ai4food_root.exists():
             label_map = _load_label_map(args.ai4food_label_map_json)
@@ -1682,51 +1905,68 @@ def main() -> int:
         else:
             print(f"[warn] AI4Food root not found: {args.ai4food_root}")
 
-    if args.nutrition5k_root is not None:
-        if args.nutrition5k_root.exists():
-            samples.extend(_scan_nutrition5k(args.nutrition5k_root))
+    if args.include_nutrition5k_keyword_labels:
+        if args.nutrition5k_root is not None and args.nutrition5k_root.exists():
+            nutrition5k_samples = _scan_nutrition5k(args.nutrition5k_root)
+            samples.extend(nutrition5k_samples)
+            print(
+                f"[warn] Nutrition5k: {len(nutrition5k_samples)} samples with "
+                "keyword-guessed dish labels added (train-only).",
+            )
         else:
             print(f"[warn] Nutrition5k root not found: {args.nutrition5k_root}")
+    elif args.nutrition5k_root is not None and args.nutrition5k_root.exists():
+        print(
+            "[info] Nutrition5k skipped: its dish labels would be guessed from ingredient "
+            "keywords. Pass --include-nutrition5k-keyword-labels to opt in.",
+        )
+
+    ai4food_copy_drops: list[CurationLogRow] = []
+    if has_official_test and not args.keep_ai4food_food101_copies:
+        samples, ai4food_copy_drops = _drop_ai4food_food101_copies(samples)
+        if ai4food_copy_drops:
+            print(
+                f"[info] Dropped {len(ai4food_copy_drops)} AI4Food copies of Food-101 "
+                "images (unknown train/test origin).",
+            )
 
     if not samples:
         print("[error] No samples found. Check dataset paths.")
         return 1
 
-    # Target taxonomy = curated food101-derived dish classes after canonical merge.
+    # Target taxonomy = curated food101-derived dish classes after canonical merge,
+    # extended with the scraped Spanish dishes.
     target_classes = {sample.label for sample in food101_samples}
     if not target_classes:
         target_classes = {sample.label for sample in samples if sample.source.startswith("ai4food")}
+    target_classes |= {sample.label for sample in spanish_samples}
 
     curated, dropped_initial, drop_reason_counts = _filter_and_curate_samples(
         samples,
         target_classes=target_classes,
         min_file_size_bytes=max(1024, int(args.min_file_size_bytes)),
     )
+    if ai4food_copy_drops:
+        drop_reason_counts["ai4food_food101_copy_unknown_split"] = len(ai4food_copy_drops)
     if not curated:
         print("[error] No samples remain after initial curation.")
         return 1
 
-    dedupe_stats = {
-        "dedupe_candidates": 0,
-        "dedupe_removed": 0,
-        "dedupe_conflicting_label_removed": 0,
-        "dedupe_io_errors": 0,
-    }
-    dedupe_drops: list[CurationLogRow] = []
-
-    if args.dedupe:
-        before = len(curated)
-        curated, dedupe_stats, dedupe_drops = _deduplicate_samples(
-            samples=curated,
-            hash_bytes=max(1024, int(args.dedupe_hash_bytes)),
-        )
-        print(
-            "[info] Dedupe:",
-            f"{before} -> {len(curated)} samples,",
-            f"removed={dedupe_stats['dedupe_removed']},",
-            f"conflicting_labels={dedupe_stats['dedupe_conflicting_label_removed']},",
-            f"io_errors={dedupe_stats['dedupe_io_errors']}",
-        )
+    # Always runs: --no-dedupe only turns off content hashing, repeated paths are
+    # still collapsed so one file can never sit in two splits.
+    before = len(curated)
+    curated, dedupe_stats, dedupe_drops = _deduplicate_samples(
+        samples=curated,
+        hash_bytes=max(1024, int(args.dedupe_hash_bytes)),
+        content_hash=bool(args.dedupe),
+    )
+    print(
+        "[info] Dedupe" + ("" if args.dedupe else " (paths only)") + ":",
+        f"{before} -> {len(curated)} samples,",
+        f"removed={dedupe_stats['dedupe_removed']},",
+        f"conflicting_labels={dedupe_stats['dedupe_conflicting_label_removed']},",
+        f"io_errors={dedupe_stats['dedupe_io_errors']}",
+    )
 
     curated = _cap_samples_per_class(
         curated,
@@ -1754,6 +1994,7 @@ def main() -> int:
         train_ratio=float(args.train_ratio),
         val_ratio=float(args.val_ratio),
     )
+    _verify_split_integrity(curated)
 
     out_dir: Path = args.output_dir
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -1766,7 +2007,7 @@ def main() -> int:
         dedupe_stats=dedupe_stats,
         drop_reason_counts=drop_reason_counts,
     )
-    _write_curation_log(out_dir, [*dropped_initial, *dedupe_drops])
+    _write_curation_log(out_dir, [*ai4food_copy_drops, *dropped_initial, *dedupe_drops])
 
     taxonomy = _build_taxonomy_summary(curated, classes)
     (out_dir / "taxonomy.json").write_text(
@@ -1781,6 +2022,10 @@ def main() -> int:
 
     print(f"[ok] Wrote manifest: {manifest_path}")
     print(f"[ok] Classes: {len(classes)} | Samples: {len(curated)}")
+    print(
+        "[info] Locked official test samples:",
+        sum(1 for sample in curated if sample.split_locked),
+    )
 
     if not args.train:
         print("[info] Manifest created. Re-run with --train to train/export model.")

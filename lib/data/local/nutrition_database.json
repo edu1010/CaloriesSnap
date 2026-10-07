@@ -4,433 +4,495 @@
     "kcalPer100g": 130,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 280
+    "defaultGramsLarge": 280,
+    "nameEs": "Arroz cocido"
   },
   {
     "name": "Brown rice cooked",
     "kcalPer100g": 111,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 280
+    "defaultGramsLarge": 280,
+    "nameEs": "Arroz integral cocido"
   },
   {
     "name": "Rice fried",
     "kcalPer100g": 163,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 220,
-    "defaultGramsLarge": 320
+    "defaultGramsLarge": 320,
+    "nameEs": "Arroz frito"
   },
   {
     "name": "Quinoa cooked",
     "kcalPer100g": 120,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 260
+    "defaultGramsLarge": 260,
+    "nameEs": "Quinoa cocida"
   },
   {
     "name": "Couscous cooked",
     "kcalPer100g": 112,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 280
+    "defaultGramsLarge": 280,
+    "nameEs": "Cuscús cocido"
   },
   {
     "name": "Pasta cooked",
     "kcalPer100g": 157,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 200,
-    "defaultGramsLarge": 300
+    "defaultGramsLarge": 300,
+    "nameEs": "Pasta cocida"
   },
   {
     "name": "Pasta whole wheat cooked",
     "kcalPer100g": 149,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 200,
-    "defaultGramsLarge": 300
+    "defaultGramsLarge": 300,
+    "nameEs": "Pasta integral cocida"
   },
   {
     "name": "Noodles cooked",
     "kcalPer100g": 138,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 200,
-    "defaultGramsLarge": 300
+    "defaultGramsLarge": 300,
+    "nameEs": "Fideos cocidos"
   },
   {
     "name": "Potato boiled",
     "kcalPer100g": 87,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 220,
-    "defaultGramsLarge": 350
+    "defaultGramsLarge": 350,
+    "nameEs": "Patata cocida"
   },
   {
     "name": "Sweet potato baked",
     "kcalPer100g": 90,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 220,
-    "defaultGramsLarge": 350
+    "defaultGramsLarge": 350,
+    "nameEs": "Boniato al horno"
   },
   {
     "name": "Oats dry",
     "kcalPer100g": 389,
     "defaultGramsSmall": 30,
     "defaultGramsMedium": 50,
-    "defaultGramsLarge": 80
+    "defaultGramsLarge": 80,
+    "nameEs": "Avena seca"
   },
   {
     "name": "Corn cooked",
     "kcalPer100g": 96,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Maíz cocido"
   },
   {
     "name": "Bread",
     "kcalPer100g": 265,
     "defaultGramsSmall": 40,
     "defaultGramsMedium": 80,
-    "defaultGramsLarge": 120
+    "defaultGramsLarge": 120,
+    "nameEs": "Pan"
   },
   {
     "name": "Tortilla",
     "kcalPer100g": 237,
     "defaultGramsSmall": 40,
     "defaultGramsMedium": 70,
-    "defaultGramsLarge": 110
+    "defaultGramsLarge": 110,
+    "nameEs": "Tortilla de trigo o maíz"
   },
   {
     "name": "Chicken breast",
     "kcalPer100g": 165,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Pechuga de pollo"
   },
   {
     "name": "Chicken thigh",
     "kcalPer100g": 209,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Muslo de pollo"
   },
   {
     "name": "Turkey breast",
     "kcalPer100g": 135,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Pechuga de pavo"
   },
   {
     "name": "Beef lean",
     "kcalPer100g": 217,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 250
+    "defaultGramsLarge": 250,
+    "nameEs": "Ternera magra"
   },
   {
     "name": "Pork loin",
     "kcalPer100g": 197,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 250
+    "defaultGramsLarge": 250,
+    "nameEs": "Lomo de cerdo"
   },
   {
     "name": "Salmon",
     "kcalPer100g": 208,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Salmón"
   },
   {
     "name": "Tuna",
     "kcalPer100g": 132,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Atún"
   },
   {
     "name": "White fish",
     "kcalPer100g": 110,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Pescado blanco"
   },
   {
     "name": "Shrimp",
     "kcalPer100g": 99,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Gambas"
   },
   {
     "name": "Egg",
     "kcalPer100g": 155,
     "defaultGramsSmall": 50,
     "defaultGramsMedium": 100,
-    "defaultGramsLarge": 150
+    "defaultGramsLarge": 150,
+    "nameEs": "Huevo"
   },
   {
     "name": "Omelette",
     "kcalPer100g": 154,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 230
+    "defaultGramsLarge": 230,
+    "nameEs": "Tortilla francesa"
   },
   {
     "name": "Tofu firm",
     "kcalPer100g": 144,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Tofu firme"
   },
   {
     "name": "Tempeh",
     "kcalPer100g": 193,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Tempeh"
   },
   {
     "name": "Lentils cooked",
     "kcalPer100g": 116,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 280
+    "defaultGramsLarge": 280,
+    "nameEs": "Lentejas cocidas"
   },
   {
     "name": "Chickpeas cooked",
     "kcalPer100g": 164,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 260
+    "defaultGramsLarge": 260,
+    "nameEs": "Garbanzos cocidos"
   },
   {
     "name": "Beans cooked",
     "kcalPer100g": 127,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 280
+    "defaultGramsLarge": 280,
+    "nameEs": "Alubias cocidas"
   },
   {
     "name": "Greek yogurt plain",
     "kcalPer100g": 97,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 250
+    "defaultGramsLarge": 250,
+    "nameEs": "Yogur griego natural"
   },
   {
     "name": "Yogurt plain",
     "kcalPer100g": 61,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 180,
-    "defaultGramsLarge": 260
+    "defaultGramsLarge": 260,
+    "nameEs": "Yogur natural"
   },
   {
     "name": "Milk semi skimmed",
     "kcalPer100g": 50,
     "defaultGramsSmall": 150,
     "defaultGramsMedium": 250,
-    "defaultGramsLarge": 350
+    "defaultGramsLarge": 350,
+    "nameEs": "Leche semidesnatada"
   },
   {
     "name": "Cheese cheddar",
     "kcalPer100g": 402,
     "defaultGramsSmall": 20,
     "defaultGramsMedium": 35,
-    "defaultGramsLarge": 55
+    "defaultGramsLarge": 55,
+    "nameEs": "Queso cheddar"
   },
   {
     "name": "Cottage cheese",
     "kcalPer100g": 98,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Queso cottage"
   },
   {
     "name": "Olive oil",
     "kcalPer100g": 884,
     "defaultGramsSmall": 5,
     "defaultGramsMedium": 10,
-    "defaultGramsLarge": 20
+    "defaultGramsLarge": 20,
+    "nameEs": "Aceite de oliva"
   },
   {
     "name": "Avocado",
     "kcalPer100g": 160,
     "defaultGramsSmall": 70,
     "defaultGramsMedium": 120,
-    "defaultGramsLarge": 180
+    "defaultGramsLarge": 180,
+    "nameEs": "Aguacate"
   },
   {
     "name": "Almonds",
     "kcalPer100g": 579,
     "defaultGramsSmall": 15,
     "defaultGramsMedium": 30,
-    "defaultGramsLarge": 50
+    "defaultGramsLarge": 50,
+    "nameEs": "Almendras"
   },
   {
     "name": "Walnuts",
     "kcalPer100g": 654,
     "defaultGramsSmall": 15,
     "defaultGramsMedium": 30,
-    "defaultGramsLarge": 50
+    "defaultGramsLarge": 50,
+    "nameEs": "Nueces"
   },
   {
     "name": "Peanut butter",
     "kcalPer100g": 588,
     "defaultGramsSmall": 15,
     "defaultGramsMedium": 25,
-    "defaultGramsLarge": 40
+    "defaultGramsLarge": 40,
+    "nameEs": "Crema de cacahuete"
   },
   {
     "name": "Salad",
     "kcalPer100g": 25,
     "defaultGramsSmall": 50,
     "defaultGramsMedium": 120,
-    "defaultGramsLarge": 200
+    "defaultGramsLarge": 200,
+    "nameEs": "Ensalada"
   },
   {
     "name": "Tomato",
     "kcalPer100g": 18,
     "defaultGramsSmall": 70,
     "defaultGramsMedium": 130,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Tomate"
   },
   {
     "name": "Cucumber",
     "kcalPer100g": 15,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Pepino"
   },
   {
     "name": "Carrot raw",
     "kcalPer100g": 41,
     "defaultGramsSmall": 70,
     "defaultGramsMedium": 130,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Zanahoria cruda"
   },
   {
     "name": "Bell pepper",
     "kcalPer100g": 31,
     "defaultGramsSmall": 70,
     "defaultGramsMedium": 130,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Pimiento"
   },
   {
     "name": "Broccoli steamed",
     "kcalPer100g": 35,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 230
+    "defaultGramsLarge": 230,
+    "nameEs": "Brócoli al vapor"
   },
   {
     "name": "Spinach cooked",
     "kcalPer100g": 23,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 230
+    "defaultGramsLarge": 230,
+    "nameEs": "Espinacas cocidas"
   },
   {
     "name": "Onion",
     "kcalPer100g": 40,
     "defaultGramsSmall": 40,
     "defaultGramsMedium": 80,
-    "defaultGramsLarge": 130
+    "defaultGramsLarge": 130,
+    "nameEs": "Cebolla"
   },
   {
     "name": "Apple",
     "kcalPer100g": 52,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Manzana"
   },
   {
     "name": "Banana",
     "kcalPer100g": 89,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Plátano"
   },
   {
     "name": "Orange",
     "kcalPer100g": 47,
     "defaultGramsSmall": 100,
     "defaultGramsMedium": 170,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Naranja"
   },
   {
     "name": "Strawberry",
     "kcalPer100g": 32,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Fresa"
   },
   {
     "name": "Blueberries",
     "kcalPer100g": 57,
     "defaultGramsSmall": 70,
     "defaultGramsMedium": 130,
-    "defaultGramsLarge": 210
+    "defaultGramsLarge": 210,
+    "nameEs": "Arándanos"
   },
   {
     "name": "Tomato sauce",
     "kcalPer100g": 75,
     "defaultGramsSmall": 40,
     "defaultGramsMedium": 80,
-    "defaultGramsLarge": 140
+    "defaultGramsLarge": 140,
+    "nameEs": "Salsa de tomate"
   },
   {
     "name": "Vegetable soup",
     "kcalPer100g": 46,
     "defaultGramsSmall": 200,
     "defaultGramsMedium": 320,
-    "defaultGramsLarge": 450
+    "defaultGramsLarge": 450,
+    "nameEs": "Sopa de verduras"
   },
   {
     "name": "Sushi roll",
     "kcalPer100g": 150,
     "defaultGramsSmall": 80,
     "defaultGramsMedium": 150,
-    "defaultGramsLarge": 240
+    "defaultGramsLarge": 240,
+    "nameEs": "Rollito de sushi"
   },
   {
     "name": "Pizza slice",
     "kcalPer100g": 266,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 140,
-    "defaultGramsLarge": 220
+    "defaultGramsLarge": 220,
+    "nameEs": "Porción de pizza"
   },
   {
     "name": "Burger",
     "kcalPer100g": 295,
     "defaultGramsSmall": 130,
     "defaultGramsMedium": 220,
-    "defaultGramsLarge": 330
+    "defaultGramsLarge": 330,
+    "nameEs": "Hamburguesa genérica"
   },
   {
     "name": "French fries",
     "kcalPer100g": 312,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 250
+    "defaultGramsLarge": 250,
+    "nameEs": "Patatas fritas"
   },
   {
     "name": "Sandwich",
     "kcalPer100g": 250,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 200,
-    "defaultGramsLarge": 320
+    "defaultGramsLarge": 320,
+    "nameEs": "Sándwich"
   },
   {
     "name": "Pancakes",
     "kcalPer100g": 227,
     "defaultGramsSmall": 90,
     "defaultGramsMedium": 160,
-    "defaultGramsLarge": 260
+    "defaultGramsLarge": 260,
+    "nameEs": "Tortitas"
   },
   {
     "name": "Chicken curry",
     "kcalPer100g": 180,
     "defaultGramsSmall": 120,
     "defaultGramsMedium": 220,
-    "defaultGramsLarge": 330
+    "defaultGramsLarge": 330,
+    "nameEs": "Pollo al curry"
   }
 ]

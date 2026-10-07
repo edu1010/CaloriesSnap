@@ -9,6 +9,7 @@ import 'data/repositories/nutrition_repository.dart';
 import 'services/barcode/open_food_facts_service.dart';
 import 'services/food_detection/food_detection_service.dart';
 import 'services/food_detection/local_ai_food_detection_service.dart';
+import 'services/food_detection/hybrid_food_detection_service.dart';
 import 'services/image/image_storage_service.dart';
 import 'services/nutrition/calorie_calculator.dart';
 
@@ -26,8 +27,16 @@ Future<void> main() async {
   final nutritionRepository = NutritionRepository();
   await nutritionRepository.load();
 
-  final FoodDetectionService foodDetectionService = LocalAiFoodDetectionService(
+  final FoodDetectionService foodDetectionService = HybridFoodDetectionService(
     nutritionRepository: nutritionRepository,
+    specialist: LocalAiFoodDetectionService(
+      nutritionRepository: nutritionRepository,
+    ),
+    general: LocalAiFoodDetectionService(
+      nutritionRepository: nutritionRepository,
+      modelAssetPath: 'assets/models/food101_general.tflite',
+      labelsAssetPath: 'assets/models/food101_general_labels.csv',
+    ),
   );
   final openFoodFactsService = OpenFoodFactsService();
 

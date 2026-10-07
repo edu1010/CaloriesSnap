@@ -9,6 +9,7 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../models/food_item.dart';
 import '../../models/nutrition_food.dart';
 import '../../services/nutrition/calorie_calculator.dart';
+import '../../services/food_detection/food_detection_service.dart';
 import 'meal_summary_screen.dart';
 
 class FoodConfirmationScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class FoodConfirmationScreen extends StatefulWidget {
     this.mealDateTime,
     this.initialMealType,
     this.initialNotes,
+    this.photoCandidates,
   });
 
   final String? imagePath;
@@ -35,17 +37,26 @@ class FoodConfirmationScreen extends StatefulWidget {
   final String? initialMealType;
   final String? initialNotes;
 
+  /// Null for barcode/edit flows; empty means the photo model abstained.
+  final List<DetectedFood>? photoCandidates;
+
   @override
   State<FoodConfirmationScreen> createState() => _FoodConfirmationScreenState();
 }
 
 class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
   late final List<_EditableFoodEntry> _foods;
+  _EditableFoodEntry? _selectedPhotoEntry;
+  String? _selectedPhotoName;
 
   @override
   void initState() {
     super.initState();
     _foods = widget.initialFoods.map(_buildEntryFromFood).toList();
+    if (widget.photoCandidates?.isNotEmpty == true && _foods.isNotEmpty) {
+      _selectedPhotoEntry = _foods.first;
+      _selectedPhotoName = _foods.first.name;
+    }
   }
 
   @override
@@ -96,8 +107,36 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
   void _removeAt(int index) {
     setState(() {
+      if (identical(_foods[index], _selectedPhotoEntry)) {
+        _selectedPhotoEntry = null;
+        _selectedPhotoName = null;
+      }
       _foods[index].dispose();
       _foods.removeAt(index);
+    });
+  }
+
+  double? _parseNumber(String value) {
+    final parsed = double.tryParse(value.trim().replaceAll(',', '.'));
+    return parsed != null && parsed.isFinite ? parsed : null;
+  }
+
+  void _choosePhotoCandidate(DetectedFood candidate) {
+    setState(() {
+      final previous = _selectedPhotoEntry;
+      if (previous != null) {
+        _foods.remove(previous);
+        previous.dispose();
+      }
+      final entry = _EditableFoodEntry(
+        name: candidate.name,
+        grams: candidate.suggestedGrams,
+        kcalPer100g: candidate.kcalPer100g,
+        portionSize: 'medium',
+      );
+      _foods.insert(0, entry);
+      _selectedPhotoEntry = entry;
+      _selectedPhotoName = candidate.name;
     });
   }
 
@@ -222,11 +261,20 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                 FilledButton(
                   onPressed: () {
                     final name = nameController.text.trim();
-                    final grams = double.tryParse(gramsController.text.trim());
-                    final kcalPer100g = double.tryParse(
+                    final grams = _parseNumber(gramsController.text.trim());
+                    final kcalPer100g = _parseNumber(
                       kcalController.text.trim(),
                     );
-                    if (name.isEmpty || grams == null || kcalPer100g == null) {
+                    if (name.isEmpty ||
+                        grams == null ||
+                        grams <= 0 ||
+                        kcalPer100g == null ||
+                        kcalPer100g < 0 ||
+                        kcalPer100g > 1000 ||
+                        !(grams * kcalPer100g).isFinite) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.invalidFoodValues)),
+                      );
                       return;
                     }
                     Navigator.pop(
@@ -261,6 +309,25 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
 
   Future<void> _continue() async {
     final l10n = context.l10n;
+    for (final item in _foods) {
+      final grams = _parseNumber(item.gramsController.text);
+      final kcal = _parseNumber(item.kcalController.text);
+      if (item.nameController.text.trim().isEmpty ||
+          grams == null ||
+          grams <= 0 ||
+          kcal == null ||
+          kcal < 0 ||
+          kcal > 1000 ||
+          !(grams * kcal).isFinite) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.invalidFoodValues)));
+        return;
+      }
+      item.name = item.nameController.text.trim();
+      item.grams = grams;
+      item.kcalPer100g = kcal;
+    }
     if (_foods.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -328,8 +395,9 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
                   hasImage
                       ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: AspectRatio(
-                          aspectRatio: 4 / 3,
+                        child: SizedBox(
+                          height: 160,
+                          width: double.infinity,
                           child: Image.file(
                             File(widget.imagePath!),
                             fit: BoxFit.cover,
@@ -388,134 +456,184 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView(
                 padding: const EdgeInsets.all(16),
-                itemCount: _foods.length,
-                itemBuilder: (context, index) {
-                  final item = _foods[index];
-                  final nutrition = widget.nutritionRepository.findByName(
-                    item.name,
-                  );
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: TextField(
-                                  controller: item.nameController,
-                                  decoration: InputDecoration(
-                                    labelText: l10n.name,
-                                  ),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      item.name = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                              IconButton(
-                                onPressed: () => _removeAt(index),
-                                icon: const Icon(Icons.delete_outline),
-                                tooltip: l10n.remove,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: TextField(
-                                  controller: item.gramsController,
-                                  decoration: InputDecoration(
-                                    labelText: l10n.estimatedGrams,
-                                  ),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  onChanged: (value) {
-                                    final parsed = double.tryParse(
-                                      value.trim(),
-                                    );
-                                    if (parsed == null) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      item.grams = parsed;
-                                    });
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  controller: item.kcalController,
-                                  decoration: InputDecoration(
-                                    labelText: l10n.kcalPer100g,
-                                  ),
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  onChanged: (value) {
-                                    final parsed = double.tryParse(
-                                      value.trim(),
-                                    );
-                                    if (parsed == null) {
-                                      return;
-                                    }
-                                    setState(() {
-                                      item.kcalPer100g = parsed;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String>(
-                            initialValue: item.portionSize,
-                            items:
-                                AppConstants.portionSizes
-                                    .map(
-                                      (portion) => DropdownMenuItem<String>(
-                                        value: portion,
-                                        child: Text(l10n.portionLabel(portion)),
-                                      ),
-                                    )
-                                    .toList(),
-                            onChanged: (value) {
-                              if (value == null) {
-                                return;
-                              }
-                              setState(() {
-                                item.portionSize = value;
-                                if (value != 'custom' && nutrition != null) {
-                                  final grams = nutrition.gramsForPortion(
-                                    value,
-                                  );
-                                  item.grams = grams;
-                                  item.gramsController.text = grams
-                                      .toStringAsFixed(0);
-                                }
-                              });
-                            },
-                            decoration: InputDecoration(
-                              labelText: l10n.portionSize,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(l10n.estimatedCalories(_entryCalories(item))),
-                        ],
+                children: <Widget>[
+                  if (widget.photoCandidates != null) ...<Widget>[
+                    Text(l10n.photoPortionHint),
+                    const SizedBox(height: 8),
+                    if (widget.photoCandidates!.isEmpty)
+                      Text(l10n.noReliableDish)
+                    else ...<Widget>[
+                      Text(
+                        l10n.possibleDish,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                    ),
-                  );
-                },
+                      if (widget.photoCandidates!.first.requiresConfirmation)
+                        Text(l10n.uncertainDish),
+                      Text(l10n.alternativeDishes),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children:
+                            widget.photoCandidates!
+                                .map(
+                                  (candidate) => ChoiceChip(
+                                    label: Text(candidate.name),
+                                    tooltip:
+                                        '${l10n.modelScore}: ${(candidate.confidence * 100).toStringAsFixed(0)}%',
+                                    selected:
+                                        _selectedPhotoName == candidate.name,
+                                    onSelected:
+                                        (_) => _choosePhotoCandidate(candidate),
+                                  ),
+                                )
+                                .toList(),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                  ],
+                  ...List<Widget>.generate(_foods.length, (index) {
+                    final item = _foods[index];
+                    final nutrition = widget.nutritionRepository.findByName(
+                      item.name,
+                    );
+                    return Card(
+                      key: ObjectKey(item),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: TextField(
+                                    controller: item.nameController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.name,
+                                    ),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        item.name = value;
+                                        final match = widget.nutritionRepository
+                                            .findByName(value.trim());
+                                        if (match != null) {
+                                          item.kcalPer100g = match.kcalPer100g;
+                                          item.kcalController.text = match
+                                              .kcalPer100g
+                                              .toStringAsFixed(0);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                  onPressed: () => _removeAt(index),
+                                  icon: const Icon(Icons.delete_outline),
+                                  tooltip: l10n.remove,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: TextField(
+                                    controller: item.gramsController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.estimatedGrams,
+                                    ),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    onChanged: (value) {
+                                      final parsed = _parseNumber(value.trim());
+                                      if (parsed == null ||
+                                          parsed <= 0 ||
+                                          !(parsed * item.kcalPer100g)
+                                              .isFinite) {
+                                        return;
+                                      }
+                                      setState(() {
+                                        item.grams = parsed;
+                                        item.portionSize = 'custom';
+                                      });
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    controller: item.kcalController,
+                                    decoration: InputDecoration(
+                                      labelText: l10n.kcalPer100g,
+                                    ),
+                                    keyboardType:
+                                        const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                        ),
+                                    onChanged: (value) {
+                                      final parsed = _parseNumber(value.trim());
+                                      if (parsed == null ||
+                                          parsed < 0 ||
+                                          parsed > 1000 ||
+                                          !(parsed * item.grams).isFinite) {
+                                        return;
+                                      }
+                                      setState(() {
+                                        item.kcalPer100g = parsed;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              key: ValueKey(item.portionSize),
+                              initialValue: item.portionSize,
+                              items:
+                                  AppConstants.portionSizes
+                                      .map(
+                                        (portion) => DropdownMenuItem<String>(
+                                          value: portion,
+                                          child: Text(
+                                            l10n.portionLabel(portion),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged: (value) {
+                                if (value == null) {
+                                  return;
+                                }
+                                setState(() {
+                                  item.portionSize = value;
+                                  if (value != 'custom' && nutrition != null) {
+                                    final grams = nutrition.gramsForPortion(
+                                      value,
+                                    );
+                                    item.grams = grams;
+                                    item.gramsController.text = grams
+                                        .toStringAsFixed(0);
+                                  }
+                                });
+                              },
+                              decoration: InputDecoration(
+                                labelText: l10n.portionSize,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(l10n.estimatedCalories(_entryCalories(item))),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
               ),
             ),
           ],

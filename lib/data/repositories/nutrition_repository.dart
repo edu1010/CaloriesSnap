@@ -116,7 +116,42 @@ class NutritionRepository {
     }
   }
 
-  String _normalizeName(String value) => value.trim().toLowerCase();
+  // Classifier labels often use underscores, while users enter accented
+  // Spanish names. Keep matching exact after normalizing typography: dropping
+  // preparation words (raw/cooked/fried) can silently select a wrong density.
+  String _normalizeName(String value) {
+    var normalized = value.trim().toLowerCase();
+    const accents = <String, String>{
+      'á': 'a',
+      'à': 'a',
+      'ä': 'a',
+      'â': 'a',
+      'é': 'e',
+      'è': 'e',
+      'ë': 'e',
+      'ê': 'e',
+      'í': 'i',
+      'ì': 'i',
+      'ï': 'i',
+      'î': 'i',
+      'ó': 'o',
+      'ò': 'o',
+      'ö': 'o',
+      'ô': 'o',
+      'ú': 'u',
+      'ù': 'u',
+      'ü': 'u',
+      'û': 'u',
+      'ñ': 'n',
+    };
+    for (final entry in accents.entries) {
+      normalized = normalized.replaceAll(entry.key, entry.value);
+    }
+    return normalized
+        .replaceAll(RegExp(r'[\u0300-\u036f]'), '')
+        .replaceAll(RegExp(r'[_\-\s]+'), ' ')
+        .trim();
+  }
 
   String? _normalizeBarcode(String? value) {
     if (value == null) {

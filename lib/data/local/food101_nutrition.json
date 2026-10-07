@@ -99,5 +99,20 @@
   { "name": "Takoyaki", "nameEs": "Takoyaki", "kcalPer100g": 180, "defaultGramsSmall": 80, "defaultGramsMedium": 140, "defaultGramsLarge": 220, "category": "dish", "source": "Food-101 estimate" },
   { "name": "Tiramisu", "nameEs": "Tiramisú", "kcalPer100g": 280, "defaultGramsSmall": 90, "defaultGramsMedium": 130, "defaultGramsLarge": 190, "category": "dessert", "source": "Food-101 estimate" },
   { "name": "Tuna Tartare", "nameEs": "Tartar de atún", "kcalPer100g": 150, "defaultGramsSmall": 80, "defaultGramsMedium": 130, "defaultGramsLarge": 200, "category": "seafood", "source": "Food-101 estimate" },
-  { "name": "Waffle", "nameEs": "Gofre", "kcalPer100g": 290, "defaultGramsSmall": 80, "defaultGramsMedium": 140, "defaultGramsLarge": 220, "category": "breakfast", "source": "Food-101 estimate" }
+  { "name": "Waffle", "nameEs": "Gofre", "kcalPer100g": 290, "defaultGramsSmall": 80, "defaultGramsMedium": 140, "defaultGramsLarge": 220, "category": "breakfast", "source": "Food-101 estimate" },
+  { "name": "Tortilla De Patatas", "nameEs": "Tortilla de patatas", "kcalPer100g": 190, "defaultGramsSmall": 100, "defaultGramsMedium": 170, "defaultGramsLarge": 260, "category": "dish", "source": "Spanish dish estimate" },
+  { "name": "Croquetas", "nameEs": "Croquetas", "kcalPer100g": 250, "defaultGramsSmall": 60, "defaultGramsMedium": 120, "defaultGramsLarge": 180, "category": "appetizer", "source": "Spanish dish estimate" },
+  { "name": "Gazpacho", "nameEs": "Gazpacho", "kcalPer100g": 45, "defaultGramsSmall": 150, "defaultGramsMedium": 250, "defaultGramsLarge": 350, "category": "soup", "source": "Spanish dish estimate" },
+  { "name": "Salmorejo", "nameEs": "Salmorejo", "kcalPer100g": 95, "defaultGramsSmall": 150, "defaultGramsMedium": 250, "defaultGramsLarge": 350, "category": "soup", "source": "Spanish dish estimate" },
+  { "name": "Patatas Bravas", "nameEs": "Patatas bravas", "kcalPer100g": 185, "defaultGramsSmall": 100, "defaultGramsMedium": 200, "defaultGramsLarge": 300, "category": "appetizer", "source": "Spanish dish estimate" },
+  { "name": "Pulpo A La Gallega", "nameEs": "Pulpo a la gallega", "kcalPer100g": 120, "defaultGramsSmall": 100, "defaultGramsMedium": 180, "defaultGramsLarge": 280, "category": "seafood", "source": "Spanish dish estimate" },
+  { "name": "Jamon Serrano", "nameEs": "Jamón serrano", "kcalPer100g": 240, "defaultGramsSmall": 40, "defaultGramsMedium": 80, "defaultGramsLarge": 120, "category": "meat", "source": "Spanish dish estimate" },
+  { "name": "Fabada Asturiana", "nameEs": "Fabada asturiana", "kcalPer100g": 150, "defaultGramsSmall": 200, "defaultGramsMedium": 350, "defaultGramsLarge": 500, "category": "dish", "source": "Spanish dish estimate" },
+  { "name": "Pimientos De Padron", "nameEs": "Pimientos de padrón", "kcalPer100g": 90, "defaultGramsSmall": 60, "defaultGramsMedium": 120, "defaultGramsLarge": 180, "category": "vegetable", "source": "Spanish dish estimate" },
+  { "name": "Gambas Al Ajillo", "nameEs": "Gambas al ajillo", "kcalPer100g": 180, "defaultGramsSmall": 80, "defaultGramsMedium": 150, "defaultGramsLarge": 220, "category": "seafood", "source": "Spanish dish estimate" },
+  { "name": "Empanada Gallega", "nameEs": "Empanada gallega", "kcalPer100g": 260, "defaultGramsSmall": 100, "defaultGramsMedium": 180, "defaultGramsLarge": 280, "category": "dish", "source": "Spanish dish estimate" },
+  { "name": "Ensaladilla Rusa", "nameEs": "Ensaladilla rusa", "kcalPer100g": 190, "defaultGramsSmall": 100, "defaultGramsMedium": 180, "defaultGramsLarge": 280, "category": "salad", "source": "Spanish dish estimate" },
+  { "name": "Tarta De Santiago", "nameEs": "Tarta de Santiago", "kcalPer100g": 410, "defaultGramsSmall": 60, "defaultGramsMedium": 100, "defaultGramsLarge": 150, "category": "dessert", "source": "Spanish dish estimate" },
+  { "name": "Bocadillo De Calamares", "nameEs": "Bocadillo de calamares", "kcalPer100g": 230, "defaultGramsSmall": 150, "defaultGramsMedium": 250, "defaultGramsLarge": 350, "category": "dish", "source": "Spanish dish estimate" },
+  { "name": "Albondigas", "nameEs": "Albóndigas", "kcalPer100g": 180, "defaultGramsSmall": 120, "defaultGramsMedium": 200, "defaultGramsLarge": 300, "category": "dish", "source": "Spanish dish estimate" }
 ]

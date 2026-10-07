@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -10,6 +11,8 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/nutrition_food.dart';
 import 'food_detection_service.dart';
+import 'classifier_postprocessing.dart';
+import 'classifier_image_preprocessing.dart';
 
 class LocalAiFoodDetectionService implements FoodDetectionService {
   LocalAiFoodDetectionService({
@@ -20,159 +23,8 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
        _modelAssetPath = modelAssetPath,
        _labelsAssetPath = labelsAssetPath;
 
-  static const int _maxDetectedFoods = 3;
+  static const int _maxDetectedFoods = 1;
   static const double _minConfidence = 0.03;
-  static const int _maxMappedPredictions = 80;
-  static const double _minLexicalScore = 1.0;
-  static const double _minNutritionNameScore = 1.35;
-  static const Set<String> _ignoredTokens = <String>{
-    'a',
-    'an',
-    'and',
-    'de',
-    'del',
-    'con',
-    'the',
-    'with',
-    'in',
-    'on',
-    'for',
-    'style',
-    'dish',
-    'food',
-    'cooked',
-    'raw',
-    'fresh',
-    'fried',
-    'grilled',
-    'roasted',
-    'boiled',
-    'baked',
-    'steamed',
-    'plain',
-  };
-
-  static final Map<String, _FoodLexicon> _foodLexicons = <String, _FoodLexicon>{
-    'Rice cooked': const _FoodLexicon(
-      keywords: <String>{
-        'rice',
-        'risotto',
-        'pilaf',
-        'biryani',
-        'paella',
-        'congee',
-        'porridge',
-        'chahan',
-        'nasi',
-        'jollof',
-        'arroz',
-      },
-      phrases: <String>{
-        'fried rice',
-        'sticky rice',
-        'rice bowl',
-        'rice cake',
-        'rice porridge',
-      },
-    ),
-    'Chicken breast': const _FoodLexicon(
-      keywords: <String>{
-        'chicken',
-        'poultry',
-        'drumstick',
-        'wing',
-        'nugget',
-        'karaage',
-        'teriyaki',
-        'katsu',
-        'tikka',
-      },
-      phrases: <String>{
-        'fried chicken',
-        'grilled chicken',
-        'chicken breast',
-        'chicken salad',
-        'chicken sandwich',
-      },
-    ),
-    'Pasta cooked': const _FoodLexicon(
-      keywords: <String>{
-        'pasta',
-        'spaghetti',
-        'macaroni',
-        'noodle',
-        'ramen',
-        'udon',
-        'penne',
-        'linguine',
-        'fettuccine',
-        'lasagna',
-        'ravioli',
-        'gnocchi',
-      },
-      phrases: <String>{'mac and cheese', 'noodle soup', 'pasta salad'},
-    ),
-    'Bread': const _FoodLexicon(
-      keywords: <String>{
-        'bread',
-        'toast',
-        'bagel',
-        'bun',
-        'roll',
-        'naan',
-        'pita',
-        'sandwich',
-        'burger',
-        'baguette',
-        'focaccia',
-        'pizza',
-        'quesadilla',
-        'flatbread',
-      },
-      phrases: <String>{
-        'garlic bread',
-        'grilled cheese',
-        'french toast',
-        'hot dog bun',
-      },
-    ),
-    'Egg': const _FoodLexicon(
-      keywords: <String>{
-        'egg',
-        'omelet',
-        'omelette',
-        'frittata',
-        'quiche',
-        'benedict',
-        'scramble',
-        'tamago',
-      },
-      phrases: <String>{'fried egg', 'boiled egg', 'poached egg'},
-    ),
-    'Salad': const _FoodLexicon(
-      keywords: <String>{
-        'salad',
-        'slaw',
-        'coleslaw',
-        'tabbouleh',
-        'tabouli',
-        'gazpacho',
-        'ceviche',
-        'aguachile',
-      },
-      phrases: <String>{
-        'green salad',
-        'fruit salad',
-        'potato salad',
-        'caesar salad',
-      },
-    ),
-    'Olive oil': const _FoodLexicon(
-      keywords: <String>{'olive', 'vinaigrette', 'dressing', 'aioli'},
-      phrases: <String>{'olive oil', 'olive tapenade'},
-    ),
-  };
-
   final NutritionRepository _nutritionRepository;
   final String _modelAssetPath;
   final String _labelsAssetPath;
@@ -180,9 +32,20 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
   Interpreter? _interpreter;
   List<String>? _labels;
   Future<void>? _initializationFuture;
+  Future<void> _pendingDetection = Future<void>.value();
 
   @override
-  Future<List<DetectedFood>> detectFoods(String imagePath) async {
+  Future<List<DetectedFood>> detectFoods(String imagePath) {
+    // A native interpreter may only be invoked by one worker at a time.
+    final result = _pendingDetection.then((_) => _detectFoods(imagePath));
+    _pendingDetection = result.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return result;
+  }
+
+  Future<List<DetectedFood>> _detectFoods(String imagePath) async {
     await _ensureInitialized();
 
     final interpreter = _interpreter;
@@ -191,6 +54,84 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       throw StateError('Local food detection model is not initialized.');
     }
 
+    final address = interpreter.address;
+    final probabilities = await Isolate.run(
+      () => _runNativeClassification(imagePath, address),
+    );
+    final mappedScores = _mapPredictionsToSupportedFoods(
+      probabilities: probabilities,
+      labels: labels,
+    );
+
+    if (mappedScores.isEmpty) {
+      return const <DetectedFood>[];
+    }
+
+    final ranked =
+        mappedScores.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    final languageCode = ui.PlatformDispatcher.instance.locale.languageCode;
+    final candidateIndices = List<int>.generate(probabilities.length, (i) => i)
+      ..sort((a, b) => probabilities[b].compareTo(probabilities[a]));
+    final margin =
+        candidateIndices.length < 2
+            ? 1.0
+            : probabilities[candidateIndices[0]] -
+                probabilities[candidateIndices[1]];
+    final alternatives = <DetectedFood>[];
+    final seenNames = mappedScores.keys.toSet();
+    for (final index in candidateIndices.take(5)) {
+      final name = _mapLabelToSupportedFood(labels[index]);
+      if (name == null || !seenNames.add(name)) continue;
+      final nutrition = _nutritionRepository.findByName(name);
+      if (nutrition == null) continue;
+      alternatives.add(
+        DetectedFood(
+          name: nutrition.localizedName(languageCode),
+          confidence: probabilities[index],
+          suggestedGrams: nutrition.defaultGramsMedium,
+          kcalPer100g: nutrition.kcalPer100g,
+        ),
+      );
+      if (alternatives.length == 2) break;
+    }
+    final detectedFoods = <DetectedFood>[];
+    for (final entry in ranked) {
+      if (entry.value < _minConfidence) {
+        continue;
+      }
+
+      final NutritionFood? nutrition = _nutritionRepository.findByName(
+        entry.key,
+      );
+      if (nutrition == null) continue;
+      detectedFoods.add(
+        DetectedFood(
+          name: nutrition.localizedName(languageCode),
+          confidence: entry.value.clamp(0.0, 1.0).toDouble(),
+          // These are review heuristics, not calibrated accuracy thresholds.
+          requiresConfirmation: entry.value < 0.5 || margin < 0.15,
+          alternatives: alternatives,
+          suggestedGrams: nutrition.defaultGramsMedium,
+          kcalPer100g: nutrition.kcalPer100g,
+        ),
+      );
+
+      if (detectedFoods.length >= _maxDetectedFoods) {
+        break;
+      }
+    }
+
+    return detectedFoods;
+  }
+
+  static Future<List<double>> _runNativeClassification(
+    String imagePath,
+    int address,
+  ) async {
+    // Borrow the owner's native interpreter. Never close it in the worker.
+    final interpreter = Interpreter.fromAddress(address, allocated: true);
     final bytes = await File(imagePath).readAsBytes();
     final decodedImage = img.decodeImage(bytes);
     if (decodedImage == null) {
@@ -217,7 +158,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
 
     final rawScores = _flattenScores(output);
     if (rawScores.isEmpty) {
-      return const <DetectedFood>[];
+      return const <double>[];
     }
 
     final normalizedScores = _prepareRawScores(
@@ -226,48 +167,25 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       outputQuantization: outputQuantization,
     );
     final probabilities = _normalizeScores(normalizedScores);
-    final mappedScores = _mapPredictionsToSupportedFoods(
-      probabilities: probabilities,
-      labels: labels,
-    );
+    return probabilities;
+  }
 
-    if (mappedScores.isEmpty) {
-      return const <DetectedFood>[];
-    }
-
-    final ranked =
-        mappedScores.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-
-    final languageCode = ui.PlatformDispatcher.instance.locale.languageCode;
-    final detectedFoods = <DetectedFood>[];
-    for (final entry in ranked) {
-      if (entry.value < _minConfidence && detectedFoods.isNotEmpty) {
-        continue;
-      }
-
-      final NutritionFood? nutrition = _nutritionRepository.findByName(
-        entry.key,
-      );
-      detectedFoods.add(
-        DetectedFood(
-          name: nutrition?.localizedName(languageCode) ?? entry.key,
-          confidence: entry.value.clamp(0.0, 1.0).toDouble(),
-          suggestedGrams: nutrition?.defaultGramsMedium ?? 120,
-          kcalPer100g: nutrition?.kcalPer100g ?? 100,
-        ),
-      );
-
-      if (detectedFoods.length >= _maxDetectedFoods) {
-        break;
-      }
-    }
-
-    return detectedFoods;
+  Future<void> dispose() async {
+    await _pendingDetection;
+    _interpreter?.close();
+    _interpreter = null;
+    _labels = null;
+    _initializationFuture = null;
   }
 
   Future<void> _ensureInitialized() {
-    return _initializationFuture ??= _initializeModel();
+    return _initializationFuture ??= _initializeModel().catchError((
+      Object error,
+      StackTrace stack,
+    ) {
+      _initializationFuture = null;
+      Error.throwWithStackTrace(error, stack);
+    });
   }
 
   Future<void> _initializeModel() async {
@@ -276,16 +194,28 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       _modelAssetPath,
       options: options,
     );
-    interpreter.allocateTensors();
-
-    final labelsCsv = await rootBundle.loadString(_labelsAssetPath);
-    final labels = _parseLabels(labelsCsv);
-    if (labels.isEmpty) {
-      throw StateError('No labels loaded from $_labelsAssetPath.');
+    try {
+      interpreter.allocateTensors();
+      final labelsCsv = await rootBundle.loadString(_labelsAssetPath);
+      final labels = _parseLabels(labelsCsv);
+      final outputShape = interpreter.getOutputTensor(0).shape;
+      final outputCount = outputShape.fold<int>(
+        1,
+        (count, size) => count * size,
+      );
+      if (labels.isEmpty ||
+          outputCount != labels.length ||
+          labels.any((label) => label.isEmpty)) {
+        throw StateError(
+          'Classifier labels must be contiguous and match output shape $outputShape.',
+        );
+      }
+      _interpreter = interpreter;
+      _labels = labels;
+    } catch (_) {
+      interpreter.close();
+      rethrow;
     }
-
-    _interpreter = interpreter;
-    _labels = labels;
   }
 
   List<String> _parseLabels(String rawCsv) {
@@ -304,7 +234,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
       }
 
       final id = int.tryParse(line.substring(0, firstComma).trim());
-      if (id == null) {
+      if (id == null || id < 0) {
         continue;
       }
       byId[id] = line.substring(firstComma + 1).trim();
@@ -322,7 +252,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return labels;
   }
 
-  Object _buildInputTensorData({
+  static Object _buildInputTensorData({
     required img.Image image,
     required List<int> inputShape,
     required TensorType inputType,
@@ -337,7 +267,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     final bool isChannelFirst = inputShape[1] == 3;
     final int inputHeight = isChannelFirst ? inputShape[2] : inputShape[1];
     final int inputWidth = isChannelFirst ? inputShape[3] : inputShape[2];
-    final preparedImage = _centerCropAndResize(
+    final preparedImage = _resizeForClassifier(
       image,
       targetWidth: inputWidth,
       targetHeight: inputHeight,
@@ -353,31 +283,15 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return _buildChannelLastInput(preparedImage, inputType, inputQuantization);
   }
 
-  img.Image _centerCropAndResize(
+  static img.Image _resizeForClassifier(
     img.Image image, {
     required int targetWidth,
     required int targetHeight,
   }) {
-    final cropSize = math.min(image.width, image.height);
-    final offsetX = (image.width - cropSize) ~/ 2;
-    final offsetY = (image.height - cropSize) ~/ 2;
-    final cropped = img.copyCrop(
-      image,
-      x: offsetX,
-      y: offsetY,
-      width: cropSize,
-      height: cropSize,
-    );
-
-    return img.copyResize(
-      cropped,
-      width: targetWidth,
-      height: targetHeight,
-      interpolation: img.Interpolation.linear,
-    );
+    return prepareClassifierImage(image, targetWidth, targetHeight);
   }
 
-  Object _buildChannelLastInput(
+  static Object _buildChannelLastInput(
     img.Image image,
     TensorType inputType,
     QuantizationParams inputQuantization,
@@ -425,7 +339,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     throw StateError('Unsupported input tensor type: $inputType');
   }
 
-  Object _buildChannelFirstInput(
+  static Object _buildChannelFirstInput(
     img.Image image,
     TensorType inputType,
     QuantizationParams inputQuantization,
@@ -468,7 +382,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     throw StateError('Unsupported input tensor type: $inputType');
   }
 
-  double _normalizedPixelChannel({
+  static double _normalizedPixelChannel({
     required img.Pixel pixel,
     required int channelIndex,
   }) {
@@ -476,7 +390,10 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return value / 255.0;
   }
 
-  int _pixelChannel({required img.Pixel pixel, required int channelIndex}) {
+  static int _pixelChannel({
+    required img.Pixel pixel,
+    required int channelIndex,
+  }) {
     switch (channelIndex) {
       case 0:
         return pixel.r.toInt();
@@ -489,7 +406,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     }
   }
 
-  int _toQuantizedChannel({
+  static int _toQuantizedChannel({
     required int value,
     required TensorType inputType,
     required QuantizationParams quantization,
@@ -517,7 +434,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return centered.clamp(-128, 127).toInt();
   }
 
-  double _normalizeImageValueForQuantizedInput({
+  static double _normalizeImageValueForQuantizedInput({
     required int pixelValue,
     required double scale,
     required TensorType inputType,
@@ -534,7 +451,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return pixelValue.toDouble();
   }
 
-  Object _buildOutputTensorData({
+  static Object _buildOutputTensorData({
     required List<int> outputShape,
     required TensorType outputType,
   }) {
@@ -548,7 +465,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     throw StateError('Unsupported output tensor type: $outputType');
   }
 
-  Object _createTensorBuffer(List<int> shape, num fillValue) {
+  static Object _createTensorBuffer(List<int> shape, num fillValue) {
     if (shape.isEmpty) {
       return fillValue;
     }
@@ -566,7 +483,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     );
   }
 
-  List<double> _flattenScores(Object outputTensorData) {
+  static List<double> _flattenScores(Object outputTensorData) {
     final result = <double>[];
 
     void walk(Object? node) {
@@ -585,45 +502,11 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return result;
   }
 
-  List<double> _normalizeScores(List<double> rawScores) {
-    if (rawScores.isEmpty) {
-      return const <double>[];
-    }
-
-    final finiteScores = rawScores.where((v) => v.isFinite).toList();
-    if (finiteScores.isEmpty) {
-      return List<double>.filled(rawScores.length, 0.0);
-    }
-
-    final total = finiteScores.fold<double>(0.0, (sum, value) => sum + value);
-    final looksLikeProbabilities =
-        rawScores.every((v) => v >= 0.0 && v <= 1.0) &&
-        total > 0.8 &&
-        total < 1.2;
-    if (looksLikeProbabilities) {
-      return rawScores
-          .map((value) => value.clamp(0.0, 1.0).toDouble())
-          .toList();
-    }
-
-    final maxLogit = finiteScores.reduce(math.max);
-    final expScores = <double>[];
-    var denominator = 0.0;
-    for (final value in rawScores) {
-      final safeValue = value.isFinite ? value : -1e9;
-      final expValue = math.exp(safeValue - maxLogit);
-      expScores.add(expValue);
-      denominator += expValue;
-    }
-
-    if (denominator <= 0.0) {
-      return List<double>.filled(rawScores.length, 0.0);
-    }
-
-    return expScores.map((value) => value / denominator).toList();
+  static List<double> _normalizeScores(List<double> rawScores) {
+    return ClassifierPostprocessing.probabilities(rawScores);
   }
 
-  List<double> _prepareRawScores({
+  static List<double> _prepareRawScores({
     required List<double> rawScores,
     required TensorType outputType,
     required QuantizationParams outputQuantization,
@@ -639,7 +522,7 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     return rawScores;
   }
 
-  List<double> _dequantizeScores(
+  static List<double> _dequantizeScores(
     List<double> rawScores,
     QuantizationParams quantization,
   ) {
@@ -655,225 +538,29 @@ class LocalAiFoodDetectionService implements FoodDetectionService {
     required List<double> probabilities,
     required List<String> labels,
   }) {
-    final available = math.min(probabilities.length, labels.length);
-    if (available == 0) {
+    if (probabilities.length != labels.length) {
+      throw StateError('Classifier output and label count do not match.');
+    }
+    final winner = ClassifierPostprocessing.winningClass(
+      probabilities,
+      minimum: _minConfidence,
+    );
+    if (winner == null) return const <String, double>{};
+    final label = labels[winner];
+    if (label.isEmpty || label == '__background__') {
       return const <String, double>{};
     }
-
-    final rankedIndices = List<int>.generate(available, (index) => index)
-      ..sort((a, b) => probabilities[b].compareTo(probabilities[a]));
-
-    final mappedScores = <String, double>{};
-    final topCount = math.min(_maxMappedPredictions, rankedIndices.length);
-
-    for (var i = 0; i < topCount; i++) {
-      final index = rankedIndices[i];
-      final label = labels[index];
-      if (label.isEmpty || label == '__background__') {
-        continue;
-      }
-
-      final mappedFood = _mapLabelToSupportedFood(label);
-      if (mappedFood == null) {
-        continue;
-      }
-
-      final score = probabilities[index];
-      final previous = mappedScores[mappedFood] ?? 0.0;
-      if (score > previous) {
-        mappedScores[mappedFood] = score;
-      }
-    }
-
-    return mappedScores;
+    // Never substitute an unrelated lower-ranked class if the winner cannot
+    // be mapped. A classifier's alternatives are not additional meal items.
+    final mappedFood = _mapLabelToSupportedFood(label);
+    return mappedFood == null
+        ? const <String, double>{}
+        : <String, double>{mappedFood: probabilities[winner]};
   }
 
   String? _mapLabelToSupportedFood(String label) {
-    final directMatch = _nutritionRepository.findByName(label);
-    if (directMatch != null) {
-      return directMatch.name;
-    }
-
-    final normalized = _normalizeLabelForMatching(label);
-    final tokens = _tokenizeLabel(normalized);
-    if (tokens.isEmpty) {
-      return null;
-    }
-
-    final lexiconMatch = _bestLexiconMatch(normalized, tokens);
-    final nutritionMatch = _bestNutritionNameMatch(normalized, tokens);
-
-    if (lexiconMatch == null && nutritionMatch == null) {
-      return null;
-    }
-
-    if (lexiconMatch == null) {
-      return nutritionMatch!.name;
-    }
-    if (nutritionMatch == null) {
-      return lexiconMatch.name;
-    }
-
-    return nutritionMatch.score >= lexiconMatch.score
-        ? nutritionMatch.name
-        : lexiconMatch.name;
+    // Calories must describe the complete model class, not a guessed ingredient.
+    // Unknown labels require a reviewed nutrition entry before they can be logged.
+    return _nutritionRepository.findByName(label)?.name;
   }
-
-  String _normalizeLabelForMatching(String label) {
-    final normalized = label.toLowerCase();
-    final buffer = StringBuffer();
-    for (var i = 0; i < normalized.length; i++) {
-      final code = normalized.codeUnitAt(i);
-      final isAsciiLowercase = code >= 97 && code <= 122;
-      final isDigit = code >= 48 && code <= 57;
-      buffer.write(isAsciiLowercase || isDigit ? normalized[i] : ' ');
-    }
-    return buffer.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
-  }
-
-  Set<String> _tokenizeLabel(String normalizedLabel) {
-    if (normalizedLabel.isEmpty) {
-      return const <String>{};
-    }
-    return normalizedLabel
-        .split(' ')
-        .where((token) => token.isNotEmpty)
-        .map(_stemToken)
-        .where((token) => !_ignoredTokens.contains(token))
-        .toSet();
-  }
-
-  String _stemToken(String token) {
-    if (token.length > 4 && token.endsWith('ies')) {
-      return '${token.substring(0, token.length - 3)}y';
-    }
-    if (token.length > 4 && token.endsWith('es')) {
-      return token.substring(0, token.length - 2);
-    }
-    if (token.length > 3 && token.endsWith('s')) {
-      return token.substring(0, token.length - 1);
-    }
-    return token;
-  }
-
-  double _scoreLexicalMatch({
-    required String normalizedLabel,
-    required Set<String> tokens,
-    required _FoodLexicon lexicon,
-  }) {
-    var score = 0.0;
-
-    for (final phrase in lexicon.phrases) {
-      if (normalizedLabel.contains(phrase)) {
-        score += 2.0;
-      }
-    }
-    for (final keyword in lexicon.keywords) {
-      if (tokens.contains(_stemToken(keyword))) {
-        score += 1.0;
-      }
-    }
-    return score;
-  }
-
-  _ScoredMatch? _bestLexiconMatch(String normalizedLabel, Set<String> tokens) {
-    String? bestFood;
-    var bestScore = 0.0;
-    for (final entry in _foodLexicons.entries) {
-      final score = _scoreLexicalMatch(
-        normalizedLabel: normalizedLabel,
-        tokens: tokens,
-        lexicon: entry.value,
-      );
-      if (score > bestScore) {
-        bestScore = score;
-        bestFood = entry.key;
-      }
-    }
-    if (bestFood == null || bestScore < _minLexicalScore) {
-      return null;
-    }
-    return _ScoredMatch(name: bestFood, score: bestScore);
-  }
-
-  _ScoredMatch? _bestNutritionNameMatch(
-    String normalizedLabel,
-    Set<String> tokens,
-  ) {
-    String? bestName;
-    var bestScore = 0.0;
-
-    for (final food in _nutritionRepository.foods) {
-      final normalizedFoodName = _normalizeLabelForMatching(food.name);
-      if (normalizedFoodName.isEmpty) {
-        continue;
-      }
-
-      final foodTokens = _tokenizeLabel(normalizedFoodName);
-      if (foodTokens.isEmpty) {
-        continue;
-      }
-
-      final overlapCount = _intersectionCount(tokens, foodTokens).toDouble();
-      if (overlapCount == 0.0 &&
-          !normalizedLabel.contains(normalizedFoodName)) {
-        continue;
-      }
-
-      final tokenRecall = overlapCount / foodTokens.length;
-      final tokenPrecision = overlapCount / math.max(tokens.length, 1);
-      var score = tokenRecall * 1.4 + tokenPrecision * 0.9;
-
-      if (normalizedLabel == normalizedFoodName) {
-        score += 3.0;
-      } else if (normalizedLabel.contains(normalizedFoodName)) {
-        score += 2.0;
-      } else if (normalizedFoodName.contains(normalizedLabel) &&
-          normalizedLabel.length >= 4) {
-        score += 0.5;
-      }
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestName = food.name;
-      }
-    }
-
-    if (bestName == null || bestScore < _minNutritionNameScore) {
-      return null;
-    }
-    return _ScoredMatch(name: bestName, score: bestScore);
-  }
-
-  int _intersectionCount(Set<String> a, Set<String> b) {
-    var count = 0;
-    if (a.length <= b.length) {
-      for (final token in a) {
-        if (b.contains(token)) {
-          count++;
-        }
-      }
-      return count;
-    }
-    for (final token in b) {
-      if (a.contains(token)) {
-        count++;
-      }
-    }
-    return count;
-  }
-}
-
-class _FoodLexicon {
-  const _FoodLexicon({required this.keywords, required this.phrases});
-
-  final Set<String> keywords;
-  final Set<String> phrases;
-}
-
-class _ScoredMatch {
-  const _ScoredMatch({required this.name, required this.score});
-
-  final String name;
-  final double score;
 }

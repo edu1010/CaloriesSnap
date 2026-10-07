@@ -34,6 +34,8 @@ flutter:
   assets:
     - assets/models/food_classifier.tflite
     - assets/models/food_classifier_labels.csv
+    - assets/models/food101_general.tflite
+    - assets/models/food101_general_labels.csv
     - lib/data/local/nutrition_database.json
     - lib/data/local/food101_nutrition.json
     - lib/data/local/nutrition_products_es.json

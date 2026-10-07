@@ -40,6 +40,29 @@ class AppLocalizations {
   String get addFood => _isSpanish ? 'Añadir alimento' : 'Add food';
   String get customFood =>
       _isSpanish ? 'Alimento personalizado' : 'Custom food';
+  String get possibleDish =>
+      _isSpanish ? '¿Qué plato es?' : 'Which dish is it?';
+  String get photoPortionHint =>
+      _isSpanish
+          ? 'La foto sugiere el plato, pero no mide su peso. Ajusta los gramos de tu ración y añade por separado acompañamientos, aceite y salsas.'
+          : 'The photo suggests a dish but cannot weigh it. Adjust your portion in grams and add sides, oil and sauces separately.';
+  String get uncertainDish =>
+      _isSpanish
+          ? 'Identificación dudosa: elige un plato o añádelo manualmente.'
+          : 'Uncertain identification: choose a dish or add it manually.';
+  String get noReliableDish =>
+      _isSpanish
+          ? 'No se ha identificado un plato con suficiente seguridad. Prueba una foto más cercana o añade el alimento.'
+          : 'No dish identified reliably. Try a closer photo or add a food.';
+  String get alternativeDishes =>
+      _isSpanish
+          ? 'Son alternativas del mismo plato; solo se contabiliza la que elijas.'
+          : 'These are alternatives for the same dish; only your selection is counted.';
+  String get invalidFoodValues =>
+      _isSpanish
+          ? 'Indica un nombre, gramos mayores que cero y kcal/100 g entre 0 y 1000.'
+          : 'Enter a name, grams greater than zero and kcal/100 g between 0 and 1000.';
+  String get modelScore => _isSpanish ? 'Puntuación del modelo' : 'Model score';
   String get knownFood => _isSpanish ? 'Alimento conocido' : 'Known food';
   String get name => _isSpanish ? 'Nombre' : 'Name';
   String get estimatedGrams =>
