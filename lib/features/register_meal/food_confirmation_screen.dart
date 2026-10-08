@@ -10,6 +10,7 @@ import '../../models/food_item.dart';
 import '../../models/nutrition_food.dart';
 import '../../services/nutrition/calorie_calculator.dart';
 import '../../services/food_detection/food_detection_service.dart';
+import '../../services/food_detection/meal_analysis_service.dart';
 import 'meal_summary_screen.dart';
 
 class FoodConfirmationScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class FoodConfirmationScreen extends StatefulWidget {
     this.initialMealType,
     this.initialNotes,
     this.photoCandidates,
+    this.detection,
   });
 
   final String? imagePath;
@@ -39,6 +41,9 @@ class FoodConfirmationScreen extends StatefulWidget {
 
   /// Null for barcode/edit flows; empty means the photo model abstained.
   final List<DetectedFood>? photoCandidates;
+
+  /// The photo analysis behind [initialFoods], when there was one.
+  final MealDetection? detection;
 
   @override
   State<FoodConfirmationScreen> createState() => _FoodConfirmationScreenState();
@@ -369,6 +374,41 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
     }
   }
 
+  bool get _analyzedByVlm {
+    final detection = widget.detection;
+    return detection != null &&
+        detection.engine == MealAnalysisEngine.vlm &&
+        detection.foods.isNotEmpty;
+  }
+
+  List<Widget> _buildVlmSummary(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final detection = widget.detection!;
+    final dish = detection.dishName;
+    final estimated =
+        detection.foods
+            .where((food) => food.estimatedNutrition)
+            .map((food) => food.name)
+            .toList();
+    return <Widget>[
+      if (dish != null && dish.isNotEmpty)
+        Text(l10n.analyzedByAi(dish), style: theme.textTheme.titleMedium),
+      const SizedBox(height: 4),
+      Text(l10n.aiPortionHint),
+      if (estimated.isNotEmpty) ...<Widget>[
+        const SizedBox(height: 4),
+        Text(
+          l10n.aiEstimatedEnergy(estimated.join(', ')),
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+      const SizedBox(height: 12),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -459,7 +499,16 @@ class _FoodConfirmationScreenState extends State<FoodConfirmationScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: <Widget>[
-                  if (widget.photoCandidates != null) ...<Widget>[
+                  if (widget.detection?.vlmFailure != null) ...<Widget>[
+                    Text(
+                      l10n.aiFallbackNotice,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  if (_analyzedByVlm)
+                    ..._buildVlmSummary(context)
+                  else if (widget.photoCandidates != null) ...<Widget>[
                     Text(l10n.photoPortionHint),
                     const SizedBox(height: 8),
                     if (widget.photoCandidates!.isEmpty)

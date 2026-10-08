@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Barcode lookup (Open Food Facts) and the one-time download of the
+         on-device vision model. Photos never leave the device. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="calorie_snap"
         android:name="${applicationName}"

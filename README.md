@@ -40,6 +40,9 @@ CalorieSnap is an offline Flutter app for Android and Windows desktop to registe
 - SQLite local persistence (`sqflite`, `sqflite_common_ffi` for Windows)
 - Local JSON nutrition databases:
   - Generic foods: `lib/data/local/nutrition_database.json`
+  - Classifier dishes: `lib/data/local/food101_nutrition.json`
+  - Everyday Spanish foods, sandwiches and ready meals:
+    `lib/data/local/common_foods_es.json` (built by `tooling/build_common_foods_es.py`)
   - Packaged products (AESAN import): `lib/data/local/nutrition_products_es.json`
 - `image_picker` for Android camera/gallery
 - `file_picker` for Windows file selection
@@ -98,7 +101,8 @@ flutter build windows
 
 ## Current limitations
 
-- Photo detection quality is constrained by the local TensorFlow Lite model classes and confidence.
+- Without the optional vision model, photo detection is limited to the 116 classifier dishes.
+- With it, grams are a visual estimate by a small model and analysis takes much longer than the classifier.
 - Barcode flow depends on EAN availability and nutrition quality in AESAN/Open Food Facts.
 - Calorie output is intentionally approximate and should not be treated as medical or clinical measurement.
 - Windows webcam capture is not enabled in this v1 (image selection from disk is supported).
@@ -157,9 +161,43 @@ python tooling/import_aesan_products.py --input C:/path/BasedatosWeb.xlsx --outp
 6. Platform requirements:
    - Android `minSdk` is set to `26` for TensorFlow Lite runtime compatibility
 
+## On-device vision model (optional, Qwen3.5)
+
+The classifiers know 116 dishes and return one food per photo. For everything
+else (a sandwich, a ready meal, a combo plate) the app can run a small
+vision-language model **on the device**:
+
+1. The TFLite classifiers run first (about 0.2 s) and their guesses become hints.
+2. Qwen3.5 (GGUF, llama.cpp through `llamadart`) describes the plate as JSON:
+   dish name, components, grams and a proposed kcal/100 g.
+3. `NutritionGrounding` looks every component up in the local nutrition tables.
+   A table hit replaces the model's energy value; a miss keeps the model's
+   value and the confirmation screen flags it as an estimate.
+4. The user reviews and edits everything, as before.
+
+If no model is downloaded, or it fails, times out or answers garbage, the
+classifier result is used. Code: `lib/services/food_detection/vlm/` and
+`cascade_meal_analysis_service.dart`.
+
+The model is not bundled. It is downloaded once from **On-device AI** (the
+sparkle icon on the home screen), resumable and SHA-256 verified:
+
+| Tier | Files | Download | Suggested RAM |
+| --- | --- | ---: | --- |
+| Light | `Qwen3.5-0.8B-Q4_K_M.gguf` + `mmproj-F16.gguf` | 0.7 GB | 4 GB+ |
+| Precise | `Qwen3.5-2B-Q4_K_M.gguf` + `mmproj-F16.gguf` | 1.9 GB | 8 GB+ |
+
+Models: [unsloth/Qwen3.5-0.8B-GGUF](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)
+and [unsloth/Qwen3.5-2B-GGUF](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF),
+Apache-2.0, pinned by revision in `vlm_model_catalog.dart`.
+
+Plan, status and measurements: `docs/PLAN_VLM_QWEN.md`.
+
 ## Offline and privacy
 
 - No paid API required
 - No login required
 - No cloud storage required
 - All data is local on device
+- Photos are analysed on the device; the only downloads are the optional
+  vision model (once) and Open Food Facts barcode lookups

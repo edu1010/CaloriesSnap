@@ -8,6 +8,8 @@ class NutritionRepository {
   static const String _genericFoodsAsset =
       'lib/data/local/nutrition_database.json';
   static const String _dishFoodsAsset = 'lib/data/local/food101_nutrition.json';
+  static const String _commonFoodsAsset =
+      'lib/data/local/common_foods_es.json';
   static const String _packagedFoodsAsset =
       'lib/data/local/nutrition_products_es.json';
 
@@ -29,6 +31,10 @@ class NutritionRepository {
       _dishFoodsAsset,
       allowMissing: true,
     );
+    final commonFoods = await _loadFoodsFromAsset(
+      _commonFoodsAsset,
+      allowMissing: true,
+    );
     final barcodeFoods = await _loadFoodsFromAsset(
       _packagedFoodsAsset,
       allowMissing: true,
@@ -40,7 +46,8 @@ class NutritionRepository {
     _foods
       ..clear()
       ..addAll(genericFoods)
-      ..addAll(dishFoods);
+      ..addAll(dishFoods)
+      ..addAll(commonFoods);
 
     _barcodeFoods
       ..clear()

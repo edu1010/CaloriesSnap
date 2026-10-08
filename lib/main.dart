@@ -7,9 +7,12 @@ import 'app.dart';
 import 'data/repositories/meal_repository.dart';
 import 'data/repositories/nutrition_repository.dart';
 import 'services/barcode/open_food_facts_service.dart';
-import 'services/food_detection/food_detection_service.dart';
-import 'services/food_detection/local_ai_food_detection_service.dart';
+import 'services/food_detection/cascade_meal_analysis_service.dart';
 import 'services/food_detection/hybrid_food_detection_service.dart';
+import 'services/food_detection/local_ai_food_detection_service.dart';
+import 'services/food_detection/vlm/vlm_engine.dart';
+import 'services/food_detection/vlm/vlm_meal_analyzer.dart';
+import 'services/food_detection/vlm/vlm_model_store.dart';
 import 'services/image/image_storage_service.dart';
 import 'services/nutrition/calorie_calculator.dart';
 
@@ -27,7 +30,7 @@ Future<void> main() async {
   final nutritionRepository = NutritionRepository();
   await nutritionRepository.load();
 
-  final FoodDetectionService foodDetectionService = HybridFoodDetectionService(
+  final classifier = HybridFoodDetectionService(
     nutritionRepository: nutritionRepository,
     specialist: LocalAiFoodDetectionService(
       nutritionRepository: nutritionRepository,
@@ -38,13 +41,26 @@ Future<void> main() async {
       labelsAssetPath: 'assets/models/food101_general_labels.csv',
     ),
   );
+  // The vision model is optional: until the user downloads one, analysis is
+  // the classifier alone.
+  final vlmModelStore = VlmModelStore();
+  await vlmModelStore.init();
+  final mealAnalysisService = CascadeMealAnalysisService(
+    classifier: classifier,
+    vlm: VlmMealAnalyzer(
+      engine: LlamadartVlmEngine(),
+      store: vlmModelStore,
+      nutritionRepository: nutritionRepository,
+    ),
+  );
   final openFoodFactsService = OpenFoodFactsService();
 
   runApp(
     CalorieSnapApp(
       mealRepository: mealRepository,
       nutritionRepository: nutritionRepository,
-      foodDetectionService: foodDetectionService,
+      mealAnalysisService: mealAnalysisService,
+      vlmModelStore: vlmModelStore,
       openFoodFactsService: openFoodFactsService,
       imageStorageService: ImageStorageService(),
       calorieCalculator: CalorieCalculator(),

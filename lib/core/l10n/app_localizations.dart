@@ -202,6 +202,78 @@ class AppLocalizations {
           ? 'Añade al menos un alimento.'
           : 'Add at least one food item.';
 
+  String get localAi => _isSpanish ? 'IA local' : 'On-device AI';
+  String get localAiIntro =>
+      _isSpanish
+          ? 'Un modelo de visión (Qwen) describe el plato completo: reconoce cualquier comida, separa sus componentes y estima los gramos. Se descarga una vez y después funciona sin conexión; tus fotos no salen del dispositivo.'
+          : 'A vision model (Qwen) describes the whole plate: it recognises any food, separates its components and estimates grams. It is downloaded once and then works offline; your photos never leave the device.';
+  String get localAiSpeedNote =>
+      _isSpanish
+          ? 'Analizar una foto tarda bastante más que el clasificador rápido, sobre todo en móviles modestos.'
+          : 'Analysing a photo takes noticeably longer than the fast classifier, especially on modest phones.';
+  String get classifierOnly =>
+      _isSpanish ? 'Solo clasificador rápido' : 'Fast classifier only';
+  String get classifierOnlyDescription =>
+      _isSpanish
+          ? 'Instantáneo, pero limitado a 116 platos y a un alimento por foto.'
+          : 'Instant, but limited to 116 dishes and one food per photo.';
+  String get lightModelDescription =>
+      _isSpanish
+          ? 'Ligero: para la mayoría de móviles.'
+          : 'Light: for most phones.';
+  String get preciseModelDescription =>
+      _isSpanish
+          ? 'Más preciso: para móviles con 8 GB de RAM o más.'
+          : 'More accurate: for phones with 8 GB of RAM or more.';
+  String get inUse => _isSpanish ? 'En uso' : 'In use';
+  String get use => _isSpanish ? 'Usar' : 'Use';
+  String get cancelDownload =>
+      _isSpanish ? 'Cancelar descarga' : 'Cancel download';
+  String get verifyingDownload =>
+      _isSpanish ? 'Verificando la descarga...' : 'Verifying download...';
+  String get downloadOverWifi =>
+      _isSpanish
+          ? 'Descarga grande: mejor con wifi.'
+          : 'Large download: Wi-Fi recommended.';
+  String get loadingAiModel =>
+      _isSpanish ? 'Cargando el modelo de IA...' : 'Loading the AI model...';
+  String get analyzingWithAi =>
+      _isSpanish
+          ? 'Analizando el plato con IA local...'
+          : 'Analysing the plate with on-device AI...';
+  String get aiPortionHint =>
+      _isSpanish
+          ? 'Los gramos son una estimación visual del modelo. Revísalos y ajusta lo que no cuadre.'
+          : 'Grams are a visual estimate by the model. Review them and adjust anything that looks off.';
+  String get aiFallbackNotice =>
+      _isSpanish
+          ? 'La IA local no pudo analizar esta foto; se muestra el resultado del clasificador rápido.'
+          : 'On-device AI could not analyse this photo; showing the fast classifier result.';
+
+  String downloadModel(String size) =>
+      _isSpanish ? 'Descargar ($size)' : 'Download ($size)';
+
+  String downloadingModel(int percent) =>
+      _isSpanish ? 'Descargando... $percent %' : 'Downloading... $percent%';
+
+  String downloadFailed(Object error) =>
+      _isSpanish
+          ? 'No se pudo descargar el modelo: $error'
+          : 'Could not download the model: $error';
+
+  String lowMemoryWarning(int requiredGb, int deviceGb) =>
+      _isSpanish
+          ? 'Este dispositivo tiene unos $deviceGb GB de RAM y el modelo recomienda $requiredGb GB: puede ir lento o cerrarse.'
+          : 'This device has about $deviceGb GB of RAM and the model recommends $requiredGb GB: it may be slow or get closed.';
+
+  String analyzedByAi(String dish) =>
+      _isSpanish ? 'IA local: $dish' : 'On-device AI: $dish';
+
+  String aiEstimatedEnergy(String foods) =>
+      _isSpanish
+          ? 'Sin datos en la tabla nutricional; las kcal/100 g son una estimación del modelo: $foods.'
+          : 'Not in the nutrition table; kcal/100 g are estimated by the model: $foods.';
+
   String mealTypeLabel(String mealType) {
     switch (mealType.toLowerCase()) {
       case 'breakfast':

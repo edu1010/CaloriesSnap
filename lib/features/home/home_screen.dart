@@ -6,9 +6,11 @@ import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../features/calendar/calendar_screen.dart';
 import '../../features/register_meal/register_meal_screen.dart';
+import '../../features/settings/local_ai_settings_screen.dart';
 import '../../models/daily_summary.dart';
 import '../../services/barcode/open_food_facts_service.dart';
-import '../../services/food_detection/food_detection_service.dart';
+import '../../services/food_detection/meal_analysis_service.dart';
+import '../../services/food_detection/vlm/vlm_model_store.dart';
 import '../../services/image/image_storage_service.dart';
 import '../../services/nutrition/calorie_calculator.dart';
 
@@ -17,7 +19,8 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.mealRepository,
     required this.nutritionRepository,
-    required this.foodDetectionService,
+    required this.mealAnalysisService,
+    required this.vlmModelStore,
     required this.openFoodFactsService,
     required this.imageStorageService,
     required this.calorieCalculator,
@@ -25,7 +28,8 @@ class HomeScreen extends StatefulWidget {
 
   final MealRepository mealRepository;
   final NutritionRepository nutritionRepository;
-  final FoodDetectionService foodDetectionService;
+  final MealAnalysisService mealAnalysisService;
+  final VlmModelStore vlmModelStore;
   final OpenFoodFactsService openFoodFactsService;
   final ImageStorageService imageStorageService;
   final CalorieCalculator calorieCalculator;
@@ -54,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
             (_) => RegisterMealScreen(
               mealRepository: widget.mealRepository,
               nutritionRepository: widget.nutritionRepository,
-              foodDetectionService: widget.foodDetectionService,
+              mealAnalysisService: widget.mealAnalysisService,
               openFoodFactsService: widget.openFoodFactsService,
               imageStorageService: widget.imageStorageService,
               calorieCalculator: widget.calorieCalculator,
@@ -84,13 +88,30 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(_reloadToday);
   }
 
+  Future<void> _openLocalAiSettings() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => LocalAiSettingsScreen(store: widget.vlmModelStore),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final wide = ResponsiveUtils.isWideLayout(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.appTitle)),
+      appBar: AppBar(
+        title: Text(l10n.appTitle),
+        actions: <Widget>[
+          IconButton(
+            onPressed: _openLocalAiSettings,
+            icon: const Icon(Icons.auto_awesome_outlined),
+            tooltip: l10n.localAi,
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(

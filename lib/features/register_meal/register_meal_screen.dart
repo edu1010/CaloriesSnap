@@ -10,7 +10,7 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../models/food_item.dart';
 import '../../models/nutrition_food.dart';
 import '../../services/barcode/open_food_facts_service.dart';
-import '../../services/food_detection/food_detection_service.dart';
+import '../../services/food_detection/meal_analysis_service.dart';
 import '../../services/image/image_storage_service.dart';
 import '../../services/nutrition/calorie_calculator.dart';
 import 'barcode_scanner_screen.dart';
@@ -21,7 +21,7 @@ class RegisterMealScreen extends StatefulWidget {
     super.key,
     required this.mealRepository,
     required this.nutritionRepository,
-    required this.foodDetectionService,
+    required this.mealAnalysisService,
     required this.openFoodFactsService,
     required this.imageStorageService,
     required this.calorieCalculator,
@@ -29,7 +29,7 @@ class RegisterMealScreen extends StatefulWidget {
 
   final MealRepository mealRepository;
   final NutritionRepository nutritionRepository;
-  final FoodDetectionService foodDetectionService;
+  final MealAnalysisService mealAnalysisService;
   final OpenFoodFactsService openFoodFactsService;
   final ImageStorageService imageStorageService;
   final CalorieCalculator calorieCalculator;
@@ -44,6 +44,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
 
   String? _selectedImagePath;
   bool _isDetecting = false;
+  MealAnalysisStage _stage = MealAnalysisStage.classifying;
   bool _isBarcodeLookup = false;
   String? _errorText;
 
@@ -97,19 +98,25 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
 
     setState(() {
       _isDetecting = true;
+      _stage = MealAnalysisStage.classifying;
       _errorText = null;
     });
+    final languageCode = Localizations.localeOf(context).languageCode;
 
     try {
       final storedPath = await widget.imageStorageService.copyToAppStorage(
         _selectedImagePath!,
       );
-      final detected = await widget.foodDetectionService.detectFoods(
+      final detection = await widget.mealAnalysisService.analyze(
         storedPath,
+        languageCode: languageCode,
+        onStage: (stage) {
+          if (mounted) setState(() => _stage = stage);
+        },
       );
 
       final foods =
-          detected.where((item) => !item.requiresConfirmation).map((item) {
+          detection.foods.map((item) {
             final calories = widget.calorieCalculator.calculateFoodCalories(
               item.suggestedGrams,
               item.kcalPer100g,
@@ -132,13 +139,8 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
               (_) => FoodConfirmationScreen(
                 imagePath: storedPath,
                 initialFoods: foods,
-                photoCandidates:
-                    detected.isEmpty
-                        ? const <DetectedFood>[]
-                        : <DetectedFood>[
-                          detected.first,
-                          ...detected.first.alternatives,
-                        ],
+                photoCandidates: detection.candidates,
+                detection: detection,
                 mealRepository: widget.mealRepository,
                 nutritionRepository: widget.nutritionRepository,
                 calorieCalculator: widget.calorieCalculator,
@@ -156,6 +158,17 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
           _isDetecting = false;
         });
       }
+    }
+  }
+
+  String _stageLabel(AppLocalizations l10n) {
+    switch (_stage) {
+      case MealAnalysisStage.classifying:
+        return l10n.detectingFoods;
+      case MealAnalysisStage.loadingModel:
+        return l10n.loadingAiModel;
+      case MealAnalysisStage.analyzing:
+        return l10n.analyzingWithAi;
     }
   }
 
@@ -488,9 +501,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                       : const Icon(Icons.auto_awesome_outlined),
-              label: Text(
-                _isDetecting ? l10n.detectingFoods : l10n.detectFoods,
-              ),
+              label: Text(_isDetecting ? _stageLabel(l10n) : l10n.detectFoods),
             ),
           ],
         ),

@@ -1,0 +1,1782 @@
+[
+  {
+    "name": "Cheese",
+    "nameEs": "Queso",
+    "kcalPer100g": 350,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 70,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken",
+    "nameEs": "Pollo",
+    "kcalPer100g": 190,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 140,
+    "defaultGramsLarge": 220,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fish",
+    "nameEs": "Pescado",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Meat",
+    "nameEs": "Carne",
+    "kcalPer100g": 220,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 140,
+    "defaultGramsLarge": 220,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pork",
+    "nameEs": "Cerdo",
+    "kcalPer100g": 240,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 140,
+    "defaultGramsLarge": 220,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Beef",
+    "nameEs": "Ternera",
+    "kcalPer100g": 220,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 140,
+    "defaultGramsLarge": 220,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ham",
+    "nameEs": "Jamón",
+    "kcalPer100g": 180,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 80,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Vegetables",
+    "nameEs": "Verduras",
+    "kcalPer100g": 50,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Lettuce",
+    "nameEs": "Lechuga",
+    "kcalPer100g": 15,
+    "defaultGramsSmall": 30,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 100,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mushrooms",
+    "nameEs": "Champiñones",
+    "kcalPer100g": 30,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 180,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Zucchini",
+    "nameEs": "Calabacín",
+    "kcalPer100g": 20,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Eggplant",
+    "nameEs": "Berenjena",
+    "kcalPer100g": 30,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Peas",
+    "nameEs": "Guisantes",
+    "kcalPer100g": 80,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 180,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Green beans",
+    "nameEs": "Judías verdes",
+    "kcalPer100g": 35,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Asparagus",
+    "nameEs": "Espárragos",
+    "kcalPer100g": 22,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 180,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Legumes",
+    "nameEs": "Legumbres",
+    "kcalPer100g": 125,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Stew",
+    "nameEs": "Guiso",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Soup",
+    "nameEs": "Sopa",
+    "kcalPer100g": 50,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Baguette sandwich",
+    "nameEs": "Bocadillo",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 250,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sauce",
+    "nameEs": "Salsa",
+    "kcalPer100g": 120,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Oil",
+    "nameEs": "Aceite",
+    "kcalPer100g": 884,
+    "defaultGramsSmall": 5,
+    "defaultGramsMedium": 10,
+    "defaultGramsLarge": 20,
+    "category": "fat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sugar",
+    "nameEs": "Azúcar",
+    "kcalPer100g": 387,
+    "defaultGramsSmall": 5,
+    "defaultGramsMedium": 10,
+    "defaultGramsLarge": 20,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fruit",
+    "nameEs": "Fruta",
+    "kcalPer100g": 55,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cake",
+    "nameEs": "Tarta",
+    "kcalPer100g": 350,
+    "defaultGramsSmall": 70,
+    "defaultGramsMedium": 110,
+    "defaultGramsLarge": 160,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Milk",
+    "nameEs": "Leche",
+    "kcalPer100g": 60,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Water",
+    "nameEs": "Agua",
+    "kcalPer100g": 0,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 330,
+    "defaultGramsLarge": 500,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Coffee",
+    "nameEs": "Café",
+    "kcalPer100g": 2,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 200,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Tea",
+    "nameEs": "Té",
+    "kcalPer100g": 1,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Juice",
+    "nameEs": "Zumo",
+    "kcalPer100g": 45,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Soft drink",
+    "nameEs": "Refresco",
+    "kcalPer100g": 40,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 330,
+    "defaultGramsLarge": 500,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Wine",
+    "nameEs": "Vino",
+    "kcalPer100g": 85,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Baguette bread",
+    "nameEs": "Pan de barra",
+    "kcalPer100g": 270,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 130,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sliced bread",
+    "nameEs": "Pan de molde",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 30,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 90,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Whole wheat bread",
+    "nameEs": "Pan integral",
+    "kcalPer100g": 245,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 70,
+    "defaultGramsLarge": 110,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Toast",
+    "nameEs": "Tostada",
+    "kcalPer100g": 290,
+    "defaultGramsSmall": 25,
+    "defaultGramsMedium": 50,
+    "defaultGramsLarge": 80,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Burger bun",
+    "nameEs": "Pan de hamburguesa",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 65,
+    "defaultGramsLarge": 90,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pita bread",
+    "nameEs": "Pan de pita",
+    "kcalPer100g": 275,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 90,
+    "category": "bread",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Croissant",
+    "nameEs": "Cruasán",
+    "kcalPer100g": 406,
+    "defaultGramsSmall": 45,
+    "defaultGramsMedium": 65,
+    "defaultGramsLarge": 90,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Muffin",
+    "nameEs": "Magdalena",
+    "kcalPer100g": 390,
+    "defaultGramsSmall": 30,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 110,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sponge cake",
+    "nameEs": "Bizcocho",
+    "kcalPer100g": 350,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 120,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cookies",
+    "nameEs": "Galletas",
+    "kcalPer100g": 470,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Doughnut",
+    "nameEs": "Dónut",
+    "kcalPer100g": 420,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 80,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Napolitana pastry",
+    "nameEs": "Napolitana de chocolate",
+    "kcalPer100g": 420,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 90,
+    "defaultGramsLarge": 120,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ensaimada",
+    "nameEs": "Ensaimada",
+    "kcalPer100g": 430,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 120,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Breakfast cereal",
+    "nameEs": "Cereales de desayuno",
+    "kcalPer100g": 375,
+    "defaultGramsSmall": 30,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 60,
+    "category": "bakery",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ham sandwich baguette",
+    "nameEs": "Bocadillo de jamón",
+    "kcalPer100g": 255,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 250,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pork loin sandwich",
+    "nameEs": "Bocadillo de lomo",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 130,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 270,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pork loin and cheese sandwich",
+    "nameEs": "Bocadillo de lomo con queso",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 140,
+    "defaultGramsMedium": 210,
+    "defaultGramsLarge": 280,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Spanish omelette sandwich",
+    "nameEs": "Bocadillo de tortilla",
+    "kcalPer100g": 225,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 300,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chorizo sandwich",
+    "nameEs": "Bocadillo de chorizo",
+    "kcalPer100g": 330,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 160,
+    "defaultGramsLarge": 230,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Tuna sandwich baguette",
+    "nameEs": "Bocadillo de atún",
+    "kcalPer100g": 240,
+    "defaultGramsSmall": 130,
+    "defaultGramsMedium": 190,
+    "defaultGramsLarge": 260,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cheese sandwich baguette",
+    "nameEs": "Bocadillo de queso",
+    "kcalPer100g": 300,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 160,
+    "defaultGramsLarge": 230,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken sandwich baguette",
+    "nameEs": "Bocadillo de pollo",
+    "kcalPer100g": 230,
+    "defaultGramsSmall": 140,
+    "defaultGramsMedium": 210,
+    "defaultGramsLarge": 290,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Bacon sandwich baguette",
+    "nameEs": "Bocadillo de beicon",
+    "kcalPer100g": 310,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 250,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ham and cheese toastie",
+    "nameEs": "Sándwich mixto",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 180,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Vegetable sandwich",
+    "nameEs": "Sándwich vegetal",
+    "kcalPer100g": 200,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 170,
+    "defaultGramsLarge": 230,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Kebab wrap",
+    "nameEs": "Kebab",
+    "kcalPer100g": 215,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 320,
+    "defaultGramsLarge": 420,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken wrap",
+    "nameEs": "Wrap de pollo",
+    "kcalPer100g": 210,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 300,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Montadito",
+    "nameEs": "Montadito",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 90,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pincho",
+    "nameEs": "Pincho",
+    "kcalPer100g": 240,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 120,
+    "category": "sandwich",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cooked ham",
+    "nameEs": "Jamón cocido",
+    "kcalPer100g": 110,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 80,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chorizo",
+    "nameEs": "Chorizo",
+    "kcalPer100g": 455,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Salchichon",
+    "nameEs": "Salchichón",
+    "kcalPer100g": 440,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cured pork loin",
+    "nameEs": "Lomo embuchado",
+    "kcalPer100g": 240,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Bacon",
+    "nameEs": "Beicon",
+    "kcalPer100g": 420,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sausage",
+    "nameEs": "Salchicha",
+    "kcalPer100g": 290,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 160,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Blood sausage",
+    "nameEs": "Morcilla",
+    "kcalPer100g": 380,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 130,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fuet",
+    "nameEs": "Fuet",
+    "kcalPer100g": 460,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mortadella",
+    "nameEs": "Mortadela",
+    "kcalPer100g": 310,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Manchego cheese",
+    "nameEs": "Queso manchego",
+    "kcalPer100g": 400,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 70,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fresh cheese",
+    "nameEs": "Queso fresco",
+    "kcalPer100g": 175,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 70,
+    "defaultGramsLarge": 120,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mozzarella",
+    "nameEs": "Mozzarella",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 30,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 125,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cheese slice",
+    "nameEs": "Queso en lonchas",
+    "kcalPer100g": 320,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 60,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cream cheese",
+    "nameEs": "Queso crema",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Goat cheese",
+    "nameEs": "Queso de cabra",
+    "kcalPer100g": 320,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 70,
+    "category": "dairy",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Grilled pork loin",
+    "nameEs": "Lomo a la plancha",
+    "kcalPer100g": 200,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 200,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Breaded chicken",
+    "nameEs": "Pollo empanado",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 140,
+    "defaultGramsLarge": 200,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Roast chicken",
+    "nameEs": "Pollo asado",
+    "kcalPer100g": 215,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 280,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fried chicken",
+    "nameEs": "Pollo frito",
+    "kcalPer100g": 270,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 240,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Entrecote",
+    "nameEs": "Entrecot",
+    "kcalPer100g": 260,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Lamb chops",
+    "nameEs": "Chuletas de cordero",
+    "kcalPer100g": 290,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 160,
+    "defaultGramsLarge": 240,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Beef burger patty",
+    "nameEs": "Hamburguesa de ternera",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 180,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Minced meat",
+    "nameEs": "Carne picada",
+    "kcalPer100g": 240,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 200,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Breaded veal cutlet",
+    "nameEs": "Filete empanado",
+    "kcalPer100g": 255,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "San Jacobo",
+    "nameEs": "San Jacobo",
+    "kcalPer100g": 270,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 200,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken nuggets",
+    "nameEs": "Nuggets de pollo",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 70,
+    "defaultGramsMedium": 110,
+    "defaultGramsLarge": 170,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fried egg",
+    "nameEs": "Huevo frito",
+    "kcalPer100g": 200,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 120,
+    "category": "egg",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Boiled egg",
+    "nameEs": "Huevo cocido",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 60,
+    "defaultGramsLarge": 120,
+    "category": "egg",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Scrambled eggs",
+    "nameEs": "Huevos revueltos",
+    "kcalPer100g": 170,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 180,
+    "category": "egg",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Hake",
+    "nameEs": "Merluza",
+    "kcalPer100g": 110,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Battered fish",
+    "nameEs": "Pescado rebozado",
+    "kcalPer100g": 230,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cod",
+    "nameEs": "Bacalao",
+    "kcalPer100g": 110,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sardines",
+    "nameEs": "Sardinas",
+    "kcalPer100g": 200,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 160,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fried anchovies",
+    "nameEs": "Boquerones fritos",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 180,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fried squid rings",
+    "nameEs": "Calamares a la romana",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 200,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Canned tuna",
+    "nameEs": "Atún en lata",
+    "kcalPer100g": 190,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 120,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Octopus",
+    "nameEs": "Pulpo",
+    "kcalPer100g": 100,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 130,
+    "defaultGramsLarge": 200,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sea bream",
+    "nameEs": "Dorada",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 250,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Prawns",
+    "nameEs": "Langostinos",
+    "kcalPer100g": 100,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 160,
+    "category": "fish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Lentil stew",
+    "nameEs": "Lentejas guisadas",
+    "kcalPer100g": 120,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cocido madrileno",
+    "nameEs": "Cocido madrileño",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 350,
+    "defaultGramsLarge": 500,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chickpea stew",
+    "nameEs": "Potaje de garbanzos",
+    "kcalPer100g": 125,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "White bean stew",
+    "nameEs": "Alubias guisadas",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Beef stew",
+    "nameEs": "Estofado de ternera",
+    "kcalPer100g": 135,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken stew",
+    "nameEs": "Pollo guisado",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Marmitako",
+    "nameEs": "Marmitako",
+    "kcalPer100g": 105,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Noodle soup",
+    "nameEs": "Sopa de fideos",
+    "kcalPer100g": 45,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken broth",
+    "nameEs": "Caldo de pollo",
+    "kcalPer100g": 15,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Vegetable cream soup",
+    "nameEs": "Crema de verduras",
+    "kcalPer100g": 55,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pumpkin cream soup",
+    "nameEs": "Crema de calabaza",
+    "kcalPer100g": 50,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Garlic soup",
+    "nameEs": "Sopa de ajo",
+    "kcalPer100g": 70,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "soup",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cuban rice",
+    "nameEs": "Arroz a la cubana",
+    "kcalPer100g": 160,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "rice",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Rice with chicken",
+    "nameEs": "Arroz con pollo",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "rice",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Black rice",
+    "nameEs": "Arroz negro",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "rice",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Rice three delights",
+    "nameEs": "Arroz tres delicias",
+    "kcalPer100g": 165,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "rice",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fideua",
+    "nameEs": "Fideuá",
+    "kcalPer100g": 160,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "pasta",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pasta with tomato sauce",
+    "nameEs": "Macarrones con tomate",
+    "kcalPer100g": 140,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "pasta",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pasta bolognese",
+    "nameEs": "Pasta boloñesa",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "pasta",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pasta salad",
+    "nameEs": "Ensalada de pasta",
+    "kcalPer100g": 160,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "pasta",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cannelloni",
+    "nameEs": "Canelones",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "pasta",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pisto",
+    "nameEs": "Pisto",
+    "kcalPer100g": 70,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 300,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Migas",
+    "nameEs": "Migas",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 300,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Huevos rotos",
+    "nameEs": "Huevos rotos con jamón",
+    "kcalPer100g": 215,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "egg",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Callos",
+    "nameEs": "Callos",
+    "kcalPer100g": 160,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "stew",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Stuffed peppers",
+    "nameEs": "Pimientos rellenos",
+    "kcalPer100g": 150,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Flamenquin",
+    "nameEs": "Flamenquín",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 160,
+    "defaultGramsLarge": 240,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cachopo",
+    "nameEs": "Cachopo",
+    "kcalPer100g": 270,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 350,
+    "defaultGramsLarge": 500,
+    "category": "meat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Combo plate",
+    "nameEs": "Plato combinado",
+    "kcalPer100g": 190,
+    "defaultGramsSmall": 300,
+    "defaultGramsMedium": 420,
+    "defaultGramsLarge": 550,
+    "category": "dish",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mixed salad",
+    "nameEs": "Ensalada mixta",
+    "kcalPer100g": 75,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Tomato salad",
+    "nameEs": "Ensalada de tomate",
+    "kcalPer100g": 60,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Grilled vegetables",
+    "nameEs": "Verduras a la plancha",
+    "kcalPer100g": 70,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sauteed green beans",
+    "nameEs": "Judías verdes salteadas",
+    "kcalPer100g": 75,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Sauteed mushrooms",
+    "nameEs": "Champiñones salteados",
+    "kcalPer100g": 70,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 220,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Roasted peppers",
+    "nameEs": "Pimientos asados",
+    "kcalPer100g": 60,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 200,
+    "category": "vegetable",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mashed potatoes",
+    "nameEs": "Puré de patatas",
+    "kcalPer100g": 105,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "side",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Roast potatoes",
+    "nameEs": "Patatas asadas",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "side",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Potato chips",
+    "nameEs": "Patatas fritas de bolsa",
+    "kcalPer100g": 540,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 80,
+    "category": "snack",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Olives",
+    "nameEs": "Aceitunas",
+    "kcalPer100g": 145,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 80,
+    "category": "snack",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mixed nuts",
+    "nameEs": "Frutos secos",
+    "kcalPer100g": 600,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "snack",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Frozen pizza",
+    "nameEs": "Pizza precocinada",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ready meal lasagna",
+    "nameEs": "Lasaña precocinada",
+    "kcalPer100g": 145,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 350,
+    "defaultGramsLarge": 450,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Empanadilla",
+    "nameEs": "Empanadillas",
+    "kcalPer100g": 290,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 180,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken fajita",
+    "nameEs": "Fajita de pollo",
+    "kcalPer100g": 180,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Burrito",
+    "nameEs": "Burrito",
+    "kcalPer100g": 200,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Poke bowl",
+    "nameEs": "Poke bowl",
+    "kcalPer100g": 140,
+    "defaultGramsSmall": 300,
+    "defaultGramsMedium": 400,
+    "defaultGramsLarge": 500,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Instant noodles",
+    "nameEs": "Fideos instantáneos",
+    "kcalPer100g": 110,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 350,
+    "defaultGramsLarge": 450,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chicken and rice bowl",
+    "nameEs": "Arroz con pollo y verduras",
+    "kcalPer100g": 140,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 350,
+    "defaultGramsLarge": 450,
+    "category": "ready meal",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cheeseburger",
+    "nameEs": "Hamburguesa con queso",
+    "kcalPer100g": 265,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 260,
+    "category": "fast food",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Shawarma plate",
+    "nameEs": "Plato de kebab",
+    "kcalPer100g": 190,
+    "defaultGramsSmall": 300,
+    "defaultGramsMedium": 400,
+    "defaultGramsLarge": 500,
+    "category": "fast food",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Quesadilla",
+    "nameEs": "Quesadilla",
+    "kcalPer100g": 290,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 180,
+    "defaultGramsLarge": 260,
+    "category": "fast food",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mayonnaise",
+    "nameEs": "Mayonesa",
+    "kcalPer100g": 680,
+    "defaultGramsSmall": 10,
+    "defaultGramsMedium": 15,
+    "defaultGramsLarge": 30,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Ketchup",
+    "nameEs": "Kétchup",
+    "kcalPer100g": 110,
+    "defaultGramsSmall": 10,
+    "defaultGramsMedium": 15,
+    "defaultGramsLarge": 30,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Alioli",
+    "nameEs": "Alioli",
+    "kcalPer100g": 650,
+    "defaultGramsSmall": 10,
+    "defaultGramsMedium": 15,
+    "defaultGramsLarge": 30,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Butter",
+    "nameEs": "Mantequilla",
+    "kcalPer100g": 740,
+    "defaultGramsSmall": 5,
+    "defaultGramsMedium": 10,
+    "defaultGramsLarge": 20,
+    "category": "fat",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Jam",
+    "nameEs": "Mermelada",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 10,
+    "defaultGramsMedium": 20,
+    "defaultGramsLarge": 40,
+    "category": "sauce",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Grapes",
+    "nameEs": "Uvas",
+    "kcalPer100g": 70,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 200,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Watermelon",
+    "nameEs": "Sandía",
+    "kcalPer100g": 30,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 400,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Melon",
+    "nameEs": "Melón",
+    "kcalPer100g": 35,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 400,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pear",
+    "nameEs": "Pera",
+    "kcalPer100g": 57,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 170,
+    "defaultGramsLarge": 220,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Peach",
+    "nameEs": "Melocotón",
+    "kcalPer100g": 40,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 200,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Mandarin",
+    "nameEs": "Mandarina",
+    "kcalPer100g": 53,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 200,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Kiwi",
+    "nameEs": "Kiwi",
+    "kcalPer100g": 60,
+    "defaultGramsSmall": 70,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 180,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Pineapple",
+    "nameEs": "Piña",
+    "kcalPer100g": 50,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Fruit salad",
+    "nameEs": "Macedonia de frutas",
+    "kcalPer100g": 55,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "fruit",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Flan",
+    "nameEs": "Flan",
+    "kcalPer100g": 145,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 125,
+    "defaultGramsLarge": 200,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Rice pudding",
+    "nameEs": "Arroz con leche",
+    "kcalPer100g": 130,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 170,
+    "defaultGramsLarge": 250,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Custard",
+    "nameEs": "Natillas",
+    "kcalPer100g": 120,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 125,
+    "defaultGramsLarge": 200,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Torrija",
+    "nameEs": "Torrijas",
+    "kcalPer100g": 250,
+    "defaultGramsSmall": 70,
+    "defaultGramsMedium": 120,
+    "defaultGramsLarge": 200,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Chocolate",
+    "nameEs": "Chocolate",
+    "kcalPer100g": 540,
+    "defaultGramsSmall": 15,
+    "defaultGramsMedium": 30,
+    "defaultGramsLarge": 60,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Turron",
+    "nameEs": "Turrón",
+    "kcalPer100g": 520,
+    "defaultGramsSmall": 20,
+    "defaultGramsMedium": 40,
+    "defaultGramsLarge": 70,
+    "category": "dessert",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Coffee with milk",
+    "nameEs": "Café con leche",
+    "kcalPer100g": 35,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Orange juice",
+    "nameEs": "Zumo de naranja",
+    "kcalPer100g": 45,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 250,
+    "defaultGramsLarge": 350,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Cola soft drink",
+    "nameEs": "Refresco de cola",
+    "kcalPer100g": 42,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 330,
+    "defaultGramsLarge": 500,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Beer",
+    "nameEs": "Cerveza",
+    "kcalPer100g": 43,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 330,
+    "defaultGramsLarge": 500,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Red wine",
+    "nameEs": "Vino tinto",
+    "kcalPer100g": 85,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Hot chocolate",
+    "nameEs": "Chocolate a la taza",
+    "kcalPer100g": 95,
+    "defaultGramsSmall": 150,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Milkshake",
+    "nameEs": "Batido",
+    "kcalPer100g": 90,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  },
+  {
+    "name": "Smoothie",
+    "nameEs": "Smoothie de frutas",
+    "kcalPer100g": 55,
+    "defaultGramsSmall": 200,
+    "defaultGramsMedium": 300,
+    "defaultGramsLarge": 400,
+    "category": "drink",
+    "source": "Generic composition estimate"
+  }
+]

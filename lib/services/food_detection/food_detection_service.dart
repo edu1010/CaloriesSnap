@@ -6,6 +6,7 @@ class DetectedFood {
     required this.kcalPer100g,
     this.alternatives = const <DetectedFood>[],
     this.requiresConfirmation = false,
+    this.estimatedNutrition = false,
   });
 
   final String name;
@@ -16,6 +17,10 @@ class DetectedFood {
   /// Other possible identities of this dish, never additional meal components.
   final List<DetectedFood> alternatives;
   final bool requiresConfirmation;
+
+  /// True when [kcalPer100g] is the vision model's own guess because the food
+  /// was not found in the local nutrition table.
+  final bool estimatedNutrition;
 }
 
 abstract class FoodDetectionService {
