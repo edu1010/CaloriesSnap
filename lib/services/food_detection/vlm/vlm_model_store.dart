@@ -44,6 +44,7 @@ class VlmModelStore extends ChangeNotifier {
 
   static const String _settingsFile = 'settings.json';
   static const String _installedMarker = 'installed.json';
+  static const String _onboardingMarker = 'onboarding-complete';
 
   /// Models offered for download.
   final List<VlmModelSpec> catalog;
@@ -58,10 +59,12 @@ class VlmModelStore extends ChangeNotifier {
   Object? _lastError;
   HttpClient? _activeClient;
   bool _cancelRequested = false;
+  bool _needsOnboarding = false;
 
   VlmDownloadProgress? get progress => _progress;
   Object? get lastError => _lastError;
   String? get selectedId => _selectedId;
+  bool get needsOnboarding => _needsOnboarding;
 
   /// The model photo analysis should use, or null when the vision model is
   /// off or not downloaded.
@@ -83,20 +86,36 @@ class VlmModelStore extends ChangeNotifier {
     final root = _root = await _rootDirectory();
     await root.create(recursive: true);
     _installed.clear();
+    _selectedId = null;
     for (final spec in catalog) {
       if (await _isComplete(spec)) _installed.add(spec.id);
     }
     final settings = File(p.join(root.path, _settingsFile));
+    var hasExistingSelection = false;
     if (await settings.exists()) {
       try {
         final decoded = jsonDecode(await settings.readAsString());
-        if (decoded is Map && decoded['selected'] is String) {
-          _selectedId = decoded['selected'] as String;
+        if (decoded is Map && decoded.containsKey('selected')) {
+          final selected = decoded['selected'];
+          if (selected == null || selected is String) {
+            hasExistingSelection = true;
+            _selectedId = selected as String?;
+          }
         }
       } on FormatException {
         // A corrupt settings file only loses the selection.
       }
     }
+    _needsOnboarding =
+        !hasExistingSelection &&
+        _installed.isEmpty &&
+        !await File(p.join(root.path, _onboardingMarker)).exists();
+    notifyListeners();
+  }
+
+  Future<void> finishOnboarding() async {
+    await File(p.join(_requireRoot().path, _onboardingMarker)).create();
+    _needsOnboarding = false;
     notifyListeners();
   }
 
@@ -134,9 +153,11 @@ class VlmModelStore extends ChangeNotifier {
     _cancelRequested = false;
     _lastError = null;
     final dir = _modelDirectory(spec);
-    await dir.create(recursive: true);
-    final client = _activeClient = _httpClientFactory();
+    _report(spec, VlmDownloadPhase.downloading, 0);
     try {
+      await dir.create(recursive: true);
+      if (_cancelRequested) throw const VlmDownloadCancelled();
+      final client = _activeClient = _httpClientFactory();
       var completedBytes = 0;
       for (final file in spec.files) {
         final target = File(p.join(dir.path, file.fileName));
@@ -158,6 +179,7 @@ class VlmModelStore extends ChangeNotifier {
             'Checksum mismatch for ${file.fileName}; the file was removed.',
           );
         }
+        if (_cancelRequested) throw const VlmDownloadCancelled();
       }
       await File(p.join(dir.path, _installedMarker)).writeAsString(
         jsonEncode(<String, dynamic>{
@@ -174,8 +196,8 @@ class VlmModelStore extends ChangeNotifier {
       if (_cancelRequested) throw const VlmDownloadCancelled();
       rethrow;
     } finally {
+      _activeClient?.close(force: true);
       _activeClient = null;
-      client.close(force: true);
       _progress = null;
       notifyListeners();
     }
@@ -283,7 +305,10 @@ class VlmModelStore extends ChangeNotifier {
     final dir = _modelDirectory(spec);
     if (!await File(p.join(dir.path, _installedMarker)).exists()) return false;
     for (final file in spec.files) {
-      if (!await _hasExpectedSize(File(p.join(dir.path, file.fileName)), file)) {
+      if (!await _hasExpectedSize(
+        File(p.join(dir.path, file.fileName)),
+        file,
+      )) {
         return false;
       }
     }

@@ -8,7 +8,7 @@ import 'vlm/vlm_meal_analyzer.dart';
 /// installed, lets it describe the whole plate using the classifier's guesses
 /// as hints. Any failure of the large model falls back to the classifier, so
 /// the app never does worse than without it.
-class CascadeMealAnalysisService implements MealAnalysisService {
+class CascadeMealAnalysisService implements ProgressiveMealAnalysisService {
   CascadeMealAnalysisService({
     required FoodDetectionService classifier,
     VlmMealAnalyzer? vlm,
@@ -24,7 +24,40 @@ class CascadeMealAnalysisService implements MealAnalysisService {
   Future<MealDetection> analyze(
     String imagePath, {
     required String languageCode,
+    String? description,
     void Function(MealAnalysisStage stage)? onStage,
+  }) => _analyze(
+    imagePath,
+    languageCode: languageCode,
+    description: description,
+    onStage: onStage,
+    cancellation: MealAnalysisCancellation(),
+  );
+
+  @override
+  Future<MealDetection> analyzeProgressively(
+    String imagePath, {
+    required String languageCode,
+    String? description,
+    void Function(MealAnalysisStage stage)? onStage,
+    required void Function(MealDetection result) onClassifierResult,
+    required MealAnalysisCancellation cancellation,
+  }) => _analyze(
+    imagePath,
+    languageCode: languageCode,
+    description: description,
+    onStage: onStage,
+    onClassifierResult: onClassifierResult,
+    cancellation: cancellation,
+  );
+
+  Future<MealDetection> _analyze(
+    String imagePath, {
+    required String languageCode,
+    String? description,
+    void Function(MealAnalysisStage stage)? onStage,
+    void Function(MealDetection result)? onClassifierResult,
+    required MealAnalysisCancellation cancellation,
   }) async {
     final vlm = _vlm;
     final useVlm = vlm != null && vlm.isAvailable;
@@ -41,14 +74,18 @@ class CascadeMealAnalysisService implements MealAnalysisService {
     final candidates =
         classified.isEmpty
             ? const <DetectedFood>[]
-            : <DetectedFood>[classified.first, ...classified.first.alternatives];
+            : <DetectedFood>[
+              classified.first,
+              ...classified.first.alternatives,
+            ];
     final classifierResult = MealDetection(
-      foods:
-          classified.where((food) => !food.requiresConfirmation).toList(),
+      foods: classified.where((food) => !food.requiresConfirmation).toList(),
       candidates: candidates,
       engine: MealAnalysisEngine.classifier,
     );
-    if (!useVlm) return classifierResult;
+    if (cancellation.isCanceled) return classifierResult;
+    onClassifierResult?.call(classifierResult);
+    if (!useVlm || cancellation.isCanceled) return classifierResult;
 
     try {
       final detection = await vlm
@@ -56,9 +93,12 @@ class CascadeMealAnalysisService implements MealAnalysisService {
             imagePath,
             languageCode: languageCode,
             hints: candidates.map((food) => food.name).toList(),
+            description: description,
             onStage: onStage,
+            cancellation: cancellation,
           )
           .timeout(vlmTimeout);
+      if (cancellation.isCanceled) return classifierResult;
       if (detection == null) {
         return _fallback(
           classifierResult,
@@ -76,7 +116,7 @@ class CascadeMealAnalysisService implements MealAnalysisService {
       }
       return detection;
     } on TimeoutException catch (error) {
-      vlm.cancel();
+      cancellation.cancel();
       return _fallback(classifierResult, error);
     } catch (error) {
       return _fallback(classifierResult, error);

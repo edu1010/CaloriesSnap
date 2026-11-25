@@ -88,6 +88,7 @@ class _Engine implements VlmEngine {
   /// Either the text to return or an error to throw.
   Object answer;
   Completer<void>? block;
+  Completer<void>? started;
   int loads = 0;
   int unloads = 0;
   int cancels = 0;
@@ -111,6 +112,7 @@ class _Engine implements VlmEngine {
   }) async {
     lastPrompt = prompt;
     lastImage = img.decodeImage(await File(imagePath).readAsBytes());
+    started?.complete();
     await block?.future;
     final answer = this.answer;
     if (answer is String) return answer;
@@ -183,6 +185,62 @@ void main() {
   );
 
   group('VlmModelStore', () {
+    test(
+      'remembers finishing onboarding without downloading a model',
+      () async {
+        final spec = server.spec();
+        final store = newStore(spec);
+        await store.init();
+        expect(store.needsOnboarding, isTrue);
+        await store.finishOnboarding();
+        expect(store.needsOnboarding, isFalse);
+
+        final reopened = newStore(spec);
+        await reopened.init();
+        expect(reopened.needsOnboarding, isFalse);
+        expect(reopened.activeModel, isNull);
+      },
+    );
+
+    test(
+      'recognises the fast classifier selection from older versions',
+      () async {
+        final spec = server.spec();
+        final store = newStore(spec);
+        await store.init();
+        await store.select(null);
+
+        final reopened = newStore(spec);
+        await reopened.init();
+        expect(reopened.needsOnboarding, isFalse);
+        expect(reopened.activeModel, isNull);
+      },
+    );
+
+    test(
+      'reports downloads immediately and can cancel during startup',
+      () async {
+        final spec = server.spec();
+        final store = newStore(spec);
+        await store.init();
+        final firstDownload = store.download(spec);
+        expect(store.progress?.receivedBytes, 0);
+        final duplicateRejected = expectLater(
+          store.download(spec),
+          throwsStateError,
+        );
+        final startupCancelled = expectLater(
+          firstDownload,
+          throwsA(isA<VlmDownloadCancelled>()),
+        );
+        store.cancelDownload();
+        await duplicateRejected;
+        await startupCancelled;
+        expect(store.progress, isNull);
+        expect(store.isInstalled(spec), isFalse);
+      },
+    );
+
     test('downloads, verifies, selects and persists a model', () async {
       final spec = server.spec();
       final store = newStore(spec);
@@ -201,11 +259,15 @@ void main() {
       expect(store.isInstalled(spec), isTrue);
       expect(store.activeModel?.id, spec.id);
       final files = (await store.filesOf(spec))!;
-      expect(await File(files.modelPath).readAsBytes(), server.files['model.gguf']);
+      expect(
+        await File(files.modelPath).readAsBytes(),
+        server.files['model.gguf'],
+      );
 
       final reopened = newStore(spec);
       await reopened.init();
       expect(reopened.activeModel?.id, spec.id);
+      expect(reopened.needsOnboarding, isFalse);
 
       await reopened.select(null);
       expect(reopened.activeModel, isNull);
@@ -230,7 +292,10 @@ void main() {
 
       expect(server.rangeHeaders.first, 'bytes=100000-');
       final files = (await store.filesOf(spec))!;
-      expect(await File(files.modelPath).readAsBytes(), server.files['model.gguf']);
+      expect(
+        await File(files.modelPath).readAsBytes(),
+        server.files['model.gguf'],
+      );
     });
 
     test('rejects and removes a file whose checksum does not match', () async {
@@ -290,42 +355,45 @@ void main() {
       expect(engine.loads, 0);
     });
 
-    test('the vision model lists components with table-backed energy', () async {
-      final service = await cascade();
-      final stages = <MealAnalysisStage>[];
-      final result = await service.analyze(
-        photo,
-        languageCode: 'es',
-        onStage: stages.add,
-      );
+    test(
+      'the vision model lists components with table-backed energy',
+      () async {
+        final service = await cascade();
+        final stages = <MealAnalysisStage>[];
+        final result = await service.analyze(
+          photo,
+          languageCode: 'es',
+          onStage: stages.add,
+        );
 
-      expect(stages, MealAnalysisStage.values);
-      expect(result.engine, MealAnalysisEngine.vlm);
-      expect(result.dishName, 'Bocadillo de lomo con queso');
-      expect(result.candidates, isEmpty);
-      expect(result.foods.map((food) => food.name), [
-        'Pan de barra',
-        'Lomo a la plancha',
-        'Mole poblano',
-      ]);
-      // Table values replace the model's 400 and 150.
-      expect(result.foods[0].kcalPer100g, 270);
-      expect(result.foods[1].kcalPer100g, 200);
-      expect(result.foods[0].suggestedGrams, 120);
-      expect(result.foods[0].estimatedNutrition, isFalse);
-      // Unknown to the table: the model's value, flagged as an estimate.
-      expect(result.foods[2].kcalPer100g, 310);
-      expect(result.foods[2].estimatedNutrition, isTrue);
+        expect(stages, MealAnalysisStage.values);
+        expect(result.engine, MealAnalysisEngine.vlm);
+        expect(result.dishName, 'Bocadillo de lomo con queso');
+        expect(result.candidates, isEmpty);
+        expect(result.foods.map((food) => food.name), [
+          'Pan de barra',
+          'Lomo a la plancha',
+          'Mole poblano',
+        ]);
+        // Table values replace the model's 400 and 150.
+        expect(result.foods[0].kcalPer100g, 270);
+        expect(result.foods[1].kcalPer100g, 200);
+        expect(result.foods[0].suggestedGrams, 120);
+        expect(result.foods[0].estimatedNutrition, isFalse);
+        // Unknown to the table: the model's value, flagged as an estimate.
+        expect(result.foods[2].kcalPer100g, 310);
+        expect(result.foods[2].estimatedNutrition, isTrue);
 
-      expect(engine.lastPrompt, contains('Pizza, Lasagna'));
-      expect(engine.lastPrompt, contains('Spanish'));
-      expect(engine.lastImage!.width, 256);
-      expect(engine.lastImage!.height, lessThan(256));
+        expect(engine.lastPrompt, contains('Pizza, Lasagna'));
+        expect(engine.lastPrompt, contains('Spanish'));
+        expect(engine.lastImage!.width, 256);
+        expect(engine.lastImage!.height, lessThan(256));
 
-      // The model stays loaded between photos.
-      await service.analyze(photo, languageCode: 'es');
-      expect(engine.loads, 1);
-    });
+        // The model stays loaded between photos.
+        await service.analyze(photo, languageCode: 'es');
+        expect(engine.loads, 1);
+      },
+    );
 
     test('falls back to the classifier when the model fails', () async {
       final service = await cascade();
@@ -349,6 +417,31 @@ void main() {
       expect(result.engine, MealAnalysisEngine.classifier);
       expect(result.vlmFailure, isA<TimeoutException>());
       expect(engine.cancels, 1);
+    });
+
+    test('canceling a queued draft leaves an active analysis alone', () async {
+      engine.block = Completer<void>();
+      engine.started = Completer<void>();
+      final service = await cascade();
+      final active = service.analyze(photo, languageCode: 'es');
+      await engine.started!.future;
+
+      final classifier = Completer<MealDetection>();
+      final cancellation = MealAnalysisCancellation();
+      final queued = service.analyzeProgressively(
+        photo,
+        languageCode: 'en',
+        onClassifierResult: classifier.complete,
+        cancellation: cancellation,
+      );
+      expect((await classifier.future).foods.single.name, 'Pizza');
+      cancellation.cancel();
+      expect(engine.cancels, 0);
+      engine.block!.complete();
+
+      expect((await active).engine, MealAnalysisEngine.vlm);
+      expect((await queued).engine, MealAnalysisEngine.classifier);
+      expect(engine.lastPrompt, contains('Spanish'));
     });
 
     test('"no food" adds nothing but keeps the classifier guesses', () async {

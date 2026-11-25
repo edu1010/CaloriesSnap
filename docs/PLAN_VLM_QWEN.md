@@ -2,7 +2,7 @@
 
 > Documento vivo. Si el trabajo se queda a medias, el apartado
 > **[Estado](#estado)** dice exactamente por dónde va y qué falta.
-> Última actualización: 2026-10-07.
+> Última actualización: 2026-11-22.
 
 ## 1. Problema
 
@@ -128,23 +128,27 @@ Requiere Flutter ≥ 3.38 (hay 3.41.8). El motor queda detrás de una interfaz
       real contra un servidor HTTP local, reanudación, checksum incorrecto,
       cascada con motor simulado.
 - [x] APK release arm64 compila y empaqueta `libllama.so`/`libmtmd.so`.
-- [ ] Benchmark nativo en Windows con el modelo real
+- [x] Benchmark nativo en Windows con el modelo real
       (`test/vlm_native_benchmark_test.dart`): identificación sobre la muestra
       auditada y **error de calorías contra Nutrition5k** (platos pesados).
 - [ ] Ajustar prompt / tamaño de imagen / pistas según el benchmark.
-- [ ] **Pendiente del usuario:** prueba en un móvil real (latencia y memoria).
+- [x] Prueba de latencia y memoria por CPU en un POCO F3 con LFM3 y Qwen 2B.
 
 ### Fase 5 — Documentación
-- [ ] Actualizar `README.md` y `docs/food_detection_evaluation.md`.
+- [x] Actualizar `README.md` y `docs/food_detection_evaluation.md`.
 
 ## 4. Estado
 
-**Fase en curso:** 4 (verificación con el modelo real).
+Los resultados en Windows y en el POCO F3 están en
+[`food_detection_evaluation.md`](food_detection_evaluation.md).
 
 | Fecha | Hecho |
 | --- | --- |
 | 2026-10-07 | Plan escrito; investigación de modelo y runtime cerrada. |
 | 2026-10-07 | Fases 1-3 completas y con tests. APK arm64 compila. |
+| 2026-11-22 | Descripción opcional del plato: va al prompt como evidencia fuerte (`MealAnalysisPrompt.user(description:)`, máx. 300 caracteres) y genera sugerencias de ingredientes. Nueva tabla `lib/data/local/ingredients_es.json` (85 ingredientes, 201 preparaciones con macros; se genera con `tool/build_ingredients_db.py`) con buscador en la confirmación. **Sin medir aún en el benchmark con descripción.** |
+| 2026-11-22 | Tabla de ingredientes pasada a valores oficiales CIQUAL 2020 (ANSES): 174 preparaciones directas, 20 derivadas (CIQUAL + aceite), 6 estimadas. |
+| 2026-11-26 | Panel de primer arranque, borrador durante el análisis, registro por texto y repetición desde el historial. LFM3-VL-2B se ofrece como alternativa con `llamadart` 0.21.0. |
 
 ### Cómo retomar
 
@@ -166,8 +170,3 @@ flutter test test/vlm_native_benchmark_test.dart
 - **`confidence` = 0 en resultados del modelo**: no da una puntuación calibrada.
 - **CPU en móvil por defecto.** Vulkan en Android es demasiado irregular entre
   fabricantes; en escritorio se usa GPU si la hay.
-
-### Bloqueos / cosas que necesitan al usuario
-
-- Permiso para descargar los GGUF de Qwen3.5 en este PC (benchmark).
-- Probar en un móvil Android real: no hay ninguno conectado a este equipo.

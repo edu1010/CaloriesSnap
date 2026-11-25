@@ -34,6 +34,16 @@ CalorieSnap is an offline Flutter app for Android and Windows desktop to registe
   - Edit (re-open food confirmation + summary save)
   - Delete
 
+- Goals & activity:
+  - Optional daily and weekly intake goals (independent, stored locally)
+  - Today and Monday–Sunday panels: consumed, burned, remaining target, and
+    net energy only when total expenditure is known
+  - Activity from Android Health Connect (on demand), manual entry or CSV
+    import; one source per day, missing days shown as missing
+  - Mi Fitness, Huawei Health and Strava data is read only if those apps share
+    it with Health Connect; there is no direct account login and no cloud sync.
+    Details and setup: `docs/ACTIVITY_SYNC.md`
+
 ## Tech stack
 
 - Flutter + Dart
@@ -111,6 +121,7 @@ flutter build windows
 ## Nutrition data sources
 
 - AESAN (official Spanish dataset, 2022): imported from Excel into local JSON for offline lookup by barcode.
+- CIQUAL 2020 (ANSES, official French food composition table): kcal and macronutrients of the ingredient picker (`lib/data/local/ingredients_es.json`, 85 ingredients with their preparations). Each preparation records its CIQUAL food code; home frying the table does not list is derived as "CIQUAL cooked food + g of olive oil per 100 g" and flagged as an estimate in the app. Regenerate with `python tool/build_ingredients_db.py` after exporting the CIQUAL sheet to `datasets/ciqual_2020/ciqual_2020_eng.csv`.
 - Open Food Facts: used as online fallback only when barcode is not found locally.
   - API usage requires a custom `User-Agent`.
   - Data license is ODbL with attribution/share-alike requirements.
@@ -127,6 +138,10 @@ flutter build windows
     - Attribution.
     - Share-alike obligations from ODbL when distributing a derived database.
     - Use a custom `User-Agent` and respect API rate limits.
+- CIQUAL 2020:
+  - Citation: Anses. 2020. Ciqual French food composition table.
+  - Source: [Zenodo record 4770202](https://doi.org/10.5281/zenodo.4770202) (the newer release on recherche.data.gouv.fr, doi:10.57745/RDMHWY, can replace it).
+  - License: CC BY 4.0 (attribution required).
 - Nutrition5k:
   - Repository: [google-research-datasets/Nutrition5k](https://github.com/google-research-datasets/Nutrition5k)
   - License: Creative Commons 4.0 (as specified by the dataset authors).
@@ -161,37 +176,50 @@ python tooling/import_aesan_products.py --input C:/path/BasedatosWeb.xlsx --outp
 6. Platform requirements:
    - Android `minSdk` is set to `26` for TensorFlow Lite runtime compatibility
 
-## On-device vision model (optional, Qwen3.5)
+## On-device vision models
 
 The classifiers know 116 dishes and return one food per photo. For everything
 else (a sandwich, a ready meal, a combo plate) the app can run a small
 vision-language model **on the device**:
 
-1. The TFLite classifiers run first (about 0.2 s) and their guesses become hints.
-2. Qwen3.5 (GGUF, llama.cpp through `llamadart`) describes the plate as JSON:
+1. The editable draft opens while the TFLite classifiers run. It already
+   includes any foods recognised in the user's description.
+2. Classifier guesses become hints for the selected model (GGUF, llama.cpp through
+   `llamadart`), which describes the plate as JSON:
    dish name, components, grams and a proposed kcal/100 g.
 3. `NutritionGrounding` looks every component up in the local nutrition tables.
    A table hit replaces the model's energy value; a miss keeps the model's
    value and the confirmation screen flags it as an estimate.
-4. The user reviews and edits everything, as before.
+4. The user can accept additional suggestions, edit the draft, or save
+   without waiting for the vision model. Suggestions respect edited entries.
 
 If no model is downloaded, or it fails, times out or answers garbage, the
 classifier result is used. Code: `lib/services/food_detection/vlm/` and
 `cascade_meal_analysis_service.dart`.
 
-The model is not bundled. It is downloaded once from **On-device AI** (the
-sparkle icon on the home screen), resumable and SHA-256 verified:
+On first launch, choose a model to download or continue with the built-in
+classifier. The home screen's sparkle icon opens **On-device AI**, where you
+can change models, resume a download or free the space used by a model.
+Downloads are SHA-256 verified.
 
 | Tier | Files | Download | Suggested RAM |
 | --- | --- | ---: | --- |
 | Light | `Qwen3.5-0.8B-Q4_K_M.gguf` + `mmproj-F16.gguf` | 0.7 GB | 4 GB+ |
 | Precise | `Qwen3.5-2B-Q4_K_M.gguf` + `mmproj-F16.gguf` | 1.9 GB | 8 GB+ |
+| Alternative | `LFM3-VL-2B-Q4_K_M.gguf` + `mmproj-LFM3-VL-2B-F16.gguf` | 1.48 GB | 8 GB+ |
 
 Models: [unsloth/Qwen3.5-0.8B-GGUF](https://huggingface.co/unsloth/Qwen3.5-0.8B-GGUF)
 and [unsloth/Qwen3.5-2B-GGUF](https://huggingface.co/unsloth/Qwen3.5-2B-GGUF),
 Apache-2.0, pinned by revision in `vlm_model_catalog.dart`.
 
-Plan, status and measurements: `docs/PLAN_VLM_QWEN.md`.
+Liquid AI publishes the alternative model under the
+[LFM Open License 1.0](https://huggingface.co/LiquidAI/LFM3-VL-2B-GGUF/blob/1add221a5ea6c047fcf1eaaf2d247939d7cf8849/LICENSE).
+See the [benchmark results](docs/food_detection_evaluation.md).
+
+To log without a photo, write a description such as “150 g de arroz cocido,
+dos huevos y una cucharadita de aceite”. The draft distinguishes weights you
+entered from household measures converted to grams. To log a meal again, open
+it from the history and choose **Repeat meal**.
 
 ## Offline and privacy
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health_rationale_title">How CalorieSnap uses your activity data</string>
+    <string name="health_rationale_body">CalorieSnap can read the following data from Health Connect, and only the types you allow:\n\n•  Active calories burned\n•  Total calories burned\n•  Steps\n•  Distance\n•  Exercise sessions (their duration only)\n\nWhy: to show the energy you burned next to the calories you logged, so you can compare intake with expenditure day by day.\n\nWhen: only while the app is open and you tap Synchronise. Nothing is read in the background.\n\nWhere it goes: the daily totals are stored only on this device, in the app\'s local database. They are never uploaded, shared or sent to any server.\n\nCalorieSnap never writes, changes or deletes anything in Health Connect.\n\nYou can withdraw these permissions at any time in Health Connect. Daily totals that were already synchronised stay on this device until you uninstall the app or clear its data.</string>
+</resources>

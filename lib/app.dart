@@ -6,6 +6,9 @@ import 'core/theme/app_theme.dart';
 import 'data/repositories/meal_repository.dart';
 import 'data/repositories/nutrition_repository.dart';
 import 'features/home/home_screen.dart';
+import 'features/settings/local_ai_settings_screen.dart';
+import 'services/activity/activity_sync_coordinator.dart';
+import 'services/activity/energy_dashboard_service.dart';
 import 'services/barcode/open_food_facts_service.dart';
 import 'services/food_detection/meal_analysis_service.dart';
 import 'services/food_detection/vlm/vlm_model_store.dart';
@@ -22,6 +25,8 @@ class CalorieSnapApp extends StatelessWidget {
     required this.openFoodFactsService,
     required this.imageStorageService,
     required this.calorieCalculator,
+    required this.energyDashboardService,
+    required this.activitySyncCoordinator,
   });
 
   final MealRepository mealRepository;
@@ -31,6 +36,8 @@ class CalorieSnapApp extends StatelessWidget {
   final OpenFoodFactsService openFoodFactsService;
   final ImageStorageService imageStorageService;
   final CalorieCalculator calorieCalculator;
+  final EnergyDashboardService energyDashboardService;
+  final ActivitySyncCoordinator activitySyncCoordinator;
 
   @override
   Widget build(BuildContext context) {
@@ -54,14 +61,27 @@ class CalorieSnapApp extends StatelessWidget {
         }
         return const Locale('en');
       },
-      home: HomeScreen(
-        mealRepository: mealRepository,
-        nutritionRepository: nutritionRepository,
-        mealAnalysisService: mealAnalysisService,
-        vlmModelStore: vlmModelStore,
-        openFoodFactsService: openFoodFactsService,
-        imageStorageService: imageStorageService,
-        calorieCalculator: calorieCalculator,
+      home: ListenableBuilder(
+        listenable: vlmModelStore,
+        builder:
+            (context, child) =>
+                vlmModelStore.needsOnboarding
+                    ? LocalAiSettingsScreen(
+                      store: vlmModelStore,
+                      firstRun: true,
+                    )
+                    : child!,
+        child: HomeScreen(
+          mealRepository: mealRepository,
+          nutritionRepository: nutritionRepository,
+          mealAnalysisService: mealAnalysisService,
+          vlmModelStore: vlmModelStore,
+          openFoodFactsService: openFoodFactsService,
+          imageStorageService: imageStorageService,
+          calorieCalculator: calorieCalculator,
+          energyDashboardService: energyDashboardService,
+          activitySyncCoordinator: activitySyncCoordinator,
+        ),
       ),
     );
   }

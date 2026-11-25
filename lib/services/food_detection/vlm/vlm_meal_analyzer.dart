@@ -47,11 +47,20 @@ class VlmMealAnalyzer {
     String imagePath, {
     required String languageCode,
     List<String> hints = const <String>[],
+    String? description,
     void Function(MealAnalysisStage stage)? onStage,
+    MealAnalysisCancellation? cancellation,
   }) {
     // The native context serves one request at a time.
     final result = _queue.then(
-      (_) => _analyze(imagePath, languageCode, hints, onStage),
+      (_) => _analyze(
+        imagePath,
+        languageCode,
+        hints,
+        description,
+        onStage,
+        cancellation,
+      ),
     );
     _queue = result.then<void>(
       (_) {},
@@ -60,12 +69,11 @@ class VlmMealAnalyzer {
     return result;
   }
 
-  void cancel() => _engine.cancel();
-
   Future<void> dispose() async {
     _store.removeListener(_onStoreChanged);
     _idleTimer?.cancel();
     await _queue;
+    _idleTimer?.cancel();
     await _unload();
   }
 
@@ -73,10 +81,14 @@ class VlmMealAnalyzer {
     String imagePath,
     String languageCode,
     List<String> hints,
+    String? description,
     void Function(MealAnalysisStage stage)? onStage,
+    MealAnalysisCancellation? cancellation,
   ) async {
+    if (cancellation?.isCanceled == true) return null;
     final spec = _store.activeModel;
     final files = spec == null ? null : await _store.filesOf(spec);
+    if (cancellation?.isCanceled == true) return null;
     if (spec == null || files == null) {
       throw StateError('No vision model is installed.');
     }
@@ -89,14 +101,18 @@ class VlmMealAnalyzer {
         await _engine.load(files);
         _loadedId = spec.id;
       }
+      if (cancellation?.isCanceled == true) return null;
       onStage?.call(MealAnalysisStage.analyzing);
       resized = await _resizeInBackground(imagePath, spec.imageMaxEdge);
+      if (cancellation?.isCanceled == true) return null;
+      cancellation?.setStopGeneration(_engine.cancel);
       final answer = await _engine.describeImage(
         imagePath: resized.path,
         system: MealAnalysisPrompt.system,
         prompt: MealAnalysisPrompt.user(
           languageCode: languageCode,
           hints: hints,
+          description: description,
         ),
         maxTokens: MealAnalysisPrompt.maxOutputTokens,
         responseFormat: MealAnalysisPrompt.responseFormat,
@@ -104,6 +120,7 @@ class VlmMealAnalyzer {
       final analysis = MealAnalysis.tryParse(answer);
       return analysis == null ? null : _toDetection(analysis, languageCode);
     } finally {
+      cancellation?.setStopGeneration(null);
       try {
         await resized?.delete();
       } on FileSystemException {

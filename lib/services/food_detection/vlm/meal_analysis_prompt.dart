@@ -13,11 +13,19 @@ class MealAnalysisPrompt {
       'You are a nutrition assistant. You look at one photo of a meal and '
       'answer with JSON only.';
 
+  /// Longest description passed on; more only costs prompt time.
+  static const int maxDescriptionLength = 300;
+
   /// [hints] are the fast classifier's guesses. They are offered as weak
   /// evidence only; the classifier knows 116 dishes and is wrong on the rest.
+  ///
+  /// [description] is what the user wrote about the dish. Unlike the hints it
+  /// is strong evidence: the person was there and knows what they ate and how
+  /// it was cooked, which a photo often cannot show (oil, frying, fillings).
   static String user({
     required String languageCode,
     List<String> hints = const <String>[],
+    String? description,
   }) {
     final spanish = languageCode == 'es';
     final language = spanish ? 'Spanish' : 'English';
@@ -57,6 +65,18 @@ class MealAnalysisPrompt {
           ..writeln('- "kcal100": kcal per 100 g of that food.')
           ..writeln()
           ..writeln('Example for a different photo: $example');
+    final said = cleanDescription(description);
+    if (said != null) {
+      buffer
+        ..writeln()
+        ..writeln('The person who ate this meal says: "$said".')
+        ..writeln(
+          'Trust them about which foods these are and how they were cooked, '
+          'and list every food they say they ate even if it is hard to see. '
+          'Leave out foods they explicitly exclude. Use '
+          'the photo for the amounts, unless they give a weight.',
+        );
+    }
     if (hints.isNotEmpty) {
       buffer
         ..writeln()
@@ -69,6 +89,21 @@ class MealAnalysisPrompt {
       ..writeln()
       ..write('Now answer for this photo.');
     return buffer.toString();
+  }
+
+  /// One line, no quotes that could close the prompt's quotation, and at
+  /// most [maxDescriptionLength] characters. Null when nothing is left.
+  static String? cleanDescription(String? description) {
+    if (description == null) return null;
+    var text =
+        description
+            .replaceAll(RegExp(r'["“”]'), "'")
+            .replaceAll(RegExp(r'\s+'), ' ')
+            .trim();
+    if (text.length > maxDescriptionLength) {
+      text = text.substring(0, maxDescriptionLength).trimRight();
+    }
+    return text.isEmpty ? null : text;
   }
 
   /// OpenAI-style `response_format`; llama.cpp compiles it to a grammar so

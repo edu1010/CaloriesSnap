@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show FlutterError;
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../../models/ingredient.dart';
 import '../../models/nutrition_food.dart';
+import '../../services/nutrition/food_search.dart';
 
 class NutritionRepository {
   static const String _genericFoodsAsset =
@@ -12,13 +15,25 @@ class NutritionRepository {
       'lib/data/local/common_foods_es.json';
   static const String _packagedFoodsAsset =
       'lib/data/local/nutrition_products_es.json';
+  static const String _ingredientsAsset =
+      'lib/data/local/ingredients_es.json';
 
   final List<NutritionFood> _foods = <NutritionFood>[];
   final List<NutritionFood> _barcodeFoods = <NutritionFood>[];
   final Map<String, NutritionFood> _foodsByName = <String, NutritionFood>{};
   final Map<String, NutritionFood> _foodsByBarcode = <String, NutritionFood>{};
 
+  final List<Ingredient> _ingredients = <Ingredient>[];
+  FoodSearch _search = FoodSearch(ingredients: const <Ingredient>[]);
+
   List<NutritionFood> get foods => List<NutritionFood>.unmodifiable(_foods);
+
+  /// Base foods with their preparations (raw, boiled, fried...).
+  List<Ingredient> get ingredients =>
+      List<Ingredient>.unmodifiable(_ingredients);
+
+  /// Search over [ingredients] and the prepared dishes of [foods].
+  FoodSearch get search => _search;
   int get barcodeFoodsCount => _barcodeFoods.length;
 
   Future<void> load() async {
@@ -39,6 +54,7 @@ class NutritionRepository {
       _packagedFoodsAsset,
       allowMissing: true,
     );
+    final ingredients = await _loadIngredients();
 
     // Generic ingredients are loaded first so they win on name collisions
     // (e.g. "French Fries") while the Food-101 dish table fills in every
@@ -48,6 +64,19 @@ class NutritionRepository {
       ..addAll(genericFoods)
       ..addAll(dishFoods)
       ..addAll(commonFoods);
+    final dishes = List<NutritionFood>.of(_foods);
+    _ingredients
+      ..clear()
+      ..addAll(ingredients);
+    // Every preparation is also a plain table row, added last so the
+    // existing tables keep winning on name collisions. That way a name
+    // picked in the search ("Arroz hervido") resolves again later.
+    for (final ingredient in ingredients) {
+      for (final variant in ingredient.variants) {
+        _foods.add(ingredient.toNutritionFood(variant));
+      }
+    }
+    _search = FoodSearch(ingredients: ingredients, dishes: dishes);
 
     _barcodeFoods
       ..clear()
@@ -98,6 +127,21 @@ class NutritionRepository {
       return null;
     }
     return _foodsByBarcode[normalized];
+  }
+
+  Future<List<Ingredient>> _loadIngredients() async {
+    try {
+      final raw = await rootBundle.loadString(_ingredientsAsset);
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      final source = decoded['source'] as String?;
+      return (decoded['ingredients'] as List<dynamic>)
+          .whereType<Map<String, dynamic>>()
+          .map((json) => Ingredient.fromJson(json, source: source))
+          .toList(growable: false);
+    } on FlutterError {
+      // Asset not bundled (older builds, some tests).
+      return const <Ingredient>[];
+    }
   }
 
   Future<List<NutritionFood>> _loadFoodsFromAsset(

@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/l10n/app_localizations.dart';
+import '../../core/l10n/meal_registration_localizations.dart';
 import '../../data/repositories/meal_repository.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../models/food_item.dart';
 import '../../models/nutrition_food.dart';
 import '../../services/barcode/open_food_facts_service.dart';
 import '../../services/food_detection/meal_analysis_service.dart';
+import '../../services/food_detection/vlm/meal_analysis_prompt.dart';
 import '../../services/image/image_storage_service.dart';
 import '../../services/nutrition/calorie_calculator.dart';
 import 'barcode_scanner_screen.dart';
@@ -41,16 +43,17 @@ class RegisterMealScreen extends StatefulWidget {
 class _RegisterMealScreenState extends State<RegisterMealScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   final TextEditingController _barcodeController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   String? _selectedImagePath;
   bool _isDetecting = false;
-  MealAnalysisStage _stage = MealAnalysisStage.classifying;
   bool _isBarcodeLookup = false;
   String? _errorText;
 
   @override
   void dispose() {
     _barcodeController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -92,61 +95,19 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
   }
 
   Future<void> _detectFoods() async {
-    if (_selectedImagePath == null) {
-      return;
-    }
+    final imagePath = _selectedImagePath;
+    if (imagePath == null) return;
 
     setState(() {
       _isDetecting = true;
-      _stage = MealAnalysisStage.classifying;
       _errorText = null;
     });
-    final languageCode = Localizations.localeOf(context).languageCode;
 
     try {
       final storedPath = await widget.imageStorageService.copyToAppStorage(
-        _selectedImagePath!,
+        imagePath,
       );
-      final detection = await widget.mealAnalysisService.analyze(
-        storedPath,
-        languageCode: languageCode,
-        onStage: (stage) {
-          if (mounted) setState(() => _stage = stage);
-        },
-      );
-
-      final foods =
-          detection.foods.map((item) {
-            final calories = widget.calorieCalculator.calculateFoodCalories(
-              item.suggestedGrams,
-              item.kcalPer100g,
-            );
-            return FoodItem(
-              name: item.name,
-              grams: item.suggestedGrams,
-              kcalPer100g: item.kcalPer100g,
-              calculatedKcal: calories,
-            );
-          }).toList();
-
-      if (!mounted) {
-        return;
-      }
-
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder:
-              (_) => FoodConfirmationScreen(
-                imagePath: storedPath,
-                initialFoods: foods,
-                photoCandidates: detection.candidates,
-                detection: detection,
-                mealRepository: widget.mealRepository,
-                nutritionRepository: widget.nutritionRepository,
-                calorieCalculator: widget.calorieCalculator,
-              ),
-        ),
-      );
+      if (mounted) await _openDraft(imagePath: storedPath);
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -161,15 +122,27 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
     }
   }
 
-  String _stageLabel(AppLocalizations l10n) {
-    switch (_stage) {
-      case MealAnalysisStage.classifying:
-        return l10n.detectingFoods;
-      case MealAnalysisStage.loadingModel:
-        return l10n.loadingAiModel;
-      case MealAnalysisStage.analyzing:
-        return l10n.analyzingWithAi;
-    }
+  Future<void> _openDraft({String? imagePath}) async {
+    FocusScope.of(context).unfocus();
+    final text = _descriptionController.text.trim();
+    final description = text.isEmpty ? null : text;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder:
+            (_) => FoodConfirmationScreen(
+              imagePath: imagePath,
+              initialFoods: const <FoodItem>[],
+              photoAnalysisService:
+                  imagePath == null ? null : widget.mealAnalysisService,
+              seedFromDescription: true,
+              description: description,
+              initialNotes: description,
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+            ),
+      ),
+    );
   }
 
   bool get _supportsCameraBarcodeScanner {
@@ -284,6 +257,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
           builder:
               (_) => FoodConfirmationScreen(
                 imagePath: null,
+                fromBarcode: true,
                 initialFoods: <FoodItem>[food],
                 mealRepository: widget.mealRepository,
                 nutritionRepository: widget.nutritionRepository,
@@ -330,6 +304,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
         builder:
             (_) => FoodConfirmationScreen(
               imagePath: null,
+              fromBarcode: true,
               initialFoods: <FoodItem>[food],
               mealRepository: widget.mealRepository,
               nutritionRepository: widget.nutritionRepository,
@@ -383,7 +358,7 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
               ],
             ),
             const SizedBox(height: 16),
-            if (_selectedImagePath != null)
+            if (_selectedImagePath != null) ...<Widget>[
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: AspectRatio(
@@ -391,22 +366,56 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                   child: Image.file(
                     File(_selectedImagePath!),
                     fit: BoxFit.cover,
+                    cacheWidth: 1200,
                   ),
                 ),
-              )
-            else
-              Container(
-                height: 240,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  color: Colors.white,
-                ),
-                child: Text(l10n.noImageSelectedYet),
               ),
+              const SizedBox(height: 12),
+            ],
+            TextField(
+              key: const Key('dish-description-field'),
+              controller: _descriptionController,
+              minLines: 1,
+              maxLines: 3,
+              maxLength: MealAnalysisPrompt.maxDescriptionLength,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: InputDecoration(
+                labelText: l10n.dishDescription,
+                hintText: l10n.dishDescriptionHint,
+                helperText: l10n.dishDescriptionHelp,
+                helperMaxLines: 3,
+                prefixIcon: const Icon(Icons.edit_note_outlined),
+                border: const OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                FilledButton.icon(
+                  onPressed:
+                      _selectedImagePath == null || !canSubmitBarcode
+                          ? null
+                          : _detectFoods,
+                  icon:
+                      _isDetecting
+                          ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : const Icon(Icons.auto_awesome_outlined),
+                  label: Text(
+                    _isDetecting ? l10n.detectingFoods : l10n.detectFoods,
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: canSubmitBarcode ? _openDraft : null,
+                  icon: const Icon(Icons.edit_note_outlined),
+                  label: Text(l10n.registerFromText),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Card(
               child: Padding(
@@ -489,20 +498,6 @@ class _RegisterMealScreenState extends State<RegisterMealScreen> {
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
               ),
-            FilledButton.icon(
-              onPressed:
-                  _selectedImagePath == null || _isDetecting || _isBarcodeLookup
-                      ? null
-                      : _detectFoods,
-              icon:
-                  _isDetecting
-                      ? const SizedBox.square(
-                        dimension: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : const Icon(Icons.auto_awesome_outlined),
-              label: Text(_isDetecting ? _stageLabel(l10n) : l10n.detectFoods),
-            ),
           ],
         ),
       ),

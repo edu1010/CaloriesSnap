@@ -11,20 +11,24 @@ import 'package:calorie_snap/services/food_detection/vlm/meal_analysis.dart';
 import 'package:calorie_snap/services/food_detection/vlm/nutrition_grounding.dart';
 import 'package:calorie_snap/services/food_detection/vlm/vlm_engine.dart';
 import 'package:calorie_snap/services/food_detection/vlm/vlm_meal_analyzer.dart';
-import 'package:calorie_snap/services/food_detection/vlm/vlm_model_catalog.dart';
 import 'package:calorie_snap/services/food_detection/vlm/vlm_model_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'support/vlm_benchmark_models.dart';
 
 // Opt-in benchmark of the real on-device pipeline: the production Dart code,
 // llama.cpp runtime, prompt, parser and nutrition grounding.
 //
 //   CALORIESNAP_VLM_BENCHMARK=1        enable
-//   CALORIESNAP_VLM_MODEL=light|precise
+//   CALORIESNAP_VLM_MODEL=light|precise|lfm3|lfm450|minicpm
 //   CALORIESNAP_VLM_MODELS_DIR         where models are downloaded/kept
 //   CALORIESNAP_VLM_PER_CLASS=1        images per classifier class (0 = skip)
 //   CALORIESNAP_VLM_DISHES=60          Nutrition5k dishes (0 = skip)
 //   CALORIESNAP_VLM_HINTS=1            pass classifier guesses to the model
+//   CALORIESNAP_VLM_LABEL_LIMIT        cap audited samples after seeded shuffle
+//   CALORIESNAP_VLM_DESCRIPTION=1      add Nutrition5k ingredient names
+//   CALORIESNAP_VLM_THINKING=1         enable model reasoning (normally off)
 //
 // Part 1 measures dish identification on the audited held-out sample. The
 // model answers in free text, so a hit is a lenient name match; it is not
@@ -38,19 +42,23 @@ void main() {
   test(
     'on-device vision model: dish identification and calorie error',
     () async {
+      final model = env['CALORIESNAP_VLM_MODEL'] ?? 'light';
       final spec =
-          env['CALORIESNAP_VLM_MODEL'] == 'precise'
-              ? VlmModelCatalog.precise
-              : VlmModelCatalog.light;
+          benchmarkModels[model] ??
+          (throw ArgumentError.value(model, 'CALORIESNAP_VLM_MODEL'));
       final perClass = int.parse(env['CALORIESNAP_VLM_PER_CLASS'] ?? '1');
       final dishCount = int.parse(env['CALORIESNAP_VLM_DISHES'] ?? '60');
+      final labelLimit = int.tryParse(env['CALORIESNAP_VLM_LABEL_LIMIT'] ?? '');
       final useHints = env['CALORIESNAP_VLM_HINTS'] != '0';
+      final useDescription = env['CALORIESNAP_VLM_DESCRIPTION'] == '1';
+      final enableThinking = env['CALORIESNAP_VLM_THINKING'] == '1';
 
       final repository = NutritionRepository();
       await repository.load();
       final grounding = NutritionGrounding(repository);
 
       final store = VlmModelStore(
+        catalog: benchmarkModels.values.toList(),
         rootDirectory:
             () async => Directory(
               env['CALORIESNAP_VLM_MODELS_DIR'] ??
@@ -72,13 +80,24 @@ void main() {
       }
       await store.select(spec);
 
+      final engine = LlamadartVlmEngine(
+        useGpu: false,
+        enableThinking: enableThinking,
+      );
       final analyzer = VlmMealAnalyzer(
-        engine: LlamadartVlmEngine(),
+        engine: engine,
         store: store,
         nutritionRepository: repository,
         idleUnload: const Duration(hours: 1),
       );
       addTearDown(analyzer.dispose);
+      final rssBefore = ProcessInfo.currentRss;
+      final loading = Stopwatch()..start();
+      await engine.load((await store.filesOf(spec))!);
+      loading.stop();
+      debugPrint(
+        '${spec.name} loaded on CPU in ${loading.elapsedMilliseconds} ms',
+      );
 
       // The classifier needs the TensorFlow Lite library staged next to the
       // test executable; without it the model runs unaided.
@@ -105,7 +124,7 @@ void main() {
         }
       }
 
-      Future<_Run> run(String path) async {
+      Future<_Run> run(String path, {String? description}) async {
         final classified = await classify(path);
         final hints =
             !useHints || classified.isEmpty
@@ -117,17 +136,28 @@ void main() {
         final stopwatch = Stopwatch()..start();
         MealDetection? detection;
         Object? error;
+        final cancellation = MealAnalysisCancellation();
         try {
-          detection = await analyzer.analyze(
-            path,
-            languageCode: 'es',
-            hints: hints,
-          );
+          detection = await analyzer
+              .analyze(
+                path,
+                languageCode: 'es',
+                hints: hints,
+                description: description,
+                cancellation: cancellation,
+              )
+              .timeout(const Duration(minutes: 3));
         } catch (caught) {
+          cancellation.cancel();
           error = caught;
         }
         stopwatch.stop();
-        return _Run(classified, detection, stopwatch.elapsedMilliseconds, error);
+        return _Run(
+          classified,
+          detection,
+          stopwatch.elapsedMilliseconds,
+          error,
+        );
       }
 
       String? canonical(String name, String language) =>
@@ -139,6 +169,11 @@ void main() {
       final report = <String, dynamic>{
         'model': spec.id,
         'hints': useHints,
+        'description': useDescription,
+        'thinking': enableThinking,
+        'backend': 'cpu',
+        'model_bytes': spec.totalBytes,
+        'model_load_ms': loading.elapsedMilliseconds,
         'image_max_edge': spec.imageMaxEdge,
       };
 
@@ -153,7 +188,7 @@ void main() {
                 )
                 as Map<String, dynamic>;
         final counts = <String, int>{};
-        final samples =
+        var samples =
             (manifest['selected_samples'] as List)
                 .cast<Map<String, dynamic>>()
                 .where((sample) {
@@ -164,6 +199,10 @@ void main() {
                   return true;
                 })
                 .toList();
+        if (labelLimit != null) {
+          samples.shuffle(Random(20261125));
+          samples = samples.take(labelLimit).toList();
+        }
 
         var vlmHits = 0;
         var classifierHits = 0;
@@ -202,7 +241,7 @@ void main() {
             'latency_ms': result.latencyMs,
             if (result.error != null) 'error': result.error.toString(),
           });
-          if (rows.length % 10 == 0) {
+          if (rows.length == 1 || rows.length % 5 == 0) {
             debugPrint(
               'identification ${rows.length}/${samples.length}: '
               'vlm=$vlmHits classifier=$classifierHits unusable=$unusable',
@@ -239,7 +278,13 @@ void main() {
         var unusable = 0;
         final rows = <Map<String, dynamic>>[];
         for (final dish in selected) {
-          final result = await run(dish.imagePath);
+          final result = await run(
+            dish.imagePath,
+            description:
+                useDescription
+                    ? 'En el plato hay ${dish.ingredients.join(", ")}'
+                    : null,
+          );
           latencies.add(result.latencyMs);
 
           double? classifierKcal;
@@ -291,7 +336,7 @@ void main() {
             'latency_ms': result.latencyMs,
             if (result.error != null) 'error': result.error.toString(),
           });
-          if (rows.length % 10 == 0) {
+          if (rows.length == 1 || rows.length % 5 == 0) {
             debugPrint(
               'calories ${rows.length}/${selected.length}: '
               'vlm median abs error ${_median(vlmKcalErrors)} kcal',
@@ -322,6 +367,8 @@ void main() {
       final output =
           env['CALORIESNAP_VLM_OUTPUT'] ??
           'training-artifacts/vlm-benchmark-${spec.id}.json';
+      report['rss_before_analysis_bytes'] = rssBefore;
+      report['process_peak_rss_bytes'] = ProcessInfo.maxRss;
       await File(
         output,
       ).writeAsString(const JsonEncoder.withIndent('  ').convert(report));
@@ -329,8 +376,9 @@ void main() {
         for (final entry in report.entries)
           entry.key:
               entry.value is Map
-                  ? (Map<String, dynamic>.of(entry.value as Map<String, dynamic>)
-                    ..remove('rows'))
+                  ? (Map<String, dynamic>.of(
+                    entry.value as Map<String, dynamic>,
+                  )..remove('rows'))
                   : entry.value,
       };
       debugPrint('Saved $output');

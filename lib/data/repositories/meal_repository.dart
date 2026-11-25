@@ -186,10 +186,22 @@ class MealRepository {
 
   Future<Map<DateTime, DailySummary>> getDailySummariesForMonth(
     DateTime month,
+  ) {
+    return getDailySummariesForRange(
+      AppDateUtils.startOfMonth(month),
+      AppDateUtils.startOfNextMonth(month),
+    );
+  }
+
+  /// Days of [startInclusive, endExclusive) that have meals, keyed by local
+  /// midnight. Days without meals are absent.
+  Future<Map<DateTime, DailySummary>> getDailySummariesForRange(
+    DateTime startInclusive,
+    DateTime endExclusive,
   ) async {
     final db = await _db;
-    final start = AppDateUtils.startOfMonth(month);
-    final end = AppDateUtils.startOfNextMonth(month);
+    final start = AppDateUtils.startOfDay(startInclusive);
+    final end = AppDateUtils.startOfDay(endExclusive);
 
     final rows = await db.rawQuery(
       '''

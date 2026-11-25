@@ -23,7 +23,7 @@ dependencies:
   sqflite_common_ffi: ^2.4.0+3
   table_calendar: ^3.2.0
   tflite_flutter: ^0.12.1
-  llamadart: ^0.10.0
+  llamadart: ^0.21.0
   crypto: ^3.0.7
 
 dev_dependencies:
@@ -42,8 +42,9 @@ flutter:
     - lib/data/local/food101_nutrition.json
     - lib/data/local/common_foods_es.json
     - lib/data/local/nutrition_products_es.json
+    - lib/data/local/ingredients_es.json
 
-# llamadart (on-device Qwen): ship only the llama.cpp runtime. LiteRT-LM and
+# On-device vision: ship only the llama.cpp runtime. LiteRT-LM and
 # the Vulkan module add ~60 MB to the APK and are not used on phones.
 hooks:
   user_defines:

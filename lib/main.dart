@@ -4,8 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'app.dart';
+import 'data/repositories/activity_repository.dart';
 import 'data/repositories/meal_repository.dart';
 import 'data/repositories/nutrition_repository.dart';
+import 'services/activity/activity_sync_coordinator.dart';
+import 'services/activity/energy_dashboard_service.dart';
+import 'services/activity/health_connect_activity_source.dart';
 import 'services/barcode/open_food_facts_service.dart';
 import 'services/food_detection/cascade_meal_analysis_service.dart';
 import 'services/food_detection/hybrid_food_detection_service.dart';
@@ -26,6 +30,17 @@ Future<void> main() async {
 
   final mealRepository = MealRepository();
   await mealRepository.init();
+
+  final activityStore = SqliteActivityStore();
+  await activityStore.init();
+  final energyDashboardService = EnergyDashboardService(
+    loadIntake: mealRepository.getDailySummariesForRange,
+    store: activityStore,
+  );
+  final activitySyncCoordinator = ActivitySyncCoordinator(
+    store: activityStore,
+    source: HealthConnectActivitySource(),
+  );
 
   final nutritionRepository = NutritionRepository();
   await nutritionRepository.load();
@@ -64,6 +79,8 @@ Future<void> main() async {
       openFoodFactsService: openFoodFactsService,
       imageStorageService: ImageStorageService(),
       calorieCalculator: CalorieCalculator(),
+      energyDashboardService: energyDashboardService,
+      activitySyncCoordinator: activitySyncCoordinator,
     ),
   );
 }

@@ -2,6 +2,13 @@
     <!-- Barcode lookup (Open Food Facts) and the one-time download of the
          on-device vision model. Photos never leave the device. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Health Connect, read only: daily activity totals fetched when the user
+         taps Synchronise. No write, history or background permissions. -->
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
     <application
         android:label="calorie_snap"
         android:name="${applicationName}"
@@ -28,6 +35,28 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Privacy text Health Connect opens from its permission screen
+             (Android 9-13, where Health Connect is a separate app). -->
+        <activity
+            android:name=".HealthPermissionsRationaleActivity"
+            android:exported="true"
+            android:label="@string/health_rationale_title"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
+            </intent-filter>
+        </activity>
+        <!-- Same text on Android 14+, where the system asks for it this way. -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".HealthPermissionsRationaleActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
+            </intent-filter>
+        </activity-alias>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -44,5 +73,8 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Lets the app see whether the Health Connect app is installed
+             (Android 9-13). -->
+        <package android:name="com.google.android.apps.healthdata"/>
     </queries>
 </manifest>

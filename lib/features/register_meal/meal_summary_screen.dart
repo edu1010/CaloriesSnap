@@ -43,7 +43,20 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
   @override
   void initState() {
     super.initState();
-    _mealType = widget.initialMealType ?? AppConstants.mealTypes.first;
+    final initialMealType = switch (widget.initialMealType
+        ?.trim()
+        .toLowerCase()) {
+      'desayuno' => 'breakfast',
+      'comida' => 'lunch',
+      'cena' => 'dinner',
+      'tentempié' || 'tentempie' => 'snack',
+      'otro' => 'other',
+      final saved => saved,
+    };
+    _mealType = AppConstants.mealTypes.firstWhere(
+      (type) => type.toLowerCase() == initialMealType,
+      orElse: () => AppConstants.mealTypes.first,
+    );
     _notesController = TextEditingController(text: widget.initialNotes ?? '');
   }
 
@@ -122,36 +135,20 @@ class _MealSummaryScreenState extends State<MealSummaryScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: <Widget>[
-            if (hasImage)
+            if (hasImage) ...<Widget>[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: AspectRatio(
                   aspectRatio: 4 / 3,
-                  child: Image.file(File(widget.imagePath!), fit: BoxFit.cover),
-                ),
-              )
-            else
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                ),
-                child: Row(
-                  children: <Widget>[
-                    const Icon(Icons.restaurant_menu_outlined),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        l10n.mealSavedWithoutPhoto,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
+                  child: Image.file(
+                    File(widget.imagePath!),
+                    fit: BoxFit.cover,
+                    cacheWidth: 1200,
+                  ),
                 ),
               ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(16),

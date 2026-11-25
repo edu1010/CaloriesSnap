@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="health_rationale_title">Cómo usa CalorieSnap tus datos de actividad</string>
+    <string name="health_rationale_body">CalorieSnap puede leer de Health Connect los siguientes datos, y solo los tipos que autorices:\n\n•  Calorías activas quemadas\n•  Calorías totales quemadas\n•  Pasos\n•  Distancia\n•  Sesiones de ejercicio (solo su duración)\n\nPara qué: para mostrar la energía que has gastado junto a las calorías que has registrado y poder comparar ingesta y gasto día a día.\n\nCuándo: solo con la app abierta y cuando pulsas Sincronizar. No se lee nada en segundo plano.\n\nDónde se guardan: los totales diarios se guardan únicamente en este dispositivo, en la base de datos local de la app. Nunca se suben, se comparten ni se envían a ningún servidor.\n\nCalorieSnap nunca escribe, modifica ni borra nada en Health Connect.\n\nPuedes retirar estos permisos cuando quieras desde Health Connect. Los totales diarios ya sincronizados permanecen en este dispositivo hasta que desinstales la app o borres sus datos.</string>
+</resources>

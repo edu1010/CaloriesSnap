@@ -43,3 +43,10 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Health Connect (read-only activity totals) and what its bridge needs.
+    implementation("androidx.health.connect:connect-client:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+}

@@ -54,10 +54,15 @@ void main() {
 
   test('frying is never dropped: fried food keeps a fried energy density', () {
     expect(ground('pollo frito').match?.name, 'Fried chicken');
-    // No fried aubergine in the table: plain aubergine must not be used.
+    // Fried aubergine comes from the ingredient table, never plain
+    // aubergine's 25 kcal.
     final item = ground('berenjena frita', en: 'fried eggplant', kcal: 190);
-    expect(item.match, isNull);
-    expect(item.kcalPer100g, 190);
+    expect(item.match?.nameEs, 'Berenjena frita');
+    expect(item.kcalPer100g, 137);
+    // Fried food missing from every table keeps the model's own value.
+    final okra = ground('okra frita', en: 'fried okra', kcal: 190);
+    expect(okra.match, isNull);
+    expect(okra.kcalPer100g, 190);
   });
 
   test('a name with mostly unknown words is not forced onto a table entry', () {

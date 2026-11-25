@@ -34,13 +34,18 @@ abstract class VlmEngine {
 
 /// llama.cpp through `llamadart`. One model is kept in memory at a time.
 class LlamadartVlmEngine implements VlmEngine {
-  LlamadartVlmEngine({int contextSize = 4096, bool? useGpu})
-    : _contextSize = contextSize,
-      // Vulkan drivers on phones are too uneven to trust by default; desktop
-      // GPUs are used when present.
-      _useGpu = useGpu ?? !(Platform.isAndroid || Platform.isIOS);
+  LlamadartVlmEngine({
+    int contextSize = 4096,
+    bool? useGpu,
+    bool enableThinking = false,
+  }) : _contextSize = contextSize,
+       _enableThinking = enableThinking,
+       // Vulkan drivers on phones are too uneven to trust by default; desktop
+       // GPUs are used when present.
+       _useGpu = useGpu ?? !(Platform.isAndroid || Platform.isIOS);
 
   final int _contextSize;
+  final bool _enableThinking;
   final bool _useGpu;
 
   LlamaEngine? _engine;
@@ -51,18 +56,18 @@ class LlamadartVlmEngine implements VlmEngine {
     if (_engine != null && _loadedModelPath == files.modelPath) return;
     await unload();
 
-    final engine = LlamaEngine(LlamaBackend());
+    final engine = await LlamaEngine.load(
+      LlamaModel(
+        ModelSource.path(files.modelPath),
+        projector: ModelSource.path(files.projectorPath),
+      ),
+      params: ModelParams(
+        contextSize: _contextSize,
+        gpuLayers: _useGpu ? ModelParams.maxGpuLayers : 0,
+        preferredBackend: _useGpu ? GpuBackend.auto : GpuBackend.cpu,
+      ),
+    );
     try {
-      await engine.setLogLevel(LlamaLogLevel.none);
-      await engine.loadModel(
-        files.modelPath,
-        modelParams: ModelParams(
-          contextSize: _contextSize,
-          gpuLayers: _useGpu ? ModelParams.maxGpuLayers : 0,
-          preferredBackend: _useGpu ? GpuBackend.auto : GpuBackend.cpu,
-        ),
-      );
-      await engine.loadMultimodalProjector(files.projectorPath);
       if (!await engine.supportsVision) {
         throw StateError('The loaded model has no vision support.');
       }
@@ -105,7 +110,7 @@ class LlamadartVlmEngine implements VlmEngine {
         penalty: 1.0,
         reusePromptPrefix: false,
       ),
-      enableThinking: false,
+      enableThinking: _enableThinking,
       responseFormat: responseFormat,
     );
     await for (final chunk in chunks) {

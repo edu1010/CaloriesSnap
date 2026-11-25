@@ -9,6 +9,7 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../models/meal.dart';
 import '../../services/nutrition/calorie_calculator.dart';
 import '../register_meal/food_confirmation_screen.dart';
+import 'meal_repeat.dart';
 
 class MealDetailScreen extends StatefulWidget {
   const MealDetailScreen({
@@ -87,6 +88,29 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       return;
     }
     await _refreshMeal();
+  }
+
+  /// Opens the confirmation flow with a copy of this meal as a new meal for
+  /// now. On save the summary pops back to the first route (as every new
+  /// meal does), which also removes this screen, so there is nothing to do
+  /// after the push unless the user backed out.
+  Future<void> _repeatMeal() async {
+    final meal = _meal;
+    if (meal == null || meal.foods.isEmpty) {
+      return;
+    }
+
+    await Navigator.of(context).push(
+      MaterialPageRoute<bool>(
+        builder:
+            (_) => buildRepeatMealScreen(
+              meal: meal,
+              mealRepository: widget.mealRepository,
+              nutritionRepository: widget.nutritionRepository,
+              calorieCalculator: widget.calorieCalculator,
+            ),
+      ),
+    );
   }
 
   Future<void> _deleteMeal() async {
@@ -232,6 +256,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                FilledButton.tonalIcon(
+                  key: const Key('repeat-meal'),
+                  onPressed: meal.foods.isEmpty ? null : _repeatMeal,
+                  icon: const Icon(Icons.replay),
+                  label: Text(context.repeatMealLabel),
                 ),
               ],
             ),

@@ -40,7 +40,7 @@ class VlmModelSpec {
   List<VlmRemoteFile> get files => <VlmRemoteFile>[model, projector];
 }
 
-/// Qwen3.5 small models (Apache-2.0), GGUF conversions by Unsloth.
+/// Local vision models with pinned language weights and projectors.
 class VlmModelCatalog {
   const VlmModelCatalog._();
 
@@ -48,6 +48,8 @@ class VlmModelCatalog {
       '6ab461498e2023f6e3c1baea90a8f0fe38ab64d0';
   static const String _preciseRevision =
       'f6d5376be1edb4d416d56da11e5397a961aca8ae';
+  static const String _lfm3Revision =
+      '1add221a5ea6c047fcf1eaaf2d247939d7cf8849';
 
   static const VlmModelSpec light = VlmModelSpec(
     id: 'qwen3.5-0.8b-q4',
@@ -99,5 +101,30 @@ class VlmModelCatalog {
     ),
   );
 
-  static const List<VlmModelSpec> all = <VlmModelSpec>[light, precise];
+  static const VlmModelSpec lfm3 = VlmModelSpec(
+    id: 'lfm3-vl-2b-q4',
+    name: 'LFM3-VL-2B',
+    minDeviceRamGb: 8,
+    imageMaxEdge: 512,
+    model: VlmRemoteFile(
+      fileName: 'LFM3-VL-2B-Q4_K_M.gguf',
+      url:
+          'https://huggingface.co/LiquidAI/LFM3-VL-2B-GGUF/resolve/'
+          '$_lfm3Revision/LFM3-VL-2B-Q4_K_M.gguf',
+      bytes: 1099627808,
+      sha256:
+          '56dac2e192ff0d9ab8507f4f1aeb4aed0463449bbbefaac79497f041c95f21eb',
+    ),
+    projector: VlmRemoteFile(
+      fileName: 'mmproj-LFM3-VL-2B-F16.gguf',
+      url:
+          'https://huggingface.co/LiquidAI/LFM3-VL-2B-GGUF/resolve/'
+          '$_lfm3Revision/mmproj-LFM3-VL-2B-F16.gguf',
+      bytes: 378996032,
+      sha256:
+          '1d8e6e58eefc093e09d6332f081516e1ddbd5b35cfca7f35463fb270db230b1e',
+    ),
+  );
+
+  static const List<VlmModelSpec> all = <VlmModelSpec>[light, precise, lfm3];
 }

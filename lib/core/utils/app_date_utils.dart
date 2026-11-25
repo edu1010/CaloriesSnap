@@ -6,7 +6,8 @@ class AppDateUtils {
   }
 
   static DateTime startOfNextDay(DateTime date) {
-    return startOfDay(date).add(const Duration(days: 1));
+    // A local calendar day can last 23 or 25 hours at a DST transition.
+    return DateTime(date.year, date.month, date.day + 1);
   }
 
   static DateTime startOfMonth(DateTime date) {

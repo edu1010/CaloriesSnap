@@ -110,7 +110,8 @@ void main() {
     test('preparation differences do not become fuzzy nutrition matches', () {
       expect(repository.findByName('Arroz cocido')?.kcalPer100g, 130);
       expect(repository.findByName('Arroz frito')?.kcalPer100g, 163);
-      expect(repository.findByName('Arroz crudo'), isNull);
+      // Raw rice is its own ingredient-table row, never cooked rice's 130.
+      expect(repository.findByName('Arroz crudo')?.kcalPer100g, 352);
       expect(repository.findByName('Tortilla francesa')?.name, 'Omelette');
       expect(
         repository.findByName('Tortilla de trigo o maiz')?.name,

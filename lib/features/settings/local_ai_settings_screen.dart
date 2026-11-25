@@ -6,16 +6,23 @@ import '../../services/food_detection/vlm/vlm_model_store.dart';
 
 /// Lets the user download, select and remove the on-device vision model.
 class LocalAiSettingsScreen extends StatefulWidget {
-  const LocalAiSettingsScreen({super.key, required this.store});
+  const LocalAiSettingsScreen({
+    super.key,
+    required this.store,
+    this.firstRun = false,
+  });
 
   final VlmModelStore store;
+  final bool firstRun;
 
   @override
   State<LocalAiSettingsScreen> createState() => _LocalAiSettingsScreenState();
 }
 
 class _LocalAiSettingsScreenState extends State<LocalAiSettingsScreen> {
+  static const double _maxPanelWidth = 680;
   int? _deviceRamGb;
+  bool _finishingOnboarding = false;
 
   @override
   void initState() {
@@ -33,77 +40,151 @@ class _LocalAiSettingsScreenState extends State<LocalAiSettingsScreen> {
     } on VlmDownloadCancelled {
       // The user asked for it.
     } catch (error) {
+      if (!messenger.mounted) return;
       messenger.showSnackBar(
         SnackBar(content: Text(l10n.downloadFailed(error))),
       );
     }
   }
 
+  Future<void> _finishOnboarding() async {
+    final l10n = context.l10n;
+    setState(() => _finishingOnboarding = true);
+    try {
+      await widget.store.finishOnboarding();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.aiSetupSaveFailed)));
+    } finally {
+      if (mounted) setState(() => _finishingOnboarding = false);
+    }
+  }
+
   static String _size(int bytes) =>
-      '${(bytes / 1e9).toStringAsFixed(1)} GB';
+      bytes < 1000000000
+          ? '${(bytes / 1e6).round()} MB'
+          : '${(bytes / 1e9).toStringAsFixed(1)} GB';
+
+  String _description(AppLocalizations l10n, VlmModelSpec spec) {
+    if (spec.id == VlmModelCatalog.light.id) return l10n.lightModelDescription;
+    if (spec.id == VlmModelCatalog.precise.id) {
+      return l10n.preciseModelDescription;
+    }
+    if (spec.id == VlmModelCatalog.lfm3.id) return l10n.lfm3ModelDescription;
+    return l10n.aiAlternativeModel(spec.minDeviceRamGb);
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final store = widget.store;
+    final firstRun = widget.firstRun;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.localAi)),
-      body: SafeArea(
-        child: ListenableBuilder(
-          listenable: store,
-          builder: (context, _) {
-            final progress = store.progress;
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: <Widget>[
-                Text(l10n.localAiIntro),
-                const SizedBox(height: 8),
-                Text(
-                  l10n.localAiSpeedNote,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
+    return ListenableBuilder(
+      listenable: store,
+      builder: (context, _) {
+        final progress = store.progress;
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(firstRun ? l10n.aiSetupTitle : l10n.localAi),
+          ),
+          body: SafeArea(
+            bottom: !firstRun,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: _maxPanelWidth),
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: <Widget>[
+                    Text(firstRun ? l10n.aiSetupIntro : l10n.localAiIntro),
+                    const SizedBox(height: 8),
+                    if (firstRun)
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.auto_awesome_outlined),
+                        title: Text(l10n.aiSetupChangeModel),
+                      )
+                    else
+                      Text(
+                        l10n.localAiSpeedNote,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    if (!firstRun)
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.bolt_outlined),
+                          title: Text(l10n.classifierOnly),
+                          subtitle: Text(l10n.classifierOnlyDescription),
+                          trailing:
+                              store.activeModel == null
+                                  ? Chip(label: Text(l10n.inUse))
+                                  : TextButton(
+                                    onPressed: () => store.select(null),
+                                    child: Text(l10n.use),
+                                  ),
+                        ),
+                      ),
+                    for (final spec in store.catalog)
+                      _ModelCard(
+                        spec: spec,
+                        description: _description(l10n, spec),
+                        size: _size(spec.totalBytes),
+                        installed: store.isInstalled(spec),
+                        active: store.activeModel?.id == spec.id,
+                        progress:
+                            progress?.spec.id == spec.id ? progress : null,
+                        busy: progress != null,
+                        deviceRamGb: _deviceRamGb,
+                        onDownload: () => _download(spec),
+                        onCancel: store.cancelDownload,
+                        onUse: () => store.select(spec),
+                        onDelete: () => store.delete(spec),
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.bolt_outlined),
-                    title: Text(l10n.classifierOnly),
-                    subtitle: Text(l10n.classifierOnlyDescription),
-                    trailing:
-                        store.activeModel == null
-                            ? Chip(label: Text(l10n.inUse))
-                            : TextButton(
-                              onPressed: () => store.select(null),
-                              child: Text(l10n.use),
+              ),
+            ),
+          ),
+          bottomNavigationBar:
+              firstRun
+                  ? SafeArea(
+                    child: Align(
+                      heightFactor: 1,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: _maxPanelWidth,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              onPressed:
+                                  _finishingOnboarding
+                                      ? null
+                                      : _finishOnboarding,
+                              child: Text(
+                                progress != null
+                                    ? l10n.aiSetupContinueDownloading
+                                    : store.activeModel != null
+                                    ? l10n.continueText
+                                    : l10n.aiSetupContinueWithClassifier,
+                              ),
                             ),
-                  ),
-                ),
-                for (final spec in store.catalog)
-                  _ModelCard(
-                    spec: spec,
-                    description:
-                        spec.id == VlmModelCatalog.light.id
-                            ? l10n.lightModelDescription
-                            : l10n.preciseModelDescription,
-                    size: _size(spec.totalBytes),
-                    installed: store.isInstalled(spec),
-                    active: store.activeModel?.id == spec.id,
-                    progress: progress?.spec.id == spec.id ? progress : null,
-                    busy: progress != null,
-                    deviceRamGb: _deviceRamGb,
-                    onDownload: () => _download(spec),
-                    onCancel: store.cancelDownload,
-                    onUse: () => store.select(spec),
-                    onDelete: () => store.delete(spec),
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                  : null,
+        );
+      },
     );
   }
 }
@@ -183,16 +264,16 @@ class _ModelCard extends StatelessWidget {
                         : progress.fraction,
               ),
               const SizedBox(height: 8),
-              Row(
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      progress.phase == VlmDownloadPhase.verifying
-                          ? l10n.verifyingDownload
-                          : l10n.downloadingModel(
-                            (progress.fraction * 100).floor(),
-                          ),
-                    ),
+                  Text(
+                    progress.phase == VlmDownloadPhase.verifying
+                        ? l10n.verifyingDownload
+                        : l10n.downloadingModel(
+                          (progress.fraction * 100).floor(),
+                        ),
                   ),
                   TextButton(
                     onPressed: onCancel,
@@ -215,6 +296,7 @@ class _ModelCard extends StatelessWidget {
               )
             else ...<Widget>[
               FilledButton.icon(
+                key: ValueKey('download-ai-${spec.id}'),
                 onPressed: busy ? null : onDownload,
                 icon: const Icon(Icons.download_outlined),
                 label: Text(l10n.downloadModel(size)),
@@ -227,4 +309,46 @@ class _ModelCard extends StatelessWidget {
       ),
     );
   }
+}
+
+extension _LocalAiCopy on AppLocalizations {
+  bool get _spanish => locale.languageCode == 'es';
+
+  String get aiSetupTitle =>
+      _spanish ? 'Configura la IA de tus fotos' : 'Set up AI for meal photos';
+
+  String get aiSetupIntro =>
+      _spanish
+          ? 'Elige un modelo para identificar varios alimentos en una foto y estimar las raciones. Se activa al terminar la descarga y analiza tus fotos sin conexión. También puedes empezar con el clasificador rápido incluido.'
+          : 'Choose a model to identify several foods in one photo and estimate portions. It activates when the download finishes and analyses photos offline. You can also start with the built-in fast classifier.';
+
+  String get aiSetupChangeModel =>
+      _spanish
+          ? 'Para cambiar de modelo, abre IA local con el icono de destellos en la pantalla de inicio.'
+          : 'To change models, open On-device AI using the sparkle icon on the home screen.';
+
+  String get aiSetupContinueWithClassifier =>
+      _spanish
+          ? 'Empezar con el clasificador rápido'
+          : 'Start with the fast classifier';
+
+  String get aiSetupContinueDownloading =>
+      _spanish
+          ? 'Continuar mientras se descarga'
+          : 'Continue while downloading';
+
+  String get aiSetupSaveFailed =>
+      _spanish
+          ? 'No se pudo guardar la configuración. Vuelve a intentarlo.'
+          : 'Could not save your setup. Try again.';
+
+  String aiAlternativeModel(int ramGb) =>
+      _spanish
+          ? 'Modelo de visión alternativo. RAM recomendada de $ramGb GB o más.'
+          : 'Alternative vision model. Recommended RAM is $ramGb GB or more.';
+
+  String get lfm3ModelDescription =>
+      _spanish
+          ? 'Modelo alternativo de Liquid AI. 8 GB de RAM recomendados. Licencia LFM Open 1.0.'
+          : 'Alternative model from Liquid AI. 8 GB RAM recommended. LFM Open License 1.0.';
 }

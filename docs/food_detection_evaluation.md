@@ -126,5 +126,84 @@ base y reutiliza exactamente las mismas imágenes y el mismo orden.
 Validación realizada: trece pruebas Python de particiones/deduplicado y selección
 del test; nueve pruebas Flutter de cobertura nutricional, nombres, actualización
 de calorías y rechazo de medidas inválidas. El análisis estático de los archivos
-de nutrición y sus pruebas no encontró problemas. No se ha realizado una
-validación con pesos y calorías reales de cada plato.
+de nutrición y sus pruebas no encontró problemas. Esos ensayos clasificaron
+las fotos sin medir sus gramos ni kcal.
+
+## Visión local en el PC
+
+Se usaron dos muestras emparejadas de ocho fotos cada una. La primera sale
+del manifiesto auditado y compara el nombre del plato tras normalizarlo
+contra la tabla nutricional. La segunda usa fotos cenitales de platos
+pesados de Nutrition5k. El clasificador aporta sus sugerencias y todos los
+modelos reciben fotos reducidas a 512 px, el mismo formato JSON y el mismo
+anclaje nutricional. El razonamiento está desactivado, igual que en la app.
+
+| Modelo | Descarga | Nombres acertados | Platos con resultado | Error mediano de kcal | Error mediano de gramos | Mediana por foto pesada | Pico de RAM del proceso |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 0.8B | 738 MB | 3/8 | 7/8 | 255,3 | 66 g | 15,50 s | 1,68 GB |
+| Qwen3.5 2B | 1,95 GB | 3/8 | 8/8 | 72,8 | 86 g | 30,54 s | 3,26 GB |
+| LFM2.5-VL-450M | 418 MB | 3/8 | 8/8 | 306,4 | 136 g | 4,47 s | 1,13 GB |
+| LFM3-VL-2B | 1,48 GB | 2/8 | 8/8 | 56,9 | 69,5 g | 11,36 s | 3,00 GB |
+| Qwen3.5 2B con el runtime actualizado | 1,95 GB | — | 8/8 | 40,3 | 49 g | 21,64 s | 3,15 GB |
+| MiniCPM-V 4.7 1B | 1,57 GB | — | — | — | — | — | — |
+
+Windows x64, Ryzen 7 5800X y CPU en los cinco intentos. Qwen y LFM2.5
+usaron `llamadart` 0.10.0. Con esa versión, LFM3 falló al cargar y MiniCPM
+falló al abrir el proyector de visión. LFM3 se midió con `llamadart` 0.21.0
+en una copia aislada. También se repitieron los ocho platos pesados con
+Qwen 2B y esa versión. La carga concurrente del PC varió entre ejecuciones.
+El pico de RAM incluye Flutter y el
+clasificador. Los errores de kcal y gramos se calculan sobre las respuestas
+utilizables. Con solo ocho casos, una foto cambia la identificación en 12,5
+puntos. En esa misma selección el clasificador obtuvo 6/8 aciertos exactos
+y un error mediano de 183,3 kcal al tomar su ración mediana por defecto.
+
+### Repetir la prueba de PC
+
+```powershell
+flutter test test/vlm_native_benchmark_test.dart
+$env:LLAMADART_BACKEND_MODULE_DIR = (Resolve-Path build/native_assets/windows).Path
+$env:PATH = (Resolve-Path blobs).Path + ';' + $env:PATH
+$env:CALORIESNAP_VLM_BENCHMARK = '1'
+$env:CALORIESNAP_VLM_LABEL_LIMIT = '8'
+$env:CALORIESNAP_VLM_DISHES = '8'
+$env:CALORIESNAP_VLM_MODEL = 'precise' # light, lfm450, lfm3 o minicpm
+flutter test --no-pub test/vlm_native_benchmark_test.dart --reporter expanded
+```
+
+Para la segunda pasada de Nutrition5k, usa `CALORIESNAP_VLM_PER_CLASS=0` y
+`CALORIESNAP_VLM_DESCRIPTION=1`. Esta prueba añade los nombres de los
+ingredientes del conjunto de datos sin cantidades. Los JSON por imagen se
+guardan en `training-artifacts/`.
+
+Con esos nombres como pista, el error mediano bajó de 255,3 a 62,6 kcal
+con Qwen3.5 0.8B y de 306,4 a 119,7 kcal con LFM2.5-VL-450M. Es una
+prueba controlada con metadatos del conjunto, más completos que muchas
+descripciones reales.
+
+## Prueba en POCO F3
+
+Se usaron los cuatro primeros platos pesados de la misma selección, sin
+descripción. Ambos modelos se ejecutaron por CPU, en el mismo APK de
+pruebas en modo profile con `llamadart` 0.21.0, sobre Android 13 y un POCO
+F3 de 8 GB. La inferencia se mide tras cargar el modelo y excluye el tiempo
+del clasificador. La memoria es el pico de PSS muestreado por ADB, que
+incluye la parte proporcional de la memoria compartida del proceso.
+
+| Modelo | Respuestas útiles | Carga | Mediana por foto | Pico de PSS | Error mediano de kcal | Error mediano de gramos |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Qwen3.5 2B | 4/4 | 10,13 s | 42,58 s | 2,84 GiB | 115,6 | 46 g |
+| LFM3-VL-2B | 4/4 | 13,82 s | 28,77 s | 2,07 GiB | 197,2 | 112 g |
+
+LFM3 queda como descarga opcional. En el POCO tardó un 32 % menos por
+foto, ocupó un 27 % menos de PSS y requiere unos 470 MB menos de
+descarga. Qwen 2B cometió menos error tanto en los cuatro platos del POCO
+como en los ocho del PC con el mismo runtime. La muestra sirve para
+comparar estas ejecuciones y merece ampliarse antes de cambiar el modelo
+recomendado.
+
+El punto de entrada de la prueba es
+[`tool/vlm_android_benchmark.dart`](../tool/vlm_android_benchmark.dart).
+Lee el manifiesto de casos y escribe resultados parciales en la carpeta
+privada `files/vlm_benchmark`. Los JSON de esta prueba están en
+`training-artifacts/vlm-20261126-android-*.json`.
