@@ -10,6 +10,8 @@ enum FoodUnit {
 
   /// A countable item: "2 huevos", "un plátano", "un filete de merluza".
   piece,
+  bottle,
+  scoop,
 
   /// "rebanada", "loncha", "rodaja", "tostada".
   slice,
@@ -477,6 +479,20 @@ class _QuantityParser {
     'unidades': FoodUnit.piece,
     'pieza': FoodUnit.piece,
     'piezas': FoodUnit.piece,
+    'botella': FoodUnit.bottle,
+    'botellas': FoodUnit.bottle,
+    'bottle': FoodUnit.bottle,
+    'bottles': FoodUnit.bottle,
+    'carton': FoodUnit.bottle,
+    'cartones': FoodUnit.bottle,
+    'brik': FoodUnit.bottle,
+    'brick': FoodUnit.bottle,
+    'cacito': FoodUnit.scoop,
+    'cacitos': FoodUnit.scoop,
+    'cazo': FoodUnit.scoop,
+    'cazos': FoodUnit.scoop,
+    'scoop': FoodUnit.scoop,
+    'scoops': FoodUnit.scoop,
     'filete': FoodUnit.piece,
     'filetes': FoodUnit.piece,
     'bola': FoodUnit.piece,
@@ -567,7 +583,9 @@ double? _gramsFor(
   _ParsedQuantity quantity,
 ) {
   final amount = quantity.amount;
-  final density = _densities[ingredient.id];
+  final dish = ingredient.dish;
+  final density =
+      dish?.unitMillilitres != null ? 1.0 : _densities[ingredient.id];
   double sized(double grams) => grams * _multiplier(quantity.size);
 
   double? specific(FoodUnit unit) {
@@ -617,6 +635,16 @@ double? _gramsFor(
       if (density == null) return null;
       return sized(amount * _millilitres[quantity.unit]! * density);
     case FoodUnit.piece:
+      final unitGrams = dish?.standardUnitAmount;
+      if (unitGrams != null) return amount * unitGrams;
+      final own = specific(FoodUnit.piece);
+      return own == null ? null : sized(amount * own);
+    case FoodUnit.bottle:
+      final volume = dish?.unitMillilitres;
+      return volume == null ? null : amount * volume;
+    case FoodUnit.scoop:
+      final scoop = dish?.scoopGrams;
+      return scoop == null ? null : amount * scoop;
     case FoodUnit.slice:
     case FoodUnit.square:
     case FoodUnit.can:
@@ -705,6 +733,7 @@ _unitGrams = <String, Map<FoodUnit, double>>{
   'lamb_chops': {FoodUnit.piece: 50},
   'sausage': {FoodUnit.piece: 50},
   'chorizo': {FoodUnit.slice: 5},
+  'dish:Fuet': {FoodUnit.slice: 5},
   'bacon': {FoodUnit.slice: 12},
   'serrano_ham': {FoodUnit.slice: 15},
   'cooked_ham': {FoodUnit.slice: 20},

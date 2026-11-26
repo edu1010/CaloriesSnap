@@ -1,0 +1,457 @@
+[
+  {
+    "name": "Whopper (Burger King)",
+    "nameEs": "Whopper (Burger King)",
+    "kcalPer100g": 222.491,
+    "defaultGramsSmall": 144.5,
+    "defaultGramsMedium": 289,
+    "defaultGramsLarge": 578,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 289,
+    "aliases": [
+      "whopper",
+      "whoper",
+      "whoper del burger king",
+      "wopper",
+      "whopper del burger",
+      "whopper del burger king",
+      "Whopper de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Doble Whopper (Burger King)",
+    "nameEs": "Doble Whopper (Burger King)",
+    "kcalPer100g": 236.243,
+    "defaultGramsSmall": 189,
+    "defaultGramsMedium": 378,
+    "defaultGramsLarge": 756,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 378,
+    "aliases": [
+      "whopper doble",
+      "double whopper",
+      "Doble Whopper de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Triple Whopper (Burger King)",
+    "nameEs": "Triple Whopper (Burger King)",
+    "kcalPer100g": 244.754,
+    "defaultGramsSmall": 233.5,
+    "defaultGramsMedium": 467,
+    "defaultGramsLarge": 934,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 467,
+    "aliases": [
+      "whopper triple",
+      "triple whopper",
+      "Triple Whopper de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Whopper Spicy (Burger King)",
+    "nameEs": "Whopper Spicy (Burger King)",
+    "kcalPer100g": 212.171,
+    "defaultGramsSmall": 152,
+    "defaultGramsMedium": 304,
+    "defaultGramsLarge": 608,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 304,
+    "aliases": [
+      "spicy whopper",
+      "whopper picante",
+      "Whopper Spicy de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Big King (Burger King)",
+    "nameEs": "Big King (Burger King)",
+    "kcalPer100g": 262.5,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 400,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 200,
+    "aliases": [
+      "big king",
+      "Big King de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Big King XXL (Burger King)",
+    "nameEs": "Big King XXL (Burger King)",
+    "kcalPer100g": 258.575,
+    "defaultGramsSmall": 189.5,
+    "defaultGramsMedium": 379,
+    "defaultGramsLarge": 758,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 379,
+    "aliases": [
+      "big king xxl",
+      "Big King XXL de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Long Chicken (Burger King)",
+    "nameEs": "Long Chicken (Burger King)",
+    "kcalPer100g": 274.648,
+    "defaultGramsSmall": 106.5,
+    "defaultGramsMedium": 213,
+    "defaultGramsLarge": 426,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 213,
+    "aliases": [
+      "long chicken",
+      "Long Chicken de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Crispy Chicken (Burger King)",
+    "nameEs": "Crispy Chicken (Burger King)",
+    "kcalPer100g": 275,
+    "defaultGramsSmall": 92,
+    "defaultGramsMedium": 184,
+    "defaultGramsLarge": 368,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 184,
+    "aliases": [
+      "crispy chicken burger king",
+      "Crispy Chicken de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Steakhouse (Burger King)",
+    "nameEs": "Steakhouse (Burger King)",
+    "kcalPer100g": 278.716,
+    "defaultGramsSmall": 148,
+    "defaultGramsMedium": 296,
+    "defaultGramsLarge": 592,
+    "category": "burger",
+    "brand": "Burger King",
+    "unitGrams": 296,
+    "aliases": [
+      "steakhouse del burger",
+      "Steakhouse de burger king"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Big Mac (McDonald's, Portugal reference)",
+    "nameEs": "Big Mac (McDonald's, ref. Portugal)",
+    "kcalPer100g": 230.508,
+    "defaultGramsSmall": 118,
+    "defaultGramsMedium": 236,
+    "defaultGramsLarge": 472,
+    "category": "burger",
+    "brand": "McDonald's (Portugal)",
+    "unitGrams": 236,
+    "aliases": [
+      "big mac",
+      "bigmac",
+      "big mac del mcdonalds",
+      "bigmac del mcdonalds",
+      "Big Mac de mcdonalds",
+      "Big Mac mcdonalds"
+    ],
+    "source": "https://www.mcdonalds.pt/media/11183/7-nutricao-balcao-27-maio_2026.pdf"
+  },
+  {
+    "name": "McPollo (McDonald's, Portugal reference)",
+    "nameEs": "McPollo (McDonald's, ref. Portugal)",
+    "kcalPer100g": 230.22,
+    "defaultGramsSmall": 91,
+    "defaultGramsMedium": 182,
+    "defaultGramsLarge": 364,
+    "category": "burger",
+    "brand": "McDonald's (Portugal)",
+    "unitGrams": 182,
+    "aliases": [
+      "mcpollo",
+      "mc pollo",
+      "mcchicken",
+      "mc chicken",
+      "McPollo de mcdonalds",
+      "McPollo mcdonalds"
+    ],
+    "source": "https://www.mcdonalds.pt/media/11183/7-nutricao-balcao-27-maio_2026.pdf"
+  },
+  {
+    "name": "Cheeseburger (McDonald's, Portugal reference)",
+    "nameEs": "Cheeseburger (McDonald's, ref. Portugal)",
+    "kcalPer100g": 252.893,
+    "defaultGramsSmall": 60.5,
+    "defaultGramsMedium": 121,
+    "defaultGramsLarge": 242,
+    "category": "burger",
+    "brand": "McDonald's (Portugal)",
+    "unitGrams": 121,
+    "aliases": [
+      "cheeseburger del mcdonalds",
+      "hamburguesa con queso del mcdonalds",
+      "cheeseburger mcdonalds",
+      "Cheeseburger de mcdonalds"
+    ],
+    "source": "https://www.mcdonalds.pt/media/11183/7-nutricao-balcao-27-maio_2026.pdf"
+  },
+  {
+    "name": "Doble Cheeseburger (McDonald's, Portugal reference)",
+    "nameEs": "Doble Cheeseburger (McDonald's, ref. Portugal)",
+    "kcalPer100g": 248.603,
+    "defaultGramsSmall": 89.5,
+    "defaultGramsMedium": 179,
+    "defaultGramsLarge": 358,
+    "category": "burger",
+    "brand": "McDonald's (Portugal)",
+    "unitGrams": 179,
+    "aliases": [
+      "doble cheeseburger mcdonalds",
+      "double cheeseburger mcdonalds",
+      "Doble Cheeseburger de mcdonalds"
+    ],
+    "source": "https://www.mcdonalds.pt/media/11183/7-nutricao-balcao-27-maio_2026.pdf"
+  },
+  {
+    "name": "Barbacoa pizza (Telepizza)",
+    "nameEs": "Pizza Barbacoa (Telepizza)",
+    "kcalPer100g": 213,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza barbacoa",
+      "pizza barbacoa de telepizza",
+      "barbacoa de telepizza",
+      "pizza barbacoa telepizza",
+      "barbacoa del telepizza",
+      "Barbacoa telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Barbacoa Crème pizza (Telepizza)",
+    "nameEs": "Pizza Barbacoa Crème (Telepizza)",
+    "kcalPer100g": 211,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza barbacoa creme",
+      "pizza barbacoa creme de telepizza",
+      "Barbacoa Crème telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Carbonara con cebolla pizza (Telepizza)",
+    "nameEs": "Pizza Carbonara con cebolla (Telepizza)",
+    "kcalPer100g": 211,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza carbonara con cebolla",
+      "pizza carbonara con cebolla de telepizza",
+      "carbonara con cebolla de telepizza",
+      "Carbonara con cebolla telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "4 quesos pizza (Telepizza)",
+    "nameEs": "Pizza 4 quesos (Telepizza)",
+    "kcalPer100g": 224,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza 4 quesos",
+      "pizza 4 quesos de telepizza",
+      "pizza cuatro quesos de telepizza",
+      "telepizza cuatro quesos",
+      "4 quesos de telepizza",
+      "4 quesos telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Hawaiana pizza (Telepizza)",
+    "nameEs": "Pizza Hawaiana (Telepizza)",
+    "kcalPer100g": 197,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza hawaiana",
+      "pizza hawaiana de telepizza",
+      "hawaiana de telepizza",
+      "Hawaiana telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Pepe Pepperoni pizza (Telepizza)",
+    "nameEs": "Pizza Pepe Pepperoni (Telepizza)",
+    "kcalPer100g": 258,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza pepe pepperoni",
+      "pizza pepe pepperoni de telepizza",
+      "pepe pepperoni",
+      "pizza pepperoni de telepizza",
+      "Pepe Pepperoni telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Bacon Crispy pizza (Telepizza)",
+    "nameEs": "Pizza Bacon Crispy (Telepizza)",
+    "kcalPer100g": 232,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza bacon crispy",
+      "pizza bacon crispy de telepizza",
+      "bacon crispy de telepizza",
+      "Bacon Crispy telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Barbacoa doble masa pizza (Telepizza)",
+    "nameEs": "Pizza Barbacoa doble masa (Telepizza)",
+    "kcalPer100g": 244,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza barbacoa doble masa",
+      "pizza barbacoa doble masa de telepizza",
+      "barbacoa doble masa de telepizza",
+      "Barbacoa doble masa telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Carbonara doble masa pizza (Telepizza)",
+    "nameEs": "Pizza Carbonara doble masa (Telepizza)",
+    "kcalPer100g": 242,
+    "defaultGramsSmall": 80,
+    "defaultGramsMedium": 150,
+    "defaultGramsLarge": 250,
+    "category": "pizza",
+    "brand": "Telepizza",
+    "aliases": [
+      "telepizza carbonara doble masa",
+      "pizza carbonara doble masa de telepizza",
+      "Carbonara doble masa telepizza"
+    ],
+    "source": "https://www.telepizza.es/on/demandware.static/-/Sites-TelepizzaES-Library/default/dw50cfa1dc/documents/nutricion.pdf"
+  },
+  {
+    "name": "Cheese tequeño",
+    "nameEs": "Tequeño de queso",
+    "kcalPer100g": 355,
+    "defaultGramsSmall": 40,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 160,
+    "category": "appetizer",
+    "unitGrams": 40,
+    "aliases": [
+      "tequeño",
+      "tequeños",
+      "tequeños de queso blanco",
+      "tequeño de queso blanco",
+      "deditos de queso venezolanos"
+    ],
+    "source": "https://www.tequesol.es/producto/tequenos-de-queso-blanco/"
+  },
+  {
+    "name": "French fries (Burger King)",
+    "nameEs": "Patatas fritas (Burger King)",
+    "kcalPer100g": 242.767,
+    "defaultGramsSmall": 90,
+    "defaultGramsMedium": 159,
+    "defaultGramsLarge": 218,
+    "category": "side",
+    "brand": "Burger King",
+    "aliases": [
+      "patatas del burger king",
+      "patatas fritas del burger king",
+      "patatas de burger king",
+      "patatas burger king",
+      "patatas del burger"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf"
+  },
+  {
+    "name": "Whopper patty (Burger King)",
+    "nameEs": "Carne de Whopper (Burger King)",
+    "kcalPer100g": 280,
+    "defaultGramsSmall": 37.5,
+    "defaultGramsMedium": 75,
+    "defaultGramsLarge": 150,
+    "category": "meat",
+    "brand": "Burger King",
+    "aliases": [
+      "carne de whopper",
+      "carne del whopper",
+      "solo carne de whopper"
+    ],
+    "source": "https://static.burgerkingencasa.es/bkhomewebsite/es/nutrition_es.pdf",
+    "unitGrams": 75
+  },
+  {
+    "name": "Chicken McNuggets (McDonald's, Portugal reference)",
+    "nameEs": "McNuggets (McDonald's, ref. Portugal)",
+    "kcalPer100g": 243.056,
+    "defaultGramsSmall": 72,
+    "defaultGramsMedium": 108,
+    "defaultGramsLarge": 180,
+    "category": "side",
+    "brand": "McDonald's (Portugal)",
+    "aliases": [
+      "mcnuggets",
+      "mc nuggets",
+      "chicken mcnuggets",
+      "nuggets del mcdonalds",
+      "nuggets de mcdonalds"
+    ],
+    "source": "https://www.mcdonalds.pt/media/11183/7-nutricao-balcao-27-maio_2026.pdf",
+    "unitGrams": 18
+  }
+]

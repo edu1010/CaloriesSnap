@@ -1,0 +1,525 @@
+[
+  {
+    "name": "Plain maize arepa (Colombia reference)",
+    "nameEs": "Arepa de maíz sin relleno (ref. Colombia)",
+    "kcalPer100g": 170,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 80,
+    "defaultGramsLarge": 140,
+    "category": "dish",
+    "aliases": [
+      "arepa",
+      "arepa de maiz",
+      "arepa asada",
+      "arepa sin relleno",
+      "arepa de maiz amarillo"
+    ],
+    "source": "https://www.minsalud.gov.co/sites/rid/Lists/BibliotecaDigital/RIDE/INEC/IETS/tabla-de-composicion-alimentos-colombianos-2015.pdf",
+    "unitGrams": 80
+  },
+  {
+    "name": "Bean pupusa",
+    "nameEs": "Pupusa de frijoles",
+    "kcalPer100g": 220,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 150,
+    "category": "dish",
+    "aliases": [
+      "pupusa",
+      "pupusa de frijol",
+      "pupusa de frijoles",
+      "bean pupusa"
+    ],
+    "source": "https://honduras.bvsalud.org/wp-content/uploads/2024/04/GUIA-DE-ALIMENTACION-PARA-FACILITADORES-DE-SALUD.pdf",
+    "unitGrams": 50
+  },
+  {
+    "name": "Sweet corn tamal (Honduras reference)",
+    "nameEs": "Tamal de elote (ref. Honduras)",
+    "kcalPer100g": 215,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "dish",
+    "aliases": [
+      "tamal de elote",
+      "tamal de maiz tierno",
+      "sweet corn tamale"
+    ],
+    "source": "https://honduras.bvsalud.org/wp-content/uploads/2024/04/GUIA-DE-ALIMENTACION-PARA-FACILITADORES-DE-SALUD.pdf",
+    "unitGrams": 100
+  },
+  {
+    "name": "Baked beef empanada (Uruguay reference)",
+    "nameEs": "Empanada de carne al horno (ref. Uruguay)",
+    "kcalPer100g": 249,
+    "defaultGramsSmall": 100,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "dish",
+    "aliases": [
+      "empanada de carne",
+      "empanada uruguaya de carne",
+      "empanada al horno de carne",
+      "beef empanada"
+    ],
+    "source": "https://www.pagnifique.com/_data/products_attachment/1862_uy.pdf",
+    "unitGrams": 100
+  },
+  {
+    "name": "Pão de queijo (Brazil reference)",
+    "nameEs": "Pão de queijo (ref. Brasil)",
+    "kcalPer100g": 381,
+    "defaultGramsSmall": 25,
+    "defaultGramsMedium": 50,
+    "defaultGramsLarge": 75,
+    "category": "side",
+    "aliases": [
+      "pao de queijo",
+      "pan de queso brasileno",
+      "brazilian cheese bread"
+    ],
+    "source": "https://www.tbca.net.br/base-dados/int_composicao_alimentos_2_edit.php?n0REd3kv7e86D%2BViXWYUnQ%3D%3D=vqtjeQAjzCz%2BTAD91hZYOA%3D%3D",
+    "unitGrams": 25
+  },
+  {
+    "name": "Potato and cheddar pierogi",
+    "nameEs": "Pierogi de patata y queso",
+    "kcalPer100g": 151.316,
+    "defaultGramsSmall": 38,
+    "defaultGramsMedium": 76,
+    "defaultGramsLarge": 114,
+    "category": "dish",
+    "aliases": [
+      "pierogi",
+      "pierogies",
+      "pierogi de queso",
+      "pierogi con patata",
+      "potato pierogi"
+    ],
+    "source": "https://www.mrstspierogies.com/products/full-size/classic-cheddar/",
+    "unitGrams": 38
+  },
+  {
+    "name": "Salmon teriyaki onigiri",
+    "nameEs": "Onigiri de salmón teriyaki",
+    "kcalPer100g": 163,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 330,
+    "category": "dish",
+    "aliases": [
+      "onigiri de salmon",
+      "salmon onigiri",
+      "おにぎり",
+      "鮭おにぎり",
+      "onigiri"
+    ],
+    "source": "https://api.wasabi.uk.com/wp-content/uploads/2020/11/WAS_Nutritional_Guide_V6.9.pdf",
+    "unitGrams": 110
+  },
+  {
+    "name": "Teriyaki chicken onigiri",
+    "nameEs": "Onigiri de pollo teriyaki",
+    "kcalPer100g": 164,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 330,
+    "category": "dish",
+    "aliases": [
+      "onigiri de pollo",
+      "chicken onigiri",
+      "chicken teriyaki onigiri"
+    ],
+    "source": "https://api.wasabi.uk.com/wp-content/uploads/2020/11/WAS_Nutritional_Guide_V6.9.pdf",
+    "unitGrams": 110
+  },
+  {
+    "name": "Tuna and mustard onigiri",
+    "nameEs": "Onigiri de atún y mostaza",
+    "kcalPer100g": 175,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 330,
+    "category": "dish",
+    "aliases": [
+      "onigiri de atun y mostaza",
+      "tuna mustard onigiri"
+    ],
+    "source": "https://api.wasabi.uk.com/wp-content/uploads/2020/11/WAS_Nutritional_Guide_V6.9.pdf",
+    "unitGrams": 110
+  },
+  {
+    "name": "Tuna mayo onigiri",
+    "nameEs": "Onigiri de atún con mayonesa",
+    "kcalPer100g": 172.7,
+    "defaultGramsSmall": 110,
+    "defaultGramsMedium": 220,
+    "defaultGramsLarge": 330,
+    "category": "dish",
+    "aliases": ["onigiri de atun", "onigiri atun mayo", "tuna onigiri", "ツナマヨおにぎり"],
+    "source": "https://www.spar.at/produktwelt/eat-happy-p2020005289857",
+    "unitGrams": 110
+  },
+  {
+    "name": "West African jollof rice",
+    "nameEs": "Arroz jollof de África occidental",
+    "kcalPer100g": 149,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 200,
+    "defaultGramsLarge": 300,
+    "category": "dish",
+    "aliases": [
+      "arroz jollof",
+      "jollof rice",
+      "jollof"
+    ],
+    "source": "https://gstt.mysaffronportal.com/Products/R00322"
+  },
+  {
+    "name": "Za’atar manakish",
+    "nameEs": "Manakish de zaatar",
+    "kcalPer100g": 340,
+    "defaultGramsSmall": 60,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 150,
+    "category": "dish",
+    "aliases": [
+      "manakish zaatar",
+      "manoushe zaatar",
+      "manouche au zaatar",
+      "مناقيش زعتر",
+      "مناقيش بالزعتر",
+      "manaqish zaatar"
+    ],
+    "source": "https://www.dabas.com/productsheet/07331217780731",
+    "unitGrams": 100
+  },
+  {
+    "name": "Double-Double with onion (In-N-Out, US)",
+    "nameEs": "Double-Double con cebolla (In-N-Out, EE. UU.)",
+    "kcalPer100g": 212.544,
+    "defaultGramsSmall": 143.5,
+    "defaultGramsMedium": 287,
+    "defaultGramsLarge": 574,
+    "category": "restaurant",
+    "aliases": [
+      "double double",
+      "double double de in n out",
+      "double double in n out"
+    ],
+    "source": "https://www.in-n-out.com/docs/default-source/downloads/nutrition_info.pdf",
+    "brand": "In-N-Out (US)",
+    "unitGrams": 287
+  },
+  {
+    "name": "Double-Double Protein Style (In-N-Out, US)",
+    "nameEs": "Double-Double Protein Style (In-N-Out, EE. UU.)",
+    "kcalPer100g": 159.17,
+    "defaultGramsSmall": 144.5,
+    "defaultGramsMedium": 289,
+    "defaultGramsLarge": 578,
+    "category": "restaurant",
+    "aliases": [
+      "double double protein style",
+      "protein style double double"
+    ],
+    "source": "https://www.in-n-out.com/docs/default-source/downloads/nutrition_info.pdf",
+    "brand": "In-N-Out (US)",
+    "unitGrams": 289
+  },
+  {
+    "name": "Cheeseburger with onion (In-N-Out, US)",
+    "nameEs": "Hamburguesa con queso y cebolla (In-N-Out, EE. UU.)",
+    "kcalPer100g": 187.773,
+    "defaultGramsSmall": 114.5,
+    "defaultGramsMedium": 229,
+    "defaultGramsLarge": 458,
+    "category": "restaurant",
+    "aliases": [
+      "cheeseburger de in n out",
+      "cheeseburger in n out"
+    ],
+    "source": "https://www.in-n-out.com/docs/default-source/downloads/nutrition_info.pdf",
+    "brand": "In-N-Out (US)",
+    "unitGrams": 229
+  },
+  {
+    "name": "French fries (In-N-Out, US)",
+    "nameEs": "Patatas fritas (In-N-Out, EE. UU.)",
+    "kcalPer100g": 288,
+    "defaultGramsSmall": 62.5,
+    "defaultGramsMedium": 125,
+    "defaultGramsLarge": 250,
+    "category": "restaurant",
+    "aliases": [
+      "in n out fries",
+      "patatas de in n out",
+      "papas fritas de in n out"
+    ],
+    "source": "https://www.in-n-out.com/docs/default-source/downloads/nutrition_info.pdf",
+    "brand": "In-N-Out (US)",
+    "unitGrams": 125
+  },
+  {
+    "name": "Meatball Marinara 6-inch (Subway, MX)",
+    "nameEs": "Meatball Marinara 15 cm (Subway, México)",
+    "kcalPer100g": 209.302,
+    "defaultGramsSmall": 129,
+    "defaultGramsMedium": 258,
+    "defaultGramsLarge": 516,
+    "category": "sandwich",
+    "aliases": [
+      "meatball marinara subway mexico",
+      "subway meatball marinara mexico",
+      "meatball marinara de subway mexico",
+      "subway mexico meatball marinara"
+    ],
+    "source": "https://www.subway.com/v1v2/assets/es-mx/nutrition/documents/mexico-nutrition-112025-eng.pdf",
+    "brand": "Subway (MX)",
+    "unitGrams": 258
+  },
+  {
+    "name": "Meatball Marinara 6-inch (Subway, US)",
+    "nameEs": "Meatball Marinara 15 cm (Subway, EE. UU.)",
+    "kcalPer100g": 218.009,
+    "defaultGramsSmall": 105.5,
+    "defaultGramsMedium": 211,
+    "defaultGramsLarge": 422,
+    "category": "sandwich",
+    "aliases": [
+      "meatball marinara subway usa",
+      "subway meatball marinara usa",
+      "meatball marinara de subway estados unidos",
+      "subway usa meatball marinara"
+    ],
+    "source": "https://www.subway.com/en-us/-/media/northamerica/usa/nutrition/nutritiondocuments/us_nutrition_12-2-2024.pdf?r=MS",
+    "brand": "Subway (US)",
+    "unitGrams": 211
+  },
+  {
+    "name": "Italian BMT 6-inch (Subway, MX)",
+    "nameEs": "Italian BMT 15 cm (Subway, México)",
+    "kcalPer100g": 174.107,
+    "defaultGramsSmall": 112,
+    "defaultGramsMedium": 224,
+    "defaultGramsLarge": 448,
+    "category": "sandwich",
+    "aliases": [
+      "italian bmt subway mexico",
+      "italian bmt de subway mexico",
+      "subway mexico italian bmt"
+    ],
+    "source": "https://www.subway.com/v1v2/assets/es-mx/nutrition/documents/mexico-nutrition-112025-eng.pdf",
+    "brand": "Subway (MX)",
+    "unitGrams": 224
+  },
+  {
+    "name": "Ultimate BMT 6-inch (Subway, US)",
+    "nameEs": "Ultimate BMT 15 cm (Subway, EE. UU.)",
+    "kcalPer100g": 233.333,
+    "defaultGramsSmall": 120,
+    "defaultGramsMedium": 240,
+    "defaultGramsLarge": 480,
+    "category": "sandwich",
+    "aliases": [
+      "ultimate bmt",
+      "ultimate bmt de subway",
+      "subway ultimate bmt"
+    ],
+    "source": "https://www.subway.com/en-us/-/media/northamerica/usa/nutrition/nutritiondocuments/us_nutrition_12-2-2024.pdf?r=MS",
+    "brand": "Subway (US)",
+    "unitGrams": 240
+  },
+  {
+    "name": "Chicken Teriyaki 6-inch (Subway, MX)",
+    "nameEs": "Pollo teriyaki 15 cm (Subway, México)",
+    "kcalPer100g": 133.603,
+    "defaultGramsSmall": 123.5,
+    "defaultGramsMedium": 247,
+    "defaultGramsLarge": 494,
+    "category": "sandwich",
+    "aliases": [
+      "subway pollo teriyaki mexico",
+      "pollo teriyaki de subway mexico",
+      "chicken teriyaki subway mexico"
+    ],
+    "source": "https://www.subway.com/v1v2/assets/es-mx/nutrition/documents/mexico-nutrition-112025-eng.pdf",
+    "brand": "Subway (MX)",
+    "unitGrams": 247
+  },
+  {
+    "name": "Huel Powder v3.1 (Original)",
+    "nameEs": "Huel Powder v3.1 (original)",
+    "kcalPer100g": 400,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 150,
+    "category": "meal_powder",
+    "aliases": [
+      "huel powder",
+      "huel en polvo",
+      "huel polvo original",
+      "huel blanco",
+      "huel normal",
+      "huel v3.1",
+      "huel v3 1"
+    ],
+    "source": "https://eu.huel.com/nl-nl/pages/powder-nutrition-v3-1",
+    "brand": "Huel",
+    "unitGrams": 100,
+    "scoopGrams": 50
+  },
+  {
+    "name": "Huel Black Edition powder",
+    "nameEs": "Huel Black Edition en polvo",
+    "kcalPer100g": 444.444,
+    "defaultGramsSmall": 45,
+    "defaultGramsMedium": 90,
+    "defaultGramsLarge": 135,
+    "category": "meal_powder",
+    "aliases": [
+      "huel black",
+      "huel black edition",
+      "huel black powder",
+      "huel black en polvo",
+      "huel negro"
+    ],
+    "source": "https://eu.huel.com/en-eu/products/black-edition-high-protein-powder",
+    "brand": "Huel",
+    "unitGrams": 90,
+    "scoopGrams": 45
+  },
+  {
+    "name": "Huel Ready-to-drink",
+    "nameEs": "Huel listo para beber",
+    "kcalPer100g": 80,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 500,
+    "defaultGramsLarge": 1000,
+    "category": "meal_drink",
+    "aliases": [
+      "huel ready to drink",
+      "huel rtd",
+      "huel listo para beber",
+      "huel liquido",
+      "huel embotellado"
+    ],
+    "source": "https://eu.huel.com/es-es/pages/the-huel-ready-to-drink-formula-explained",
+    "brand": "Huel",
+    "unitMillilitres": 500
+  },
+  {
+    "name": "Huel Black Edition Ready-to-drink",
+    "nameEs": "Huel Black Edition listo para beber",
+    "kcalPer100g": 80,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 500,
+    "defaultGramsLarge": 1000,
+    "category": "meal_drink",
+    "aliases": [
+      "huel black ready to drink",
+      "huel black rtd",
+      "huel black edition rtd",
+      "huel black listo para beber",
+      "huel black embotellado"
+    ],
+    "source": "https://eu.huel.com/pages/the-huel-black-edition-ready-to-drink-formula-explained",
+    "brand": "Huel",
+    "unitMillilitres": 500
+  },
+  {
+    "name": "Plenny Shake v4.0 (Vanilla reference)",
+    "nameEs": "Plenny Shake v4.0 (ref. vainilla)",
+    "kcalPer100g": 416.667,
+    "defaultGramsSmall": 48,
+    "defaultGramsMedium": 96,
+    "defaultGramsLarge": 144,
+    "category": "meal_powder",
+    "aliases": [
+      "plenny shake",
+      "plennyshake",
+      "plenny shake v4",
+      "plenny shake vainilla",
+      "plenny shake vanilla",
+      "plennyshake vainilla"
+    ],
+    "source": "https://jimmyjoy.com/en-gb/pages/introduction-to-plenny-shake-v4-0",
+    "brand": "Jimmy Joy",
+    "unitGrams": 96,
+    "scoopGrams": 48
+  },
+  {
+    "name": "Plenny Shake Active v3.1 (Vanilla reference)",
+    "nameEs": "Plenny Shake Active v3.1 (ref. vainilla)",
+    "kcalPer100g": 408.163,
+    "defaultGramsSmall": 49,
+    "defaultGramsMedium": 98,
+    "defaultGramsLarge": 147,
+    "category": "meal_powder",
+    "aliases": [
+      "plenny shake active",
+      "plennyshake active",
+      "plenny active",
+      "plenny shake active vainilla"
+    ],
+    "source": "https://jimmyjoy.com/pages/plenny-shake-active-v3-0-vs-v3-1-what-changed",
+    "brand": "Jimmy Joy",
+    "unitGrams": 98
+  },
+  {
+    "name": "Plenny Drink v2.0 (Vanilla reference)",
+    "nameEs": "Plenny Drink v2.0 (ref. vainilla)",
+    "kcalPer100g": 121.212,
+    "defaultGramsSmall": 165,
+    "defaultGramsMedium": 330,
+    "defaultGramsLarge": 660,
+    "category": "meal_drink",
+    "aliases": [
+      "plenny drink",
+      "plennydrink",
+      "plenny drink vainilla",
+      "plenny listo para beber",
+      "plenny shake rtd"
+    ],
+    "source": "https://us.jimmyjoy.com/pages/plenny-drink-nutrition",
+    "brand": "Jimmy Joy",
+    "unitMillilitres": 330
+  },
+  {
+    "name": "Plenny Bar v4.0",
+    "nameEs": "Plenny Bar v4.0",
+    "kcalPer100g": 400,
+    "defaultGramsSmall": 50,
+    "defaultGramsMedium": 100,
+    "defaultGramsLarge": 200,
+    "category": "meal_bar",
+    "aliases": [
+      "plenny bar",
+      "plennybar",
+      "barrita plenny"
+    ],
+    "source": "https://jimmyjoy.com/pages/introduction-to-plenny-bar",
+    "brand": "Jimmy Joy",
+    "unitGrams": 100
+  },
+  {
+    "name": "yfood Classic Choco (UK)",
+    "nameEs": "yfood Classic Choco (ref. Reino Unido)",
+    "kcalPer100g": 100,
+    "defaultGramsSmall": 250,
+    "defaultGramsMedium": 500,
+    "defaultGramsLarge": 1000,
+    "category": "meal_drink",
+    "aliases": [
+      "yfood classic choco",
+      "yfood chocolate",
+      "yfood choco",
+      "y food choco"
+    ],
+    "source": "https://uk.yfood.com/products/drink-classic-choco-en?variant=49063947338058",
+    "brand": "yfood (UK)",
+    "unitMillilitres": 500
+  }
+]

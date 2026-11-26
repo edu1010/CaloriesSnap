@@ -43,6 +43,8 @@ flutter:
     - lib/data/local/common_foods_es.json
     - lib/data/local/nutrition_products_es.json
     - lib/data/local/ingredients_es.json
+    - lib/data/local/restaurant_foods_es.json
+    - lib/data/local/international_foods.json
 
 # On-device vision: ship only the llama.cpp runtime. LiteRT-LM and
 # the Vulkan module add ~60 MB to the APK and are not used on phones.

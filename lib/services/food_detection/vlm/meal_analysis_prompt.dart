@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import '../../nutrition/food_search.dart';
+
 /// Prompt and output contract for the on-device vision-language model.
 ///
 /// Keys are short on purpose: every output token costs time on a phone. The
@@ -26,6 +30,7 @@ class MealAnalysisPrompt {
     required String languageCode,
     List<String> hints = const <String>[],
     String? description,
+    List<FoodSuggestion> references = const <FoodSuggestion>[],
   }) {
     final spanish = languageCode == 'es';
     final language = spanish ? 'Spanish' : 'English';
@@ -75,6 +80,45 @@ class MealAnalysisPrompt {
           'and list every food they say they ate even if it is hard to see. '
           'Leave out foods they explicitly exclude. Use '
           'the photo for the amounts, unless they give a weight.',
+        );
+    }
+    if (references.isNotEmpty) {
+      buffer
+        ..writeln('Local nutrition catalog matches for the description:')
+        ..writeln(
+          jsonEncode([
+            for (final reference in references)
+              {
+                'name': reference.ingredient.variantName(
+                  reference.variant,
+                  languageCode,
+                ),
+                'kcal100': reference.variant.kcalPer100g,
+                if (reference.ingredient.dish?.brand != null)
+                  'wholeProduct': true,
+                if (reference.ingredient.dish?.category == 'meal_powder')
+                  'dryPowder': true,
+                if (reference.ingredient.dish?.unitMillilitres != null)
+                  'bottleMl': reference.ingredient.dish!.unitMillilitres,
+                if (reference.grams != null)
+                  (reference.gramsEstimated
+                          ? 'estimatedGrams'
+                          : 'enteredGrams'):
+                      reference.grams
+                else if (reference.quantity == null &&
+                    reference.ingredient.dish?.unitGrams != null)
+                  'unitGrams': reference.ingredient.dish!.unitGrams,
+              },
+          ]),
+        )
+        ..writeln(
+          'Use these names and kcal100 for matching foods. Keep enteredGrams '
+          'as written and use estimatedGrams as the catalog portion. unitGrams gives '
+          'the standard weight of one unit. For dryPowder, use the dry serving '
+          'weight, excluding mixing water. For bottleMl, use the drink volume '
+          'in the grams field. A wholeProduct is '
+          'one item with its standard ingredients included. Only list extra items '
+          'actually eaten, such as a side.',
         );
     }
     if (hints.isNotEmpty) {

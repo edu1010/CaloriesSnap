@@ -1,5 +1,7 @@
+import '../../../core/utils/food_text.dart';
 import '../../../data/repositories/nutrition_repository.dart';
 import '../../../models/nutrition_food.dart';
+import '../../nutrition/food_search.dart';
 import 'meal_analysis.dart';
 
 /// A model-described item after its energy density was checked against the
@@ -47,8 +49,12 @@ class NutritionGrounding {
     AnalyzedItem item, {
     required String languageCode,
     String? dishName,
+    List<FoodSuggestion> references = const <FoodSuggestion>[],
   }) {
+    final reference = _descriptionMatch(item, references);
     final match =
+        reference?.ingredient.dish ??
+        reference?.ingredient.toNutritionFood(reference.variant) ??
         _find(item.name, languageCode) ??
         (item.nameEn == null ? null : _find(item.nameEn!, 'en')) ??
         (dishName == null ? null : _find(dishName, languageCode));
@@ -63,24 +69,64 @@ class NutritionGrounding {
             : unknownKcalPer100g);
 
     final modelGrams = item.grams;
+    final catalogGrams =
+        reference?.grams ??
+        (reference?.quantity == null
+            ? reference?.ingredient.dish?.standardUnitAmount
+            : null);
     final grams =
-        modelGrams != null && modelGrams > 0
-            ? modelGrams.clamp(minGrams, maxGrams).toDouble()
-            : match?.defaultGramsMedium ?? unknownGrams;
+        catalogGrams ??
+        (match?.category == 'meal_powder' && reference?.quantity == null
+            ? match?.unitGrams
+            : null) ??
+        (modelGrams != null && modelGrams > 0
+                ? modelGrams.clamp(minGrams, maxGrams).toDouble()
+                : match?.defaultGramsMedium ?? unknownGrams)
+            .roundToDouble();
 
     return GroundedItem(
-      name: _displayName(item.name),
-      grams: grams.roundToDouble(),
+      name:
+          reference != null || match?.brand != null
+              ? match!.localizedName(languageCode)
+              : _displayName(item.name),
+      grams: grams,
       kcalPer100g: kcal,
       match: match,
     );
+  }
+
+  static FoodSuggestion? _descriptionMatch(
+    AnalyzedItem item,
+    List<FoodSuggestion> references,
+  ) {
+    final names = {
+      normalizeFoodText(item.name),
+      if (item.nameEn != null) normalizeFoodText(item.nameEn!),
+    };
+    for (final reference in references) {
+      final ingredient = reference.ingredient;
+      final variant = reference.variant;
+      final recognizedNames = [
+        ingredient.variantName(variant, 'es'),
+        ingredient.variantName(variant, 'en'),
+        if (ingredient.isDish) ...ingredient.aliases,
+        if (reference.preparationSpecified || reference.grams != null) ...[
+          ingredient.nameEs,
+          ingredient.name,
+        ],
+      ];
+      if (recognizedNames.map(normalizeFoodText).any(names.contains)) {
+        return reference;
+      }
+    }
+    return null;
   }
 
   NutritionFood? _find(String query, String languageCode) {
     final spanish = languageCode == 'es';
     final entries = _entries ??= _repository.foods.map(_Entry.new).toList();
     final key = _key(query);
-    if (key.isEmpty) return null;
+    if (key.isEmpty) return _repository.findByName(query);
 
     // Exact name, in the query's language first: "tortilla" is an omelette in
     // Spanish and a flatbread in English.
@@ -90,6 +136,8 @@ class NutritionGrounding {
         if ((useSpanish ? entry.keyEs : entry.keyEn) == key) return entry.food;
       }
     }
+    final alias = _repository.findByName(query);
+    if (alias != null) return alias;
 
     final tokens = _tokens(query);
     if (tokens.isEmpty) return null;
@@ -156,35 +204,114 @@ class NutritionGrounding {
   }
 
   static const Map<String, String> _accents = <String, String>{
-    'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a',
-    'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e',
-    'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i',
-    'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o',
-    'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
-    'ñ': 'n', 'ç': 'c',
+    'á': 'a',
+    'à': 'a',
+    'ä': 'a',
+    'â': 'a',
+    'é': 'e',
+    'è': 'e',
+    'ë': 'e',
+    'ê': 'e',
+    'í': 'i',
+    'ì': 'i',
+    'ï': 'i',
+    'î': 'i',
+    'ó': 'o',
+    'ò': 'o',
+    'ö': 'o',
+    'ô': 'o',
+    'ú': 'u',
+    'ù': 'u',
+    'ü': 'u',
+    'û': 'u',
+    'ñ': 'n',
+    'ç': 'c',
   };
 
   static const Set<String> _stopWords = <String>{
-    'a', 'al', 'con', 'de', 'del', 'el', 'en', 'la', 'las', 'los', 'o', 'y',
-    'un', 'una', 'and', 'in', 'of', 'on', 'or', 'the', 'with', 'style',
+    'a',
+    'al',
+    'con',
+    'de',
+    'del',
+    'el',
+    'en',
+    'la',
+    'las',
+    'los',
+    'o',
+    'y',
+    'un',
+    'una',
+    'and',
+    'in',
+    'of',
+    'on',
+    'or',
+    'the',
+    'with',
+    'style',
   };
 
   // Stored stemmed, as produced by [_stem].
   static final Set<String> _neutralWords =
       <String>{
-        'cooked', 'boiled', 'steamed', 'plain', 'raw', 'grilled', 'roasted',
-        'baked', 'sliced', 'slice', 'piece', 'white', 'homemade', 'generic',
-        'cocido', 'cocida', 'hervido', 'hervida', 'vapor', 'natural', 'crudo',
-        'cruda', 'plancha', 'asado', 'asada', 'horno', 'loncha', 'trozo',
-        'blanco', 'blanca', 'casero', 'casera', 'generica', 'generico',
+        'cooked',
+        'boiled',
+        'steamed',
+        'plain',
+        'raw',
+        'grilled',
+        'roasted',
+        'baked',
+        'sliced',
+        'slice',
+        'piece',
+        'white',
+        'homemade',
+        'generic',
+        'cocido',
+        'cocida',
+        'hervido',
+        'hervida',
+        'vapor',
+        'natural',
+        'crudo',
+        'cruda',
+        'plancha',
+        'asado',
+        'asada',
+        'horno',
+        'loncha',
+        'trozo',
+        'blanco',
+        'blanca',
+        'casero',
+        'casera',
+        'generica',
+        'generico',
       }.map(_stem).toSet();
 
   // Preparations that change energy density enough that both sides must agree.
   static final Set<String> _densityWords =
       <String>{
-        'fried', 'breaded', 'battered', 'dry', 'dried', 'chips', 'cured',
-        'frito', 'frita', 'empanado', 'empanada', 'rebozado', 'rebozada',
-        'seco', 'seca', 'curado', 'curada',
+        'fried',
+        'breaded',
+        'battered',
+        'dry',
+        'dried',
+        'chips',
+        'cured',
+        'frito',
+        'frita',
+        'empanado',
+        'empanada',
+        'rebozado',
+        'rebozada',
+        'seco',
+        'seca',
+        'curado',
+        'curada',
       }.map(_stem).toSet();
 }
 

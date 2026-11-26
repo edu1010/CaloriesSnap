@@ -11,12 +11,14 @@ class NutritionRepository {
   static const String _genericFoodsAsset =
       'lib/data/local/nutrition_database.json';
   static const String _dishFoodsAsset = 'lib/data/local/food101_nutrition.json';
-  static const String _commonFoodsAsset =
-      'lib/data/local/common_foods_es.json';
+  static const String _commonFoodsAsset = 'lib/data/local/common_foods_es.json';
   static const String _packagedFoodsAsset =
       'lib/data/local/nutrition_products_es.json';
-  static const String _ingredientsAsset =
-      'lib/data/local/ingredients_es.json';
+  static const String _ingredientsAsset = 'lib/data/local/ingredients_es.json';
+  static const String _menuFoodsAsset =
+      'lib/data/local/restaurant_foods_es.json';
+  static const String _internationalFoodsAsset =
+      'lib/data/local/international_foods.json';
 
   final List<NutritionFood> _foods = <NutritionFood>[];
   final List<NutritionFood> _barcodeFoods = <NutritionFood>[];
@@ -55,6 +57,10 @@ class NutritionRepository {
       allowMissing: true,
     );
     final ingredients = await _loadIngredients();
+    final menuFoods = await _loadFoodsFromAsset(_menuFoodsAsset);
+    final internationalFoods = await _loadFoodsFromAsset(
+      _internationalFoodsAsset,
+    );
 
     // Generic ingredients are loaded first so they win on name collisions
     // (e.g. "French Fries") while the Food-101 dish table fills in every
@@ -63,7 +69,9 @@ class NutritionRepository {
       ..clear()
       ..addAll(genericFoods)
       ..addAll(dishFoods)
-      ..addAll(commonFoods);
+      ..addAll(commonFoods)
+      ..addAll(menuFoods)
+      ..addAll(internationalFoods);
     final dishes = List<NutritionFood>.of(_foods);
     _ingredients
       ..clear()
@@ -90,6 +98,11 @@ class NutritionRepository {
     }
     for (final food in _barcodeFoods) {
       _indexByNames(food);
+    }
+    for (final food in _foods) {
+      for (final alias in food.aliases) {
+        _foodsByName.putIfAbsent(_normalizeName(alias), () => food);
+      }
     }
 
     _foodsByBarcode.clear();
@@ -171,7 +184,10 @@ class NutritionRepository {
   // Spanish names. Keep matching exact after normalizing typography: dropping
   // preparation words (raw/cooked/fried) can silently select a wrong density.
   String _normalizeName(String value) {
-    var normalized = value.trim().toLowerCase();
+    var normalized = value.trim().toLowerCase().replaceAll(
+      RegExp(r"['’]s\b"),
+      's',
+    );
     const accents = <String, String>{
       'á': 'a',
       'à': 'a',

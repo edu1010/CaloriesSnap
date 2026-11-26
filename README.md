@@ -221,6 +221,21 @@ dos huevos y una cucharadita de aceite”. The draft distinguishes weights you
 entered from household measures converted to grams. To log a meal again, open
 it from the history and choose **Repeat meal**.
 
+When the description matches local foods, the photo model receives only the
+relevant catalog entries, including energy density and known portion sizes.
+The same catalog works for text-only logging and manual food search.
+`restaurant_foods_es.json` records the source for each entry. Restaurant
+references include Burger King Spain and Telepizza Spain. McDonald's entries
+are marked as Portugal references. Telepizza publishes kcal per 100 g, so
+the weight of a portion remains editable.
+
+`international_foods.json` adds regional dishes, international chain products
+and meal products from Huel, Jimmy Joy and yfood. Recipes with varying portions
+use an editable reference. Powder quantities represent dry powder, and a scoop
+uses the weight documented for that formula. For bottled drinks with labels per
+100 ml, the catalog uses the published volume and calories. The legacy UI
+displays the equivalent nominal weight at 1 g/ml as an approximation.
+
 ## Offline and privacy
 
 - No paid API required

@@ -409,6 +409,34 @@ void main() {
       }
     });
 
+    test(
+      'passes only relevant catalog matches and keeps their quantities',
+      () async {
+        final service = await cascade();
+        engine.answer =
+            '{"food":true,"dish":"Hamburguesa y entrante","items":['
+            '{"name":"Whopper","grams":420,"kcal100":100},'
+            '{"name":"Tequeño","grams":70,"kcal100":200}]}';
+        final result = await service.analyze(
+          photo,
+          languageCode: 'es',
+          description:
+              '180,5 g de whopper del Burger King, un tequeño y sin fuet',
+        );
+
+        expect(engine.lastPrompt, contains('Local nutrition catalog matches'));
+        expect(engine.lastPrompt, contains('"enteredGrams":180.5'));
+        expect(engine.lastPrompt, contains('"kcal100":222.491'));
+        expect(engine.lastPrompt, contains('"estimatedGrams":40.0'));
+        expect(engine.lastPrompt, isNot(contains('"name":"Fuet"')));
+        expect(engine.lastPrompt, isNot(contains('Big Mac')));
+        expect(result.foods.map((food) => food.suggestedGrams), [180.5, 40]);
+        expect(result.foods.first.name, 'Whopper (Burger King)');
+        expect(result.foods.first.kcalPer100g, closeTo(643 * 100 / 289, 0.001));
+        expect(result.foods.last.kcalPer100g, 355);
+      },
+    );
+
     test('falls back and cancels generation on timeout', () async {
       engine.block = Completer<void>();
       final service = await cascade(timeout: const Duration(milliseconds: 300));

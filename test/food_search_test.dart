@@ -196,6 +196,78 @@ void main() {
       return suggestions.single;
     }
 
+    test('keeps scoops of powder separate from ready-to-drink bottles', () {
+      final shake = one('dos scoops de PlennyShake');
+      expect(shake.grams, 96);
+      expect(
+        shake.variant.kcalPer100g * shake.grams! / 100,
+        closeTo(400, 0.01),
+      );
+      expect(one('un cacito de Huel Black').grams, 45);
+      expect(one('two scoops of Huel Powder').grams, 100);
+      final bottle = one('media botella de Huel Black ready to drink');
+      expect(bottle.ingredient.dish?.unitMillilitres, 500);
+      expect(bottle.grams, 250);
+      expect(bottle.variant.kcalPer100g * bottle.grams! / 100, 200);
+      expect(one('165 ml de Plenny Drink').grams, 165);
+      expect(
+        one('250 ml de Huel Black en polvo').hasUnresolvedQuantity,
+        isTrue,
+      );
+      expect(repository.search.suggestFromText('Huel'), isEmpty);
+    });
+
+    test('recognizes regional names, native spellings and chain variants', () {
+      expect(one('dos pão de queijo').grams, 50);
+      expect(one('dos ツナマヨおにぎり').grams, 220);
+      expect(one('150 g de arroz jollof').variant.kcalPer100g, 149);
+      expect(one('un Double-Double Protein Style').grams, 289);
+      expect(one('una empanada de carne').variant.kcalPer100g, 249);
+      final mexico = one('un Meatball Marinara de Subway México');
+      final usa = one('un Meatball Marinara de Subway Estados Unidos');
+      expect(mexico.grams, 258);
+      expect(usa.grams, 211);
+      expect(
+        mexico.variant.kcalPer100g * mexico.grams! / 100,
+        closeTo(540, 0.01),
+      );
+      expect(usa.variant.kcalPer100g * usa.grams! / 100, closeTo(460, 0.01));
+    });
+
+    test(
+      'recognizes chain products and regional food with editable amounts',
+      () {
+        final whopper = one('un whoper del Burger King');
+        expect(whopper.grams, 289);
+        expect(
+          whopper.variant.kcalPer100g * whopper.grams! / 100,
+          closeTo(643, 0.01),
+        );
+        expect(one('un Big Mac de McDonald’s').grams, 236);
+        expect(one('un Whopper doble').grams, 378);
+        expect(one('un tequeño').grams, 40);
+        expect(one('tres rodajas de espetec').grams, 15);
+
+        final pizza = one('150 g de pizza barbacoa de Telepizza');
+        expect(pizza.grams, 150);
+        expect(pizza.gramsEstimated, isFalse);
+        expect(pizza.variant.kcalPer100g, 213);
+        expect(
+          one('media pizza barbacoa de Telepizza').hasUnresolvedQuantity,
+          isTrue,
+        );
+        expect(repository.search.suggestFromText('comí en Telepizza'), isEmpty);
+        expect(
+          repository.search
+              .search('telepizza barbacoa')
+              .first
+              .variant
+              .kcalPer100g,
+          213,
+        );
+      },
+    );
+
     test('grams typed by the user are exact', () {
       final suggestions = repository.search.suggestFromText(
         '200 g de patatas fritas y 10g de aceite de oliva',

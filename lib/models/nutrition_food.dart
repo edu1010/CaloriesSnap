@@ -10,6 +10,10 @@ class NutritionFood {
     this.brand,
     this.category,
     this.source,
+    this.aliases = const <String>[],
+    this.unitGrams,
+    this.unitMillilitres,
+    this.scoopGrams,
   });
 
   final String name;
@@ -22,6 +26,15 @@ class NutritionFood {
   final String? brand;
   final String? category;
   final String? source;
+  final List<String> aliases;
+  final double? unitGrams;
+
+  /// Bottle volume for drinks whose label gives energy per 100 ml.
+  /// The legacy gram fields carry nominal amounts at 1 g/ml for these rows.
+  final double? unitMillilitres;
+  final double? scoopGrams;
+
+  double? get standardUnitAmount => unitGrams ?? unitMillilitres;
 
   factory NutritionFood.fromJson(Map<String, dynamic> json) {
     return NutritionFood(
@@ -35,6 +48,10 @@ class NutritionFood {
       brand: _asNullableString(json['brand']),
       category: _asNullableString(json['category']),
       source: _asNullableString(json['source']),
+      aliases: (json['aliases'] as List<dynamic>? ?? const []).cast<String>(),
+      unitGrams: (json['unitGrams'] as num?)?.toDouble(),
+      unitMillilitres: (json['unitMillilitres'] as num?)?.toDouble(),
+      scoopGrams: (json['scoopGrams'] as num?)?.toDouble(),
     );
   }
 
@@ -50,6 +67,10 @@ class NutritionFood {
       'brand': brand,
       'category': category,
       'source': source,
+      if (aliases.isNotEmpty) 'aliases': aliases,
+      if (unitGrams != null) 'unitGrams': unitGrams,
+      if (unitMillilitres != null) 'unitMillilitres': unitMillilitres,
+      if (scoopGrams != null) 'scoopGrams': scoopGrams,
     };
   }
 

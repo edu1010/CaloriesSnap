@@ -206,8 +206,9 @@ class Ingredient {
       nameEs: json['nameEs'] as String,
       gender: Gender.parse(json['gender'] as String?),
       category: json['category'] as String?,
-      aliases: (json['aliases'] as List<dynamic>? ?? const <dynamic>[])
-          .cast<String>(),
+      aliases:
+          (json['aliases'] as List<dynamic>? ?? const <dynamic>[])
+              .cast<String>(),
       portionGrams:
           (json['grams'] as List<dynamic>)
               .map((value) => (value as num).toDouble())
@@ -226,6 +227,7 @@ class Ingredient {
     nameEs: food.nameEs ?? food.name,
     gender: Gender.m,
     category: food.category,
+    aliases: food.aliases,
     portionGrams: <double>[
       food.defaultGramsSmall,
       food.defaultGramsMedium,

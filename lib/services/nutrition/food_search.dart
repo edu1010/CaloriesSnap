@@ -89,6 +89,9 @@ class FoodSearch {
       for (final name in names) {
         if (!_addPreparationAlias(name)) _addPhrase(entry, name, primary: true);
       }
+      for (final alias in dish.aliases) {
+        _addPhrase(entry, alias);
+      }
     }
   }
 
@@ -225,6 +228,12 @@ class FoodSearch {
       final length = phrase.words.length;
       if (length == 1 && phrase.words.first.length < 3) continue;
       for (var start = 0; start + length <= words.length; start++) {
+        if (length == 1 &&
+            words[start] == 'burger' &&
+            start + 1 < words.length &&
+            words[start + 1] == 'king') {
+          continue;
+        }
         if (_equals(words.sublist(start, start + length), phrase.words)) {
           matches.add(_Match(phrase, start));
         }
@@ -330,7 +339,9 @@ class FoodSearch {
       var grams = _gramsFor(ingredient, variantIndex, phraseWords, parsed);
       // "una paella": an article, not an amount, when the food is not
       // countable.
-      if (parsed.articleOnly && grams == null) {
+      if (parsed.articleOnly &&
+          grams == null &&
+          ingredient.dish?.brand == null) {
         suggestions.add(
           FoodSuggestion(
             ingredient,

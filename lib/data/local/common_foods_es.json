@@ -672,6 +672,7 @@
   {
     "name": "Fuet",
     "nameEs": "Fuet",
+    "aliases": ["espetec", "embutido fuet"],
     "kcalPer100g": 460,
     "defaultGramsSmall": 15,
     "defaultGramsMedium": 30,

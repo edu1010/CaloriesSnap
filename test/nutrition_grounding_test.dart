@@ -33,13 +33,26 @@ void main() {
     expect(item.fromDatabase, isTrue);
   });
 
-  test('matches despite accents, plurals, articles and neutral cooking words', () {
-    expect(ground('lentejas guisadas').match?.name, 'Lentil stew');
-    expect(ground('Arroz blanco cocido').match?.name, 'Rice cooked');
-    expect(ground('la pechuga de pollo a la plancha').match?.name, 'Chicken breast');
-    expect(ground('croqueta').match?.name, 'Croquetas');
-    expect(ground('Jamón Serrano').match?.name, 'Jamon Serrano');
+  test('grounding uses the dry serving for prepared meal powder', () {
+    final item = ground('Huel Black', grams: 390, kcal: 100);
+    expect(item.grams, 90);
+    expect(item.kcalPer100g * item.grams / 100, closeTo(400, 0.01));
+    expect(item.match?.category, 'meal_powder');
   });
+
+  test(
+    'matches despite accents, plurals, articles and neutral cooking words',
+    () {
+      expect(ground('lentejas guisadas').match?.name, 'Lentil stew');
+      expect(ground('Arroz blanco cocido').match?.name, 'Rice cooked');
+      expect(
+        ground('la pechuga de pollo a la plancha').match?.name,
+        'Chicken breast',
+      );
+      expect(ground('croqueta').match?.name, 'Croquetas');
+      expect(ground('Jamón Serrano').match?.name, 'Jamon Serrano');
+    },
+  );
 
   test('uses the English name when the localized one is unknown', () {
     final item = ground('cosa rara del chef', en: 'grilled salmon');
@@ -94,7 +107,10 @@ void main() {
       ground('zzz', en: 'zzz', kcal: 0).kcalPer100g,
       NutritionGrounding.unknownKcalPer100g,
     );
-    expect(ground('x', en: 'blueberry', language: 'en').match?.name, 'Blueberries');
+    expect(
+      ground('x', en: 'blueberry', language: 'en').match?.name,
+      'Blueberries',
+    );
   });
 
   test('every common Spanish food resolves by both of its names', () async {

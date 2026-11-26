@@ -6,6 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 
 import '../../../data/repositories/nutrition_repository.dart';
+import '../../nutrition/food_search.dart';
 import '../food_detection_service.dart';
 import '../meal_analysis_service.dart';
 import 'meal_analysis.dart';
@@ -24,12 +25,14 @@ class VlmMealAnalyzer {
     this.idleUnload = const Duration(minutes: 3),
   }) : _engine = engine,
        _store = store,
+       _repository = nutritionRepository,
        _grounding = NutritionGrounding(nutritionRepository) {
     _store.addListener(_onStoreChanged);
   }
 
   final VlmEngine _engine;
   final VlmModelStore _store;
+  final NutritionRepository _repository;
   final NutritionGrounding _grounding;
 
   /// The model holds 1-2 GB; it is released after this long without use.
@@ -106,6 +109,11 @@ class VlmMealAnalyzer {
       resized = await _resizeInBackground(imagePath, spec.imageMaxEdge);
       if (cancellation?.isCanceled == true) return null;
       cancellation?.setStopGeneration(_engine.cancel);
+      final cleaned = MealAnalysisPrompt.cleanDescription(description);
+      final references =
+          cleaned == null
+              ? const <FoodSuggestion>[]
+              : _repository.search.suggestFromText(cleaned).take(6).toList();
       final answer = await _engine.describeImage(
         imagePath: resized.path,
         system: MealAnalysisPrompt.system,
@@ -113,12 +121,15 @@ class VlmMealAnalyzer {
           languageCode: languageCode,
           hints: hints,
           description: description,
+          references: references,
         ),
         maxTokens: MealAnalysisPrompt.maxOutputTokens,
         responseFormat: MealAnalysisPrompt.responseFormat,
       );
       final analysis = MealAnalysis.tryParse(answer);
-      return analysis == null ? null : _toDetection(analysis, languageCode);
+      return analysis == null
+          ? null
+          : _toDetection(analysis, languageCode, references);
     } finally {
       cancellation?.setStopGeneration(null);
       try {
@@ -132,7 +143,11 @@ class VlmMealAnalyzer {
     }
   }
 
-  MealDetection _toDetection(MealAnalysis analysis, String languageCode) {
+  MealDetection _toDetection(
+    MealAnalysis analysis,
+    String languageCode,
+    List<FoodSuggestion> references,
+  ) {
     final single = analysis.items.length == 1;
     final foods = <DetectedFood>[
       for (final item in analysis.items)
@@ -142,6 +157,7 @@ class VlmMealAnalyzer {
             languageCode: languageCode,
             // A lone item is the dish itself, so its name may identify it.
             dishName: single ? analysis.dish : null,
+            references: references,
           ),
         ),
     ];
